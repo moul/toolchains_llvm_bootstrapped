@@ -1,0 +1,341 @@
+load(":targets.bzl", "atomic_helper_cc_library")
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "absvdi2.c",
+        "absvsi2.c",
+        "absvti2.c",
+        "adddf3.c",
+        "addsf3.c",
+        "addvdi3.c",
+        "addvsi3.c",
+        "addvti3.c",
+        "apple_versioning.c",
+        "ashldi3.c",
+        "ashlti3.c",
+        "ashrdi3.c",
+        "ashrti3.c",
+        "bswapdi2.c",
+        "bswapsi2.c",
+        "clzdi2.c",
+        "clzsi2.c",
+        "clzti2.c",
+        "cmpdi2.c",
+        "cmpti2.c",
+        "comparedf2.c",
+        "comparesf2.c",
+        "ctzdi2.c",
+        "ctzsi2.c",
+        "ctzti2.c",
+        "divdc3.c",
+        "divdf3.c",
+        "divdi3.c",
+        "divmoddi4.c",
+        "divmodsi4.c",
+        "divmodti4.c",
+        "divsc3.c",
+        "divsf3.c",
+        "divsi3.c",
+        "divti3.c",
+        "extendsfdf2.c",
+        "extendhfsf2.c",
+        "ffsdi2.c",
+        "ffssi2.c",
+        "ffsti2.c",
+        "fixdfdi.c",
+        "fixdfsi.c",
+        "fixdfti.c",
+        "fixsfdi.c",
+        "fixsfsi.c",
+        "fixsfti.c",
+        "fixunsdfdi.c",
+        "fixunsdfsi.c",
+        "fixunsdfti.c",
+        "fixunssfdi.c",
+        "fixunssfsi.c",
+        "fixunssfti.c",
+        "floatdidf.c",
+        "floatdisf.c",
+        "floatsidf.c",
+        "floatsisf.c",
+        "floattidf.c",
+        "floattisf.c",
+        "floatundidf.c",
+        "floatundisf.c",
+        "floatunsidf.c",
+        "floatunsisf.c",
+        "floatuntidf.c",
+        "floatuntisf.c",
+        # "fp_mode.c",
+        "int_util.c",
+        "lshrdi3.c",
+        "lshrti3.c",
+        "moddi3.c",
+        "modsi3.c",
+        "modti3.c",
+        "muldc3.c",
+        "muldf3.c",
+        "muldi3.c",
+        "mulodi4.c",
+        "mulosi4.c",
+        "muloti4.c",
+        "mulsc3.c",
+        "mulsf3.c",
+        "multi3.c",
+        "mulvdi3.c",
+        "mulvsi3.c",
+        "mulvti3.c",
+        "negdf2.c",
+        "negdi2.c",
+        "negsf2.c",
+        "negti2.c",
+        "negvdi2.c",
+        "negvsi2.c",
+        "negvti2.c",
+        "os_version_check.c",
+        "paritydi2.c",
+        "paritysi2.c",
+        "parityti2.c",
+        "popcountdi2.c",
+        "popcountsi2.c",
+        "popcountti2.c",
+        "powidf2.c",
+        "powisf2.c",
+        "subdf3.c",
+        "subsf3.c",
+        "subvdi3.c",
+        "subvsi3.c",
+        "subvti3.c",
+        "trampoline_setup.c",
+        "truncdfhf2.c",
+        "truncdfsf2.c",
+        "truncsfhf2.c",
+        "ucmpdi2.c",
+        "ucmpti2.c",
+        "udivdi3.c",
+        "udivmoddi4.c",
+        "udivmodsi4.c",
+        "udivmodti4.c",
+        "udivsi3.c",
+        "udivti3.c",
+        "umoddi3.c",
+        "umodsi3.c",
+        "umodti3.c",
+
+        # Not Fuchsia and not a bare-metal build.
+        "emutls.c",
+        "enable_execute_stack.c",
+        "eprintf.c",
+
+        # Not sure whether we want atomic in this or separately.
+        "atomic.c",
+
+        # Not sure whether this is for libunwind or gcc_s. gotta check.
+        "gcc_personality_v0.c",
+
+        # Not Fuchsia.
+        "clear_cache.c",
+    ],
+)
+
+filegroup(
+    name = "generic_tf_sources",
+    srcs = [
+        "addtf3.c",
+        "comparetf2.c",
+        "divtc3.c",
+        "divtf3.c",
+        "extenddftf2.c",
+        "extendhftf2.c",
+        "extendsftf2.c",
+        "fixtfdi.c",
+        "fixtfsi.c",
+        "fixtfti.c",
+        "fixunstfdi.c",
+        "fixunstfsi.c",
+        "fixunstfti.c",
+        "floatditf.c",
+        "floatsitf.c",
+        "floattitf.c",
+        "floatunditf.c",
+        "floatunsitf.c",
+        "floatuntitf.c",
+        "multc3.c",
+        "multf3.c",
+        "powitf2.c",
+        "subtf3.c",
+        "trunctfdf2.c",
+        "trunctfhf2.c",
+        "trunctfsf2.c",
+    ],
+)
+
+filegroup(
+    name = "x86_arch_sources",
+    srcs = [
+        "cpu_model/x86.c",
+        "i386/fp_mode.c", #if (NOT MSVC)
+    ],
+)
+
+filegroup(
+    name = "x86_80_bit_sources",
+    srcs = [
+        "divxc3.c",
+        "fixxfdi.c",
+        "fixxfti.c",
+        "fixunsxfdi.c",
+        "fixunsxfsi.c",
+        "fixunsxfti.c",
+        "floatdixf.c", # if not android
+        "floattixf.c",
+        "floatundixf.c", # if not win32
+        "floatuntixf.c",
+        "mulxc3.c",
+        "powixf2.c",
+    ],
+)
+
+filegroup(
+    name = "x86_64_sources",
+    srcs = [
+        ":srcs",
+        ":generic_tf_sources",
+        ":x86_arch_sources",
+        ":x86_80_bit_sources",
+
+        "x86_64/floatdidf.c",
+        "x86_64/floatdisf.c",
+        "x86_64/floatundidf.S", # if not WIN32
+        "x86_64/floatundisf.S", # if not WIN32
+        "x86_64/floatdixf.c",  # if not ANDROID
+        "x86_64/floatundixf.S",  # if not ANDROID and not WIN32
+
+        # "x86_64/chkstk.S" # if WIN32
+    ],
+)
+
+filegroup(
+    name = "aarch64_arch_sources",
+    srcs = [
+        "cpu_model/aarch64.c",
+        "aarch64/fp_mode.c",
+    ],
+)
+
+filegroup(
+    name = "aarch64_sources",
+    srcs = [
+        ":srcs",
+        ":generic_tf_sources",
+        ":aarch64_arch_sources",
+        # "aarch64/chkstk.S", # if MINGW
+    ],
+)
+
+aarch64_atomic_deps = [
+    atomic_helper_cc_library(
+        name = "atomic_helper_{}_{}_{}".format(pat, size, model),
+        pat = pat,
+        size = size,
+        model = model,
+    )
+    for pat in ["cas", "swp", "ldadd", "ldclr", "ldeor", "ldset"]
+    for size in [1, 2, 4, 8, 16]
+    for model in [1, 2, 3, 4, 5]
+    if pat == "cas" or size != 16
+]
+
+cc_library(
+    name = "aarch64_atomic",
+    deps = aarch64_atomic_deps,
+)
+
+cc_library(
+    name = "builtins",
+    # srcs = [":x86_64_sources"],
+    srcs = [":aarch64_sources"],
+    copts = [
+        "-nostdinc",
+    ],
+    textual_hdrs = [
+        "fp_add_impl.inc",
+        "fp_compare_impl.inc",
+        "fp_div_impl.inc",
+        "fp_extend_impl.inc",
+        "fp_fixint_impl.inc",
+        "fp_fixuint_impl.inc",
+        "fp_mul_impl.inc",
+        "fp_trunc_impl.inc",
+        "int_div_impl.inc",
+        "int_mulo_impl.inc",
+        "int_mulv_impl.inc",
+        "int_to_fp_impl.inc",
+        "cpu_model/cpu_model.h",
+
+        # AArch64
+        "cpu_model/AArch64CPUFeatures.inc",
+        "cpu_model/aarch64/hwcap.inc",
+        "cpu_model/aarch64/fmv/mrs.inc",
+        "cpu_model/aarch64/fmv/getauxval.inc",
+        # "cpu_model/aarch64/lse_atomics/atomic_helper.inc",
+        "cpu_model/aarch64/lse_atomics/getauxval.inc",
+    ],
+    hdrs = [
+        "assembly.h",
+        "fp_extend.h",
+        "fp_lib.h",
+        "fp_mode.h",
+        "fp_trunc.h",
+        "int_endianness.h",
+        "int_lib.h",
+        "int_math.h",
+        "int_to_fp.h",
+        "int_types.h",
+        "int_util.h",
+
+        # AArch64
+        "cpu_model/aarch64.h",
+    ],
+    features = ["-default_compile_flags"],
+    linkstatic = True,
+    deps = [
+        "//lib:builtin_headers",
+        "//lib:c",
+
+        # AArch64
+        ":aarch64_atomic",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_static_library(
+    name = "builtins.static",
+    deps = [
+        ":builtins",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "crtbegin",
+    srcs = ["crtbegin.c"],
+    defines = ["EH_USE_FRAME_REGISTRY"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "crtend",
+    srcs = ["crtend.c"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "crt",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":crtbegin",
+        ":crtend",
+    ],
+)

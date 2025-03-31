@@ -1,0 +1,1 @@
+#TODO: Remove this entirely as soon as rules_cc doesn't assume libtool is going to be used.

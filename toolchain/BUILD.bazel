@@ -1,0 +1,156 @@
+load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
+load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
+load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
+load("@rules_cc//cc/toolchains:feature_set.bzl", "cc_feature_set")
+load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
+
+licenses(["notice"])
+
+# This `select` happens under the target configuration. For macOS,
+# llvm-libtool-darwin should be used when creating static libraries even if the
+# exec platform is linux.
+alias(
+    name = "all_tools",
+    actual = select({
+        "@platforms//os:macos": ":macos_tools",
+        "//conditions:default": ":default_tools",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+COMMON_TOOLS = {
+    "@rules_cc//cc/toolchains/actions:assembly_actions": ":clang",
+    "@rules_cc//cc/toolchains/actions:c_compile": ":clang",
+    "@rules_cc//cc/toolchains/actions:cpp_compile_actions": ":clang++",
+    "@rules_cc//cc/toolchains/actions:link_actions": ":lld",
+    "@rules_cc//cc/toolchains/actions:objcopy_embed_data": ":llvm-objcopy",
+    "@rules_cc//cc/toolchains/actions:strip": ":llvm-strip",
+}
+
+cc_tool_map(
+    name = "default_tools",
+    tools = COMMON_TOOLS | {
+        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-ar",
+    },
+    visibility = ["//visibility:private"],
+)
+
+cc_tool_map(
+    name = "macos_tools",
+    tools = COMMON_TOOLS | {
+        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-libtool-darwin",
+    },
+    visibility = ["//visibility:private"],
+)
+
+cc_tool(
+    name = "clang",
+    src = "@static-toolchain-artifacts//:bin/clang",
+    # data = [
+    #     ":exec_platform_builtin_headers",
+    #     ":exec_platform_multicall_support_files",
+    # ],
+)
+
+cc_tool(
+    name = "clang++",
+    src = "@static-toolchain-artifacts//:bin/clang++",
+    # data = [
+    #     ":exec_platform_builtin_headers",
+    #     ":exec_platform_multicall_support_files",
+    # ],
+)
+
+cc_tool(
+    name = "lld",
+    src = "@static-toolchain-artifacts//:bin/ld.lld",
+    # data = [
+    #     ":exec_platform_linker_builtins",
+    #     ":exec_platform_multicall_support_files",
+    # ],
+)
+
+cc_tool(
+    name = "llvm-ar",
+    src = "@static-toolchain-artifacts//:bin/llvm-ar",
+    # data = [":exec_platform_multicall_support_files"],
+)
+
+cc_tool(
+    name = "llvm-libtool-darwin",
+    src = "@static-toolchain-artifacts//:bin/llvm-libtool-darwin",
+    # data = [":exec_platform_multicall_support_files"],
+)
+
+cc_tool(
+    name = "llvm-objcopy",
+    src = "@static-toolchain-artifacts//:bin/llvm-objcopy",
+    # data = [":exec_platform_multicall_support_files"],
+)
+
+cc_tool(
+    name = "llvm-strip",
+    src = "@static-toolchain-artifacts//:bin/llvm-strip",
+    # data = [":exec_platform_multicall_support_files"],
+)
+
+
+#################################
+#   Platform-specific aliases   #
+#################################
+
+# These aliases are used to reduce duplication of `select` statements throughout
+# this build file. The select statements in these aliases are evaluated under
+# the exec configuration.
+
+alias(
+    name = "exec_platform_builtin_headers",
+    actual = "@zig-srcs//:all_files",
+    visibility = ["//visibility:private"],
+)
+
+alias(
+    name = "exec_platform_multicall_support_files",
+    actual = "@zig-srcs//:all_files",
+    visibility = ["//visibility:private"],
+)
+
+alias(
+    name = "exec_platform_linker_builtins",
+    actual = "@zig-srcs//:all_files",
+    visibility = ["//visibility:private"],
+)
+
+##
+##
+##
+
+cc_args(
+    name = "pouet",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = ["$(AR)"],
+    data = ["README"],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain(
+    name = "xclang",
+    args = [
+        ":pouet",
+        # "//toolchain/args:no_absolute_paths_for_builtins",
+    ],
+    enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
+    known_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
+    tool_map = ":all_tools",
+    compiler = "clang",
+)
+
+toolchain(
+    name = "xclang_toolchain",
+    toolchain = ":xclang",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+    # exec_compatible_with = ["@platforms//os:{exec_os}", "@platforms//cpu:{exec_arch}"],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,377 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+cc_library(
+    name = "init",
+    copts = [
+        "-nostdinc",
+    ],
+    features = ["-default_compile_flags"],
+    srcs = ["libc/glibc/csu/init.c"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "abi_note",
+    srcs = [
+        "libc/glibc/csu/abi-note.S",
+    ],
+    copts = [
+        "-nostdinc",
+        "-Wa,--noexecstack",
+    ],
+    local_defines = [
+        "_LIBC_REENTRANT",
+        "MODULE_NAME=libc",
+        "TOP_NAMESPACE=glibc",
+        "ASSEMBLER",
+    ],
+    features = ["-default_compile_flags"],
+    hdrs = glob(["libc/glibc/**"]),
+    includes = [
+        "libc/glibc/csu",
+
+        # COMMON
+        # "libc/glibc/include",
+        # "libc/glibc/sysdeps/unix/sysv/linux/x86_64",
+        # "libc/glibc/sysdeps/x86_64",
+        # "libc/glibc/sysdeps/unix/sysv/linux/generic",
+        # "libc/glibc/sysdeps/unix/sysv/linux/include",
+        # "libc/glibc/sysdeps/unix/sysv/linux",
+        # # "libc/glibc/sysdeps/nptl",
+        # "libc/glibc/sysdeps/pthread",
+        # "libc/glibc/sysdeps/unix/sysv",
+        # "libc/glibc/sysdeps/unix/x86_64",
+        # "libc/glibc/sysdeps/unix",
+        # "libc/glibc/sysdeps/x86_64",
+        # "libc/glibc/sysdeps/generic",
+
+
+        "libc/glibc/include",
+        "libc/glibc/sysdeps/unix/sysv/linux/aarch64",
+        "libc/glibc/sysdeps/aarch64",
+        "libc/glibc/sysdeps/unix/sysv/linux/generic",
+        "libc/glibc/sysdeps/unix/sysv/linux/include",
+        "libc/glibc/sysdeps/unix/sysv/linux",
+        # "libc/glibc/sysdeps/nptl",
+        "libc/glibc/sysdeps/pthread",
+        "libc/glibc/sysdeps/unix/sysv",
+        "libc/glibc/sysdeps/unix/aarch64",
+        "libc/glibc/sysdeps/unix",
+        "libc/glibc/sysdeps/aarch64",
+        "libc/glibc/sysdeps/generic",
+
+        "libc/glibc",
+    ],
+    implementation_deps = [":c"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "start",
+    # srcs = ["libc/glibc/sysdeps/x86_64/start.S"],
+    srcs = ["libc/glibc/sysdeps/aarch64/start.S"],
+    copts = [
+        "-nostdinc",
+        "-Wno-nonportable-include-path",
+        "-Wa,--noexecstack",
+        "-include",
+        "$(location libc/glibc/include/libc-modules.h)",
+        "-DMODULE_NAME=libc",
+        "-include",
+        "$(location libc/glibc/include/libc-symbols.h)",
+    ],
+    features = ["-default_compile_flags"],
+    local_defines = [
+        "_LIBC_REENTRANT",
+        "MODULE_NAME=libc",
+        "PIC",
+        "SHARED",
+        "TOP_NAMESPACE=glibc",
+        "ASSEMBLER",
+    ],
+    additional_compiler_inputs = [
+        "libc/glibc/include/libc-modules.h",
+        "libc/glibc/include/libc-symbols.h",
+    ],
+    hdrs = glob(["libc/glibc/**"]),
+
+    # hdrs = glob([
+    #     "libc/glibc/**/*.h",
+    # ], exclude = [
+    #     "libc/glibc/sysdeps/**",
+    #     "libc/glibc/include/**",
+    # ]) + glob([
+    #     "libc/glibc/include/*.h",
+    #     "libc/glibc/include/*.h",
+    # ])
+    # + glob(
+    #     [
+    #         "libc/glibc/sysdeps/unix/sysv/linux/x86_64/**",
+    #         "libc/glibc/sysdeps/x86_64/**",
+    #         "libc/glibc/sysdeps/unix/sysv/linux/generic/**",
+    #         "libc/glibc/sysdeps/unix/sysv/linux/include/**",
+    #     ],
+    #     allow_empty = True
+    # ) + glob(
+    #     [
+    #         "libc/glibc/sysdeps/unix/sysv/linux/*",
+    #         "libc/glibc/sysdeps/unix/sysv/linux/bits/**",
+    #         "libc/glibc/sysdeps/unix/sysv/linux/sys/**",
+    #     ],
+    #     allow_empty = True
+    # )
+    # + glob([
+    #         # "libc/glibc/sysdeps/nptl/**",
+    #         "libc/glibc/sysdeps/pthread/**",
+    #         "libc/glibc/sysdeps/unix/x86_64/**",
+    #         # "libc/glibc/sysdeps/x86_64/**",
+    #         "libc/glibc/sysdeps/generic/**",
+    #     ],
+    #     allow_empty = True
+    # ),
+    includes = [
+        # "libc/glibc/include",
+        # "libc/glibc/sysdeps/unix/sysv/linux/x86_64",
+        # "libc/glibc/sysdeps/x86_64",
+        # "libc/glibc/sysdeps/unix/sysv/linux/generic",
+        # "libc/glibc/sysdeps/unix/sysv/linux/include",
+        # "libc/glibc/sysdeps/unix/sysv/linux",
+        # # "libc/glibc/sysdeps/nptl",
+        # "libc/glibc/sysdeps/pthread",
+        # "libc/glibc/sysdeps/unix/sysv",
+        # "libc/glibc/sysdeps/unix/x86_64",
+        # "libc/glibc/sysdeps/unix",
+        # "libc/glibc/sysdeps/x86_64",
+        # "libc/glibc/sysdeps/generic",
+
+        "libc/glibc/include",
+        "libc/glibc/sysdeps/unix/sysv/linux/aarch64",
+        "libc/glibc/sysdeps/aarch64",
+        "libc/glibc/sysdeps/unix/sysv/linux/generic",
+        "libc/glibc/sysdeps/unix/sysv/linux/include",
+        "libc/glibc/sysdeps/unix/sysv/linux",
+        # "libc/glibc/sysdeps/nptl",
+        "libc/glibc/sysdeps/pthread",
+        "libc/glibc/sysdeps/unix/sysv",
+        "libc/glibc/sysdeps/unix/aarch64",
+        "libc/glibc/sysdeps/unix",
+        "libc/glibc/sysdeps/aarch64",
+        "libc/glibc/sysdeps/generic",
+
+        "libc/glibc",
+    ],
+    implementation_deps = [
+        ":c",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "Scrt1",
+    deps = [":start", ":init", ":abi_note"],
+    visibility = ["//visibility:public"],
+)
+
+cc_static_library(
+    name = "Scrt1.static",
+    deps = [":Scrt1"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "builtin_headers",
+    includes = [
+        "include",
+    ],
+    hdrs = glob(["include/**"]),
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "c",
+    # order matters
+    includes = [
+        # "libc/include/x86_64-linux-gnu",
+        # "libc/include/generic-glibc",
+        # "libc/include/x86-linux-any",
+        # "libc/include/any-linux-any",
+
+        "libc/include/aarch64-linux-gnu",
+        "libc/include/generic-glibc",
+        "libc/include/aarch64-linux-any",
+        "libc/include/any-linux-any",
+    ],
+    hdrs = glob([
+        # "libc/include/x86_64-linux-gnu/**",
+        # "libc/include/generic-glibc/**",
+        # "libc/include/x86-linux-any/**",
+        # "libc/include/any-linux-any/**",
+
+        "libc/include/aarch64-linux-gnu/**",
+        "libc/include/generic-glibc/**",
+        "libc/include/aarch64-linux-any/**",
+        "libc/include/any-linux-any/**",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "c++",
+    defines = [
+        "_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
+        # "_LIBCPP_HAS_NO_THREADS",
+        "NDEBUG",
+        "_LIBCPP_BUILDING_LIBRARY",
+        "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+        "_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER",
+        "_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
+        "LIBCXX_BUILDING_LIBCXXABI",
+        "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
+        "_LIBCPP_PSTL_BACKEND_SERIAL",
+        "_LIBCPP_ABI_VERSION=1",
+        "_LIBCPP_ABI_NAMESPACE=__1",
+    ],
+    features = ["-default_compile_flags"],
+    copts = [
+        "-nostdinc",
+        "-std=c++23",
+        "-Wno-user-defined-literals",
+        "-Wno-covered-switch-default",
+        "-Wno-suggest-override",
+
+        # "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
+        # # "-D_LIBCPP_HAS_NO_THREADS",
+        # "-DNDEBUG",
+        # "-D_LIBCPP_BUILDING_LIBRARY",
+        # "-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+        # "-D_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER",
+        # "-D_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
+        # "-DLIBCXX_BUILDING_LIBCXXABI",
+        # "-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
+        # "-D_LIBCPP_PSTL_BACKEND_SERIAL",
+        "-fvisibility=hidden",
+        "-fvisibility-inlines-hidden",
+        "-faligned-allocation",
+        # "-D_LIBCPP_ABI_VERSION=1",
+        # "-D_LIBCPP_ABI_NAMESPACE=__1",
+    ],
+    includes = [
+        "libcxx/include",
+        "libcxx/src",
+        "libcxxabi/include",
+        "libcxxabi/src",
+
+        # "libc/include/x86_64-linux-gnu",
+        # "libc/include/generic-glibc",
+        # "libc/include/x86-linux-any",  # std.zig.target.osArchName
+        # "libc/include/any-linux-any",
+
+        "libc/include/aarch64-linux-gnu",
+        "libc/include/generic-glibc",
+        "libc/include/aarch64-linux-any",
+        "libc/include/any-linux-any",
+
+        "include"
+    ],
+    hdrs = glob([
+        "libcxx/include/**",
+        "libcxxabi/include/**",
+
+        # "libc/include/x86_64-linux-gnu/**",
+        # "libc/include/generic-glibc/**",
+        # "libc/include/x86-linux-any/**",
+        # "libc/include/any-linux-any/**",
+
+        "libc/include/aarch64-linux-gnu/**",
+        "libc/include/generic-glibc/**",
+        "libc/include/aarch64-linux-any/**",
+        "libc/include/any-linux-any/**",
+
+        "include/**",
+    ]),
+    textual_hdrs = glob([
+        "libcxx/src/**/*.h",
+        "libcxx/src/**/*.ipp",
+        "libcxxabi/src/**/*.h",
+        "libcxxabi/src/**/*.def",
+    ]),
+    srcs = [
+        "libcxx/src/algorithm.cpp",
+        "libcxx/src/any.cpp",
+        "libcxx/src/bind.cpp",
+        "libcxx/src/call_once.cpp",
+        "libcxx/src/charconv.cpp",
+        "libcxx/src/chrono.cpp",
+        "libcxx/src/error_category.cpp",
+        "libcxx/src/exception.cpp",
+        "libcxx/src/expected.cpp",
+        "libcxx/src/filesystem/directory_entry.cpp",
+        "libcxx/src/filesystem/directory_iterator.cpp",
+        "libcxx/src/filesystem/filesystem_clock.cpp",
+        "libcxx/src/filesystem/filesystem_error.cpp",
+        # omit int128_builtins.cpp because it provides __muloti4 which is already provided
+        # by compiler_rt and crashes on Windows x86_64: https://github.com/ziglang/zig/issues/10719
+        # "libcxx/src/filesystem/int128_builtins.cpp",
+        "libcxx/src/filesystem/operations.cpp",
+        "libcxx/src/filesystem/path.cpp",
+        "libcxx/src/fstream.cpp",
+        "libcxx/src/functional.cpp",
+        "libcxx/src/hash.cpp",
+        "libcxx/src/ios.cpp",
+        "libcxx/src/ios.instantiations.cpp",
+        "libcxx/src/iostream.cpp",
+        "libcxx/src/legacy_pointer_safety.cpp",
+        "libcxx/src/locale.cpp",
+        "libcxx/src/memory.cpp",
+        "libcxx/src/memory_resource.cpp",
+        "libcxx/src/new.cpp",
+        "libcxx/src/new_handler.cpp",
+        "libcxx/src/new_helpers.cpp",
+        "libcxx/src/optional.cpp",
+        "libcxx/src/ostream.cpp",
+        "libcxx/src/print.cpp",
+        # "libcxx/src/pstl/libdispatch.cpp",
+        "libcxx/src/random.cpp",
+        "libcxx/src/random_shuffle.cpp",
+        "libcxx/src/regex.cpp",
+        "libcxx/src/ryu/d2fixed.cpp",
+        "libcxx/src/ryu/d2s.cpp",
+        "libcxx/src/ryu/f2s.cpp",
+        "libcxx/src/stdexcept.cpp",
+        "libcxx/src/string.cpp",
+        "libcxx/src/strstream.cpp",
+        # "libcxx/src/support/ibm/mbsnrtowcs.cpp",
+        # "libcxx/src/support/ibm/wcsnrtombs.cpp",
+        # "libcxx/src/support/ibm/xlocale_zos.cpp",
+        # "libcxx/src/support/win32/locale_win32.cpp",
+        # "libcxx/src/support/win32/support.cpp",
+        "libcxx/src/system_error.cpp",
+        "libcxx/src/typeinfo.cpp",
+        "libcxx/src/valarray.cpp",
+        "libcxx/src/variant.cpp",
+        "libcxx/src/vector.cpp",
+        "libcxx/src/verbose_abort.cpp",
+    ] + [
+        "libcxxabi/src/abort_message.cpp",
+        "libcxxabi/src/cxa_aux_runtime.cpp",
+        "libcxxabi/src/cxa_default_handlers.cpp",
+        "libcxxabi/src/cxa_demangle.cpp",
+        "libcxxabi/src/cxa_exception.cpp",
+        "libcxxabi/src/cxa_exception_storage.cpp",
+        "libcxxabi/src/cxa_guard.cpp",
+        "libcxxabi/src/cxa_handlers.cpp",
+        # "libcxxabi/src/cxa_noexception.cpp",
+        "libcxxabi/src/cxa_personality.cpp",
+        "libcxxabi/src/cxa_thread_atexit.cpp",
+        "libcxxabi/src/cxa_vector.cpp",
+        "libcxxabi/src/cxa_virtual.cpp",
+        "libcxxabi/src/fallback_malloc.cpp",
+        "libcxxabi/src/private_typeinfo.cpp",
+        "libcxxabi/src/stdlib_exception.cpp",
+        "libcxxabi/src/stdlib_new_delete.cpp",
+        "libcxxabi/src/stdlib_stdexcept.cpp",
+        "libcxxabi/src/stdlib_typeinfo.cpp",
+    ],
+    # deps = [":c"],
+    visibility = ["//visibility:public"],
+)

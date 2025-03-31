@@ -1,0 +1,631 @@
+# TODO
+
+https://github.com/bazelbuild/rules_cc/blob/main/docs/toolchain_api.md
+
+https://github.com/CACI-International/cpp-toolchain/blob/74efb5bc636f48db86652f0cfdb7d46af100e51f/bazel/toolchain.bzl#L31
+
+https://github.com/cortecs-lang/cortecs-cc-toolchain/blob/78792fba9eec75bfac14a0cd20cb0e4973175871/sysroot/alpine/BUILD
+
+https://github.com/lukasoyen/bazel_linux_packages/blob/c50a9bf22122a507d2bb5e348231413a05e6d90f/e2e/toolchains/gcc/BUILD.bazel
+
+https://github.com/lowRISC/opentitan/blob/6d29bb86581892c43d3dea8856b275dc3a40c575/toolchain/README.md
+
+https://cs.opensource.google/pigweed/pigweed/+/main:pw_toolchain/cc/args/BUILD.bazel
+
+
+Support Objective C and MacOS frameworks inclusion
+
+
+## default_compile_flags:
+### macos
+
+    unfiltered_compile_flags_feature = feature(
+        name = "unfiltered_compile_flags",
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.linkstamp_compile,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-no-canonical-prefixes",
+                            "-Wno-builtin-macro-redefined",
+                            "-D__DATE__=\"redacted\"",
+                            "-D__TIMESTAMP__=\"redacted\"",
+                            "-D__TIME__=\"redacted\"",
+                            "-target",
+                            target_system_name,
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+  default_compile_flags_feature = feature(
+        name = "default_compile_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.linkstamp_compile,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.lto_backend,
+                    ACTION_NAMES.clif_match,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-D_FORTIFY_SOURCE=1",
+                        ],
+                    ),
+                ],
+                with_features = [with_feature_set(not_features = ["asan"])],
+            ),
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.linkstamp_compile,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.lto_backend,
+                    ACTION_NAMES.clif_match,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fstack-protector",
+                            "-fcolor-diagnostics",
+                            "-Wall",
+                            "-Wthread-safety",
+                            "-Wself-assign",
+                            "-fno-omit-frame-pointer",
+                        ],
+                    ),
+                ],
+            ),
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.linkstamp_compile,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.lto_backend,
+                    ACTION_NAMES.clif_match,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                ],
+                flag_groups = [flag_group(flags = ["-O0", "-DDEBUG"])],
+                with_features = [with_feature_set(features = ["fastbuild"])],
+            ),
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.linkstamp_compile,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.lto_backend,
+                    ACTION_NAMES.clif_match,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-g0",
+                            "-O2",
+                            "-DNDEBUG",
+                        ],
+                    ),
+                ],
+                with_features = [with_feature_set(features = ["opt"])],
+            ),
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.linkstamp_compile,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.lto_backend,
+                    ACTION_NAMES.clif_match,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                ],
+                flag_groups = [flag_group(flags = ["-g"])],
+                with_features = [with_feature_set(features = ["dbg"])],
+            ),
+            flag_set(
+                actions = [
+                    ACTION_NAMES.linkstamp_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.lto_backend,
+                    ACTION_NAMES.clif_match,
+                ],
+                flag_groups = [flag_group(flags = ["-std=c++14"])],
+            ),
+        ],
+    )
+
+
+    default_link_flags_feature = feature(
+        name = "default_link_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = _DYNAMIC_LINK_ACTIONS,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-no-canonical-prefixes",
+                            "-target",
+                            target_system_name,
+                            "-fobjc-link-runtime",
+                        ],
+                    ),
+                ],
+            ),
+            flag_set(
+                actions = _DYNAMIC_LINK_ACTIONS,
+                flag_groups = [flag_group(flags = ["-dead_strip"])],
+                with_features = [with_feature_set(features = ["opt"])],
+            ),
+        ],
+    )
+
+
+    no_deduplicate_feature = feature(
+        name = "no_deduplicate",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = _DYNAMIC_LINK_ACTIONS,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-Xlinker",
+                            "-no_deduplicate",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(not_features = ["opt"]),
+                ],
+            ),
+        ],
+    )
+
+
+    dead_strip_feature = feature(
+        name = "dead_strip",
+        flag_sets = [
+            flag_set(
+                actions = _DYNAMIC_LINK_ACTIONS,
+                flag_groups = [flag_group(flags = ["-dead_strip"])],
+            ),
+        ],
+    )
+
+    headerpad_feature = feature(
+        name = "headerpad",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = _DYNAMIC_LINK_ACTIONS,
+                flag_groups = [flag_group(flags = ["-headerpad_max_install_names"])],
+            ),
+        ],
+    )
+
+## linux
+
+
+            "%{compile_flags}": get_starlark_list(
+                [
+                    "-fstack-protector",
+                    # All warnings are enabled.
+                    "-Wall",
+                    # Enable a few more warnings that aren't part of -Wall.
+                ] + ((
+                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wthread-safety") +
+                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wself-assign")
+                )) + (
+                    # Disable problematic warnings.
+                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wunused-but-set-parameter") +
+                    # has false positives
+                    _add_compiler_option_if_supported(repository_ctx, cc, "-Wno-free-nonheap-object") +
+                    # Enable coloring even if there's no attached terminal. Bazel removes the
+                    # escape sequences if --nocolor is specified.
+                    _add_compiler_option_if_supported(repository_ctx, cc, "-fcolor-diagnostics")
+                ) + [
+                    # Keep stack frames for debugging, even in opt mode.
+                    "-fno-omit-frame-pointer",
+                ],
+            ),
+
+
+            "%{opt_compile_flags}": get_starlark_list(
+                [
+                    # No debug symbols.
+                    # Maybe we should enable https://gcc.gnu.org/wiki/DebugFission for opt or
+                    # even generally? However, that can't happen here, as it requires special
+                    # handling in Bazel.
+                    "-g0",
+
+                    # Conservative choice for -O
+                    # -O3 can increase binary size and even slow down the resulting binaries.
+                    # Profile first and / or use FDO if you need better performance than this.
+                    "-O2",
+
+                    # Security hardening on by default.
+                    # Conservative choice; -D_FORTIFY_SOURCE=2 may be unsafe in some cases.
+                    "-D_FORTIFY_SOURCE=1",
+
+                    # Disable assertions
+                    "-DNDEBUG",
+
+                    # Removal of unused code and data at link time (can this increase binary
+                    # size in some cases?).
+                    "-ffunction-sections",
+                    "-fdata-sections",
+                ],
+            ),
+
+
+            "%{opt_link_flags}": get_starlark_list(
+                ["-Wl,-dead_strip"] if darwin else _add_linker_option_if_supported(
+                    repository_ctx,
+                    cc,
+                    force_linker_flags,
+                    "-Wl,--gc-sections",
+                    "-gc-sections",
+                ),
+            ),
+
+
+            "%{unfiltered_compile_flags}": get_starlark_list(
+                _get_no_canonical_prefixes_opt(repository_ctx, cc) + [
+                    # Make C++ compilation deterministic. Use linkstamping instead of these
+                    # compiler symbols.
+                    "-Wno-builtin-macro-redefined",
+                    "-D__DATE__=\\\"redacted\\\"",
+                    "-D__TIMESTAMP__=\\\"redacted\\\"",
+                    "-D__TIME__=\\\"redacted\\\"",
+                ],
+            ),
+            
+
+            "%{link_flags}": get_starlark_list(force_linker_flags + (
+                ["-Wl,-no-as-needed"] if is_as_needed_supported else []
+            ) + _add_linker_option_if_supported(
+                repository_ctx,
+                cc,
+                force_linker_flags,
+                "-Wl,-z,relro,-z,now",
+                "-z",
+            ) + (
+                [
+                    "-headerpad_max_install_names",
+                ] if darwin else [
+                    # Gold linker only? Can we enable this by default?
+                    # "-Wl,--warn-execstack",
+                    # "-Wl,--detect-odr-violations"
+                ] + _add_compiler_option_if_supported(
+                    # Have gcc return the exit code from ld.
+                    repository_ctx,
+                    cc,
+                    "-pass-exit-codes",
+                )
+            ) + link_opts),
+
+                extra_flags_per_feature = {}
+    if is_clang:
+        # Only supported by LLVM 14 and later, but required with C++20 and
+        # layering_check as C++ modules are the default.
+        # https://github.com/llvm/llvm-project/commit/0556138624edf48621dd49a463dbe12e7101f17d
+        result = repository_ctx.execute([
+            cc,
+            "-Xclang",
+            "-fno-cxx-modules",
+            "-o",
+            "/dev/null",
+            "-c",
+            str(repository_ctx.path("tools/cpp/empty.cc")),
+        ])
+        if "-fno-cxx-modules" not in result.stderr:
+            extra_flags_per_feature["use_module_maps"] = ["-Xclang", "-fno-cxx-modules"]
+
+### ALL
+
+
+    default_link_flags_feature = None
+    if (ctx.attr.cpu == "local"):
+        default_link_flags_feature = feature(
+            name = "default_link_flags",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = all_link_actions,
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-lstdc++",
+                                "-Wl,-z,relro,-z,now",
+                                "-no-canonical-prefixes",
+                                "-pass-exit-codes",
+                            ],
+                        ),
+                    ],
+                ),
+                flag_set(
+                    actions = all_link_actions,
+                    flag_groups = [flag_group(flags = ["-Wl,--gc-sections"])],
+                    with_features = [with_feature_set(features = ["opt"])],
+                ),
+            ],
+        )
+    elif (ctx.attr.cpu == "freebsd"):
+        default_link_flags_feature = feature(
+            name = "default_link_flags",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = all_link_actions,
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-lstdc++",
+                                "-Wl,-z,relro,-z,now",
+                                "-no-canonical-prefixes",
+                            ],
+                        ),
+                    ],
+                ),
+                flag_set(
+                    actions = all_link_actions,
+                    flag_groups = [flag_group(flags = ["-Wl,--gc-sections"])],
+                    with_features = [with_feature_set(features = ["opt"])],
+                ),
+            ],
+        )
+    elif (ctx.attr.cpu == "darwin"):
+        default_link_flags_feature = feature(
+            name = "default_link_flags",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = all_link_actions,
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-lstdc++",
+                                "-undefined",
+                                "dynamic_lookup",
+                                "-headerpad_max_install_names",
+                                "-no-canonical-prefixes",
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        )
+
+
+    default_compile_flags_feature = None
+    if (ctx.attr.cpu == "darwin"):
+        default_compile_flags_feature = feature(
+            name = "default_compile_flags",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        _ASSEMBLE_ACTION_NAME,
+                        _PREPROCESS_ASSEMBLE_ACTION_NAME,
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _C_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-D_FORTIFY_SOURCE=1",
+                                "-fstack-protector",
+                                "-fcolor-diagnostics",
+                                "-Wall",
+                                "-Wthread-safety",
+                                "-Wself-assign",
+                                "-fno-omit-frame-pointer",
+                            ],
+                        ),
+                    ],
+                ),
+                flag_set(
+                    actions = [
+                        _ASSEMBLE_ACTION_NAME,
+                        _PREPROCESS_ASSEMBLE_ACTION_NAME,
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _C_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [flag_group(flags = ["-g"])],
+                    with_features = [with_feature_set(features = ["dbg"])],
+                ),
+                flag_set(
+                    actions = [
+                        _ASSEMBLE_ACTION_NAME,
+                        _PREPROCESS_ASSEMBLE_ACTION_NAME,
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _C_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-g0",
+                                "-O2",
+                                "-DNDEBUG",
+                                "-ffunction-sections",
+                                "-fdata-sections",
+                            ],
+                        ),
+                    ],
+                    with_features = [with_feature_set(features = ["opt"])],
+                ),
+                flag_set(
+                    actions = [
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [flag_group(flags = ["-std=c++0x"])],
+                ),
+            ],
+        )
+    elif (ctx.attr.cpu == "local"):
+        default_compile_flags_feature = feature(
+            name = "default_compile_flags",
+            enabled = True,
+            flag_sets = [
+                flag_set(
+                    actions = [
+                        _ASSEMBLE_ACTION_NAME,
+                        _PREPROCESS_ASSEMBLE_ACTION_NAME,
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _C_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-U_FORTIFY_SOURCE",
+                                "-D_FORTIFY_SOURCE=1",
+                                "-fstack-protector",
+                                "-Wall",
+                                "-Wunused-but-set-parameter",
+                                "-Wno-free-nonheap-object",
+                                "-fno-omit-frame-pointer",
+                            ],
+                        ),
+                    ],
+                ),
+                flag_set(
+                    actions = [
+                        _ASSEMBLE_ACTION_NAME,
+                        _PREPROCESS_ASSEMBLE_ACTION_NAME,
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _C_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [flag_group(flags = ["-g"])],
+                    with_features = [with_feature_set(features = ["dbg"])],
+                ),
+                flag_set(
+                    actions = [
+                        _ASSEMBLE_ACTION_NAME,
+                        _PREPROCESS_ASSEMBLE_ACTION_NAME,
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _C_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [
+                        flag_group(
+                            flags = [
+                                "-g0",
+                                "-O2",
+                                "-DNDEBUG",
+                                "-ffunction-sections",
+                                "-fdata-sections",
+                            ],
+                        ),
+                    ],
+                    with_features = [with_feature_set(features = ["opt"])],
+                ),
+                flag_set(
+                    actions = [
+                        _LINKSTAMP_COMPILE_ACTION_NAME,
+                        _CPP_COMPILE_ACTION_NAME,
+                        _CPP_HEADER_PARSING_ACTION_NAME,
+                        _CPP_MODULE_COMPILE_ACTION_NAME,
+                        _CPP_MODULE_CODEGEN_ACTION_NAME,
+                        _LTO_BACKEND_ACTION_NAME,
+                        _CLIF_MATCH_ACTION_NAME,
+                    ],
+                    flag_groups = [flag_group(flags = ["-std=c++0x"])],
+                ),
+            ],
+        )
+
+
+# Other Resources
+
+https://github.com/envoyproxy/envoy/blob/main/bazel/rbe/toolchains/configs/linux/clang/cc/cc_toolchain_config.bzl
