@@ -188,30 +188,45 @@ cc_library(
 )
 
 cc_library(
+    name = "linux_system_headers",
+    hdrs = glob([
+        # LibC headers
+        "libc/include/aarch64-linux-any/**",  # std.zig.target.osArchName
+        "libc/include/any-linux-any/**",
+    ]),
+    includes = [
+        # Linux System Headers
+        "libc/include/aarch64-linux-any",  # std.zig.target.osArchName
+        "libc/include/any-linux-any",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "c",
     # order matters
     includes = [
         # "libc/include/x86_64-linux-gnu",
         # "libc/include/generic-glibc",
-        # "libc/include/x86-linux-any",
+        # "libc/include/x86-linux-any",     # std.zig.target.osArchName
         # "libc/include/any-linux-any",
 
+        # LibC headers
         "libc/include/aarch64-linux-gnu",
         "libc/include/generic-glibc",
-        "libc/include/aarch64-linux-any",
-        "libc/include/any-linux-any",
     ],
     hdrs = glob([
         # "libc/include/x86_64-linux-gnu/**",
         # "libc/include/generic-glibc/**",
-        # "libc/include/x86-linux-any/**",
+        # "libc/include/x86-linux-any/**",   # std.zig.target.osArchName
         # "libc/include/any-linux-any/**",
 
         "libc/include/aarch64-linux-gnu/**",
         "libc/include/generic-glibc/**",
-        "libc/include/aarch64-linux-any/**",
-        "libc/include/any-linux-any/**",
     ]),
+    implementation_deps = [
+        ":linux_system_headers",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -260,34 +275,10 @@ cc_library(
         "libcxx/src",
         "libcxxabi/include",
         "libcxxabi/src",
-
-        # "libc/include/x86_64-linux-gnu",
-        # "libc/include/generic-glibc",
-        # "libc/include/x86-linux-any",  # std.zig.target.osArchName
-        # "libc/include/any-linux-any",
-
-        "libc/include/aarch64-linux-gnu",
-        "libc/include/generic-glibc",
-        "libc/include/aarch64-linux-any",
-        "libc/include/any-linux-any",
-
-        "include"
     ],
     hdrs = glob([
         "libcxx/include/**",
         "libcxxabi/include/**",
-
-        # "libc/include/x86_64-linux-gnu/**",
-        # "libc/include/generic-glibc/**",
-        # "libc/include/x86-linux-any/**",
-        # "libc/include/any-linux-any/**",
-
-        "libc/include/aarch64-linux-gnu/**",
-        "libc/include/generic-glibc/**",
-        "libc/include/aarch64-linux-any/**",
-        "libc/include/any-linux-any/**",
-
-        "include/**",
     ]),
     textual_hdrs = glob([
         "libcxx/src/**/*.h",
@@ -372,6 +363,10 @@ cc_library(
         "libcxxabi/src/stdlib_stdexcept.cpp",
         "libcxxabi/src/stdlib_typeinfo.cpp",
     ],
-    # deps = [":c"],
+    implementation_deps = [
+        ":linux_system_headers",
+        ":builtin_headers",
+        ":c",
+    ],
     visibility = ["//visibility:public"],
 )

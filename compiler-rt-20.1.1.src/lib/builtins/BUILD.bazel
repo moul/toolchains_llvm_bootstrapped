@@ -301,11 +301,13 @@ cc_library(
     features = ["-default_compile_flags"],
     linkstatic = True,
     deps = [
-        "//lib:builtin_headers",
-        "//lib:c",
-
         # AArch64
         ":aarch64_atomic",
+    ],
+    implementation_deps = [
+        "//lib:linux_system_headers",
+        "//lib:builtin_headers",
+        "//lib:c",
     ],
     visibility = ["//visibility:public"],
 )
