@@ -1,0 +1,119 @@
+load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
+load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
+load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
+load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
+
+licenses(["notice"])
+
+# This `select` happens under the target configuration. For macOS,
+# llvm-libtool-darwin should be used when creating static libraries even if the
+# exec platform is linux.
+alias(
+    name = "all_tools",
+    actual = select({
+        "@platforms//os:macos": ":macos_tools",
+        "//conditions:default": ":default_tools",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+COMMON_TOOLS = {
+    "@rules_cc//cc/toolchains/actions:assembly_actions": ":clang",
+    "@rules_cc//cc/toolchains/actions:c_compile": ":clang",
+    "@rules_cc//cc/toolchains/actions:cpp_compile_actions": ":clang++",
+    "@rules_cc//cc/toolchains/actions:link_actions": ":lld",
+    "@rules_cc//cc/toolchains/actions:objcopy_embed_data": ":llvm-objcopy",
+    "@rules_cc//cc/toolchains/actions:strip": ":llvm-strip",
+}
+
+cc_tool_map(
+    name = "default_tools",
+    tools = COMMON_TOOLS | {
+        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-ar",
+    },
+    visibility = ["//visibility:private"],
+)
+
+cc_tool_map(
+    name = "macos_tools",
+    tools = COMMON_TOOLS | {
+        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-libtool-darwin",
+    },
+    visibility = ["//visibility:private"],
+)
+
+cc_tool(
+    name = "clang",
+    src = "@static-toolchain-artifacts//:bin/clang",
+)
+
+cc_tool(
+    name = "clang++",
+    src = "@static-toolchain-artifacts//:bin/clang++",
+)
+
+cc_tool(
+    name = "lld",
+    src = "@static-toolchain-artifacts//:bin/ld.lld",
+)
+
+cc_tool(
+    name = "llvm-ar",
+    src = "@static-toolchain-artifacts//:bin/llvm-ar",
+)
+
+cc_tool(
+    name = "llvm-libtool-darwin",
+    src = "@static-toolchain-artifacts//:bin/llvm-libtool-darwin",
+)
+
+cc_tool(
+    name = "llvm-objcopy",
+    src = "@static-toolchain-artifacts//:bin/llvm-objcopy",
+)
+
+cc_tool(
+    name = "llvm-strip",
+    src = "@static-toolchain-artifacts//:bin/llvm-strip",
+)
+
+constraint_setting(
+    name = "bootstrap_stage",
+    visibility = ["//visibility:public"],
+)
+
+constraint_value(
+    name = "bootstrap_stage_1",
+    constraint_setting = ":bootstrap_stage",
+    visibility = ["//visibility:public"],
+)
+
+platform(
+    name = "bootstrap_stage_1_platform",
+    constraint_values = [
+        ":bootstrap_stage_1",
+    ],
+    parents = ["@local_config_platform//:host"],
+    visibility = ["//visibility:public"],
+)
+
+cc_toolchain(
+    name = "bootstrap",
+    args = [
+        "//toolchain/bootstrap/args:bootstrap_differentiation",
+    ],
+    enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
+    known_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
+    tool_map = ":all_tools",
+    compiler = "clang",
+)
+
+toolchain(
+    name = "bootstrap_toolchain",
+    toolchain = ":bootstrap",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+    exec_compatible_with = HOST_CONSTRAINTS + [
+        "//toolchain/bootstrap:bootstrap_stage_1",
+    ],
+    visibility = ["//visibility:public"],
+)
