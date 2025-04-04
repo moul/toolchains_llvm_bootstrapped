@@ -307,9 +307,9 @@ cc_bootstrap_library(
         ":aarch64_atomic",
     ],
     implementation_deps = [
-        "@@//lib:linux_system_headers",
-        "@@//lib:builtin_headers",
-        "@@//lib:c",
+        "@zig-srcs//lib:linux_system_headers",
+        "@zig-srcs//lib:builtin_headers",
+        "@zig-srcs//lib:c",
     ],
     visibility = ["//visibility:public"],
 )

@@ -92,10 +92,10 @@ cc_args(
         "{builtin_headers_include_path}",
     ],
     format = {
-        "builtin_headers_include_path": "//lib:include",
+        "builtin_headers_include_path": "@zig-srcs//lib:include",
     },
     data = [
-        "//lib:include",
+        "@zig-srcs//lib:include",
     ],
 )
 
@@ -223,11 +223,6 @@ cc_args(
         "libpthread": "//libc.so/aarch64:libpthread",
     },
 )
-
-        # "//lib:c++",
-        # "//lib:c",
-        # "//lib/libunwind",
-        # "//lib:Scrt1",
 
 cc_toolchain(
     name = "xclang",

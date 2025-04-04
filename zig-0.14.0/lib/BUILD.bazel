@@ -194,6 +194,21 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
+directory(
+    name = "builtin_headers_directory",
+    srcs = glob([
+        "include/**",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+subdirectory(
+    name = "include",
+    path = "include",
+    parent = ":builtin_headers_directory",
+    visibility = ["//visibility:public"],
+)
+
 cc_bootstrap_library(
     name = "linux_system_headers",
     hdrs = glob([
