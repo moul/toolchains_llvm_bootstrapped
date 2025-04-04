@@ -256,8 +256,14 @@ cc_bootstrap_library(
 
 cc_bootstrap_library(
     name = "builtins",
-    # srcs = [":x86_64_sources"],
-    srcs = [":aarch64_sources"],
+    srcs = select({
+        "@@//constraint:linux_x86_64": [":x86_64_sources"],
+        "@@//constraint:linux_aarch64": [":aarch64_sources"],
+    }, no_match_error = """
+        Platform not supported for compiler-rt.builtins.
+        It is likely that we are just missing the filegroups for that platform.
+        Please file an issue.
+    """),
     copts = [
         "-nostdinc",
     ],
@@ -275,15 +281,17 @@ cc_bootstrap_library(
         "int_mulv_impl.inc",
         "int_to_fp_impl.inc",
         "cpu_model/cpu_model.h",
-
-        # AArch64
-        "cpu_model/AArch64CPUFeatures.inc",
-        "cpu_model/aarch64/hwcap.inc",
-        "cpu_model/aarch64/fmv/mrs.inc",
-        "cpu_model/aarch64/fmv/getauxval.inc",
-        # "cpu_model/aarch64/lse_atomics/atomic_helper.inc",
-        "cpu_model/aarch64/lse_atomics/getauxval.inc",
-    ],
+    ] + select({
+        "@@//constraint:linux_aarch64": [
+            "cpu_model/AArch64CPUFeatures.inc",
+            "cpu_model/aarch64/hwcap.inc",
+            "cpu_model/aarch64/fmv/mrs.inc",
+            "cpu_model/aarch64/fmv/getauxval.inc",
+            # "cpu_model/aarch64/lse_atomics/atomic_helper.inc",
+            "cpu_model/aarch64/lse_atomics/getauxval.inc",
+        ],
+        "//conditions:default": [],
+    }),
     hdrs = [
         "assembly.h",
         "fp_extend.h",
@@ -296,16 +304,20 @@ cc_bootstrap_library(
         "int_to_fp.h",
         "int_types.h",
         "int_util.h",
-
-        # AArch64
-        "cpu_model/aarch64.h",
-    ],
+    ] + select({
+        "@@//constraint:linux_aarch64": [
+            "cpu_model/aarch64.h",
+        ],
+        "//conditions:default": [],
+    }),
     features = ["-default_compile_flags"],
     linkstatic = True,
-    deps = [
-        # AArch64
-        ":aarch64_atomic",
-    ],
+    deps = select({
+        "@@//constraint:linux_aarch64": [
+            ":aarch64_atomic",
+        ],
+        "//conditions:default": [],
+    }),
     implementation_deps = [
         "@zig-srcs//lib:linux_system_headers",
         "@zig-srcs//lib:builtin_headers",

@@ -111,12 +111,12 @@ cc_args(
         "{linux_system_headers_include_path2}",
     ],
     format = {
-        "linux_system_headers_include_path": "@zig-srcs//lib:libc/include/aarch64-linux-any",
-        "linux_system_headers_include_path2": "@zig-srcs//lib:libc/include/any-linux-any",
+        "linux_system_headers_include_path": "@zig-srcs//lib:linux_system_headers_arch_specific_directory",
+        "linux_system_headers_include_path2": "@zig-srcs//lib:linux_system_headers_generic_directory",
     },
     data = [
-        "@zig-srcs//lib:libc/include/aarch64-linux-any",
-        "@zig-srcs//lib:libc/include/any-linux-any",
+        "@zig-srcs//lib:linux_system_headers_arch_specific_directory",
+        "@zig-srcs//lib:linux_system_headers_generic_directory",
     ],
 )
 
@@ -134,12 +134,12 @@ cc_args(
         "{libc_headers_include_path2}",
     ],
     format = {
-        "libc_headers_include_path": "@zig-srcs//lib:libc/include/aarch64-linux-gnu",
-        "libc_headers_include_path2": "@zig-srcs//lib:libc/include/generic-glibc",
+        "libc_headers_include_path": "@zig-srcs//lib:libc_headers_arch_specific_directory",
+        "libc_headers_include_path2": "@zig-srcs//lib:libc_headers_generic_directory",
     },
     data = [
-        "@zig-srcs//lib:libc/include/aarch64-linux-gnu",
-        "@zig-srcs//lib:libc/include/generic-glibc",
+        "@zig-srcs//lib:libc_headers_arch_specific_directory",
+        "@zig-srcs//lib:libc_headers_generic_directory",
     ],
 )
 
@@ -209,24 +209,25 @@ cc_args(
         "@compiler-rt//lib/builtins:builtins.static",
         "@zig-srcs//lib/libunwind",
         "@zig-srcs//lib:c++",
-        "//libc.so/aarch64:libc",
-        "//libc.so/aarch64:libdl",
-        "//libc.so/aarch64:libpthread",
+        "//libc.so:libc",
+        "//libc.so:libdl",
+        "//libc.so:libpthread",
     ],
     format = {
         "Scrt1": "@zig-srcs//lib:Scrt1.static",
         "compiler_rt_builtins": "@compiler-rt//lib/builtins:builtins.static",
         "libunwind": "@zig-srcs//lib/libunwind",
         "libcxx": "@zig-srcs//lib:c++",
-        "libc": "//libc.so/aarch64:libc",
-        "libdl": "//libc.so/aarch64:libdl",
-        "libpthread": "//libc.so/aarch64:libpthread",
+        "libc": "//libc.so:libc",
+        "libdl": "//libc.so:libdl",
+        "libpthread": "//libc.so:libpthread",
     },
 )
 
 cc_toolchain(
     name = "xclang",
     args = [
+        "//toolchain/args:llvm_target_for_platform",
         "libcxx_headers_include_paths",
         "builtin_headers_include_paths",
         "linux_system_headers_include_paths",

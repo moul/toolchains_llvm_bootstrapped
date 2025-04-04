@@ -1,9 +1,8 @@
-# JUST A TEST
 load("@@//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
 load("@@//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
-load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@bazel_skylib//rules/directory:directory.bzl", "directory")
 load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
+load(":helpers.bzl", "glibc_includes", "libc_headers", "linux_system_headers")
 
 cc_bootstrap_library(
     name = "init",
@@ -34,47 +33,20 @@ cc_bootstrap_library(
     hdrs = glob(["libc/glibc/**"]),
     includes = [
         "libc/glibc/csu",
-
-        # COMMON
-        # "libc/glibc/include",
-        # "libc/glibc/sysdeps/unix/sysv/linux/x86_64",
-        # "libc/glibc/sysdeps/x86_64",
-        # "libc/glibc/sysdeps/unix/sysv/linux/generic",
-        # "libc/glibc/sysdeps/unix/sysv/linux/include",
-        # "libc/glibc/sysdeps/unix/sysv/linux",
-        # # "libc/glibc/sysdeps/nptl",
-        # "libc/glibc/sysdeps/pthread",
-        # "libc/glibc/sysdeps/unix/sysv",
-        # "libc/glibc/sysdeps/unix/x86_64",
-        # "libc/glibc/sysdeps/unix",
-        # "libc/glibc/sysdeps/x86_64",
-        # "libc/glibc/sysdeps/generic",
-
-
-        "libc/glibc/include",
-        "libc/glibc/sysdeps/unix/sysv/linux/aarch64",
-        "libc/glibc/sysdeps/aarch64",
-        "libc/glibc/sysdeps/unix/sysv/linux/generic",
-        "libc/glibc/sysdeps/unix/sysv/linux/include",
-        "libc/glibc/sysdeps/unix/sysv/linux",
-        # "libc/glibc/sysdeps/nptl",
-        "libc/glibc/sysdeps/pthread",
-        "libc/glibc/sysdeps/unix/sysv",
-        "libc/glibc/sysdeps/unix/aarch64",
-        "libc/glibc/sysdeps/unix",
-        "libc/glibc/sysdeps/aarch64",
-        "libc/glibc/sysdeps/generic",
-
-        "libc/glibc",
-    ],
+    ] + select({
+        "@@//constraint:linux_x86_64": glibc_includes("x86_64"),
+        "@@//constraint:linux_aarch64": glibc_includes("aarch64"),
+    }),
     implementation_deps = [":c"],
     visibility = ["//visibility:public"],
 )
 
 cc_bootstrap_library(
     name = "start",
-    # srcs = ["libc/glibc/sysdeps/x86_64/start.S"],
-    srcs = ["libc/glibc/sysdeps/aarch64/start.S"],
+    srcs = select({
+        "@@//constraint:linux_x86_64": ["libc/glibc/sysdeps/x86_64/start.S"],
+        "@@//constraint:linux_aarch64": ["libc/glibc/sysdeps/aarch64/start.S"],
+    }, no_match_error = "Unsupported platform"),
     copts = [
         "-nostdinc",
         "-Wno-nonportable-include-path",
@@ -134,38 +106,10 @@ cc_bootstrap_library(
     #     ],
     #     allow_empty = True
     # ),
-    includes = [
-        # "libc/glibc/include",
-        # "libc/glibc/sysdeps/unix/sysv/linux/x86_64",
-        # "libc/glibc/sysdeps/x86_64",
-        # "libc/glibc/sysdeps/unix/sysv/linux/generic",
-        # "libc/glibc/sysdeps/unix/sysv/linux/include",
-        # "libc/glibc/sysdeps/unix/sysv/linux",
-        # # "libc/glibc/sysdeps/nptl",
-        # "libc/glibc/sysdeps/pthread",
-        # "libc/glibc/sysdeps/unix/sysv",
-        # "libc/glibc/sysdeps/unix/x86_64",
-        # "libc/glibc/sysdeps/unix",
-        # "libc/glibc/sysdeps/x86_64",
-        # "libc/glibc/sysdeps/generic",
-
-        "libc/glibc/include",
-        "libc/glibc/sysdeps/unix/sysv/linux/aarch64",
-        "libc/glibc/sysdeps/aarch64",
-        "libc/glibc/sysdeps/unix/sysv/linux/generic",
-        "libc/glibc/sysdeps/unix/sysv/linux/include",
-        "libc/glibc/sysdeps/unix/sysv/linux",
-
-        # "libc/glibc/sysdeps/nptl",
-        "libc/glibc/sysdeps/pthread",
-        "libc/glibc/sysdeps/unix/sysv",
-        "libc/glibc/sysdeps/unix/aarch64",
-        "libc/glibc/sysdeps/unix",
-        "libc/glibc/sysdeps/aarch64",
-        "libc/glibc/sysdeps/generic",
-
-        "libc/glibc",
-    ],
+    includes = select({
+        "@@//constraint:linux_x86_64": glibc_includes("x86_64"),
+        "@@//constraint:linux_aarch64": glibc_includes("aarch64"),
+    }),
     implementation_deps = [
         ":linux_system_headers",
         ":c",
@@ -211,38 +155,38 @@ subdirectory(
 
 cc_bootstrap_library(
     name = "linux_system_headers",
-    hdrs = glob([
-        # LibC headers
-        "libc/include/aarch64-linux-any/**",  # std.zig.target.osArchName
-        "libc/include/any-linux-any/**",
-    ]),
-    includes = [
-        # Linux System Headers
-        "libc/include/aarch64-linux-any",  # std.zig.target.osArchName
-        "libc/include/any-linux-any",
-    ],
+    hdrs = select({
+        "@@//constraint:linux_x86_64": linux_system_headers("x86", as_glob = True),
+        "@@//constraint:linux_aarch64": linux_system_headers("aarch64", as_glob = True),
+    }, no_match_error = "Unsupported platform"),
+    includes = select({
+        "@@//constraint:linux_x86_64": linux_system_headers("x86"),
+        "@@//constraint:linux_aarch64": linux_system_headers("aarch64"),
+    }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )
 
 directory(
     name = "linux_system_headers_directory",
-    srcs = glob([
-        # LibC headers
-        "libc/include/aarch64-linux-any/**",  # std.zig.target.osArchName
-        "libc/include/any-linux-any/**",
-    ]),
+    srcs = select({
+        "@@//constraint:linux_x86_64": linux_system_headers("x86", as_glob = True),
+        "@@//constraint:linux_aarch64": linux_system_headers("aarch64", as_glob = True),
+    }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )
 
 subdirectory(
-    name = "libc/include/aarch64-linux-any",
-    path = "libc/include/aarch64-linux-any",
+    name = "linux_system_headers_arch_specific_directory",
+    path = select({
+        "@@//constraint:linux_x86_64": "libc/include/x86-linux-any",
+        "@@//constraint:linux_aarch64": "libc/include/aarch64-linux-any",
+    }, no_match_error = "Unsupported platform"),
     parent = ":linux_system_headers_directory",
     visibility = ["//visibility:public"],
 )
 
 subdirectory(
-    name = "libc/include/any-linux-any",
+    name = "linux_system_headers_generic_directory",
     path = "libc/include/any-linux-any",
     parent = ":linux_system_headers_directory",
     visibility = ["//visibility:public"],
@@ -251,25 +195,14 @@ subdirectory(
 cc_bootstrap_library(
     name = "c",
     # order matters
-    includes = [
-        # "libc/include/x86_64-linux-gnu",
-        # "libc/include/generic-glibc",
-        # "libc/include/x86-linux-any",     # std.zig.target.osArchName
-        # "libc/include/any-linux-any",
-
-        # LibC headers
-        "libc/include/aarch64-linux-gnu",
-        "libc/include/generic-glibc",
-    ],
-    hdrs = glob([
-        # "libc/include/x86_64-linux-gnu/**",
-        # "libc/include/generic-glibc/**",
-        # "libc/include/x86-linux-any/**",   # std.zig.target.osArchName
-        # "libc/include/any-linux-any/**",
-
-        "libc/include/aarch64-linux-gnu/**",
-        "libc/include/generic-glibc/**",
-    ]),
+    includes = select({
+        "@@//constraint:linux_x86_64": libc_headers("x86_64"),
+        "@@//constraint:linux_aarch64": libc_headers("aarch64"),
+    }, no_match_error = "Unsupported platform"),
+    hdrs = select({
+        "@@//constraint:linux_x86_64": libc_headers("x86_64", as_glob = True),
+        "@@//constraint:linux_aarch64": libc_headers("aarch64", as_glob = True),
+    }, no_match_error = "Unsupported platform"),
     implementation_deps = [
         ":linux_system_headers",
     ],
@@ -278,34 +211,27 @@ cc_bootstrap_library(
 
 directory(
     name = "libc_headers_directory",
-    srcs = glob([
-        "libc/include/aarch64-linux-gnu/**",
-        "libc/include/generic-glibc/**",
-    ]),
+    srcs = select({
+        "@@//constraint:linux_x86_64": libc_headers("x86_64", as_glob = True),
+        "@@//constraint:linux_aarch64": libc_headers("aarch64", as_glob = True),
+    }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )
 
 subdirectory(
-    name = "libc/include/aarch64-linux-gnu",
-    path = "libc/include/aarch64-linux-gnu",
+    name = "libc_headers_arch_specific_directory",
+    path = select({
+        "@@//constraint:linux_x86_64": "libc/include/x86_64-linux-gnu",
+        "@@//constraint:linux_aarch64": "libc/include/aarch64-linux-gnu",
+    }, no_match_error = "Unsupported platform"),
     parent = ":libc_headers_directory",
     visibility = ["//visibility:public"],
 )
 
 subdirectory(
-    name = "libc/include/generic-glibc",
+    name = "libc_headers_generic_directory",
     path = "libc/include/generic-glibc",
     parent = ":libc_headers_directory",
-    visibility = ["//visibility:public"],
-)
-
-copy_to_directory(
-    name = "libcxx_headers_files",
-    srcs = glob([
-        "libcxx/include/**",
-        "libcxxabi/include/**",
-    ]),
-    out = "sysroot/usr/include/c++/v1",
     visibility = ["//visibility:public"],
 )
 

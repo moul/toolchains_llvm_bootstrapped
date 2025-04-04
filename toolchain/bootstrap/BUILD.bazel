@@ -101,6 +101,7 @@ platform(
 cc_toolchain(
     name = "bootstrap",
     args = [
+        "//toolchain/args:llvm_target_for_platform",
         "//toolchain/bootstrap/args:bootstrap_differentiation",
     ],
     enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],

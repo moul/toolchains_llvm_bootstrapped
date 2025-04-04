@@ -48,7 +48,7 @@ platform(
 platform(
     name = "linux_amd64",
     constraint_values = [
-        "@platforms//cpu:amd64",
+        "@platforms//cpu:x86_64",
         "@platforms//os:linux",
     ],
     visibility = ["//visibility:public"],
