@@ -31,7 +31,25 @@ filegroup(
 
 cc_binary(
     name = "main",
-    srcs = ["main.c"],
+    srcs = ["main.cc"],
 )
 
 exports_files(["README.md"])
+
+platform(
+    name = "linux_arm64",
+    constraint_values = [
+        "@platforms//cpu:arm64",
+        "@platforms//os:linux",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+platform(
+    name = "linux_amd64",
+    constraint_values = [
+        "@platforms//cpu:amd64",
+        "@platforms//os:linux",
+    ],
+    visibility = ["//visibility:public"],
+)

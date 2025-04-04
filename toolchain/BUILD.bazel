@@ -1,8 +1,8 @@
 load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
 load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
 load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
-load("@rules_cc//cc/toolchains:feature_set.bzl", "cc_feature_set")
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
+load("//toolchain:selects.bzl", "platform_llvm_binary")
 
 licenses(["notice"])
 
@@ -45,80 +45,37 @@ cc_tool_map(
 
 cc_tool(
     name = "clang",
-    src = "@static-toolchain-artifacts//:bin/clang",
-    # data = [
-    #     ":exec_platform_builtin_headers",
-    #     ":exec_platform_multicall_support_files",
-    # ],
+    src = platform_llvm_binary("bin/clang"),
 )
 
 cc_tool(
     name = "clang++",
-    src = "@static-toolchain-artifacts//:bin/clang++",
-    # data = [
-    #     ":exec_platform_builtin_headers",
-    #     ":exec_platform_multicall_support_files",
-    # ],
+    src = platform_llvm_binary("bin/clang++"),
 )
 
 cc_tool(
     name = "lld",
-    src = "@static-toolchain-artifacts//:bin/ld.lld",
-    # data = [
-    #     ":exec_platform_linker_builtins",
-    #     ":exec_platform_multicall_support_files",
-    # ],
+    src = platform_llvm_binary("bin/clang++"),
 )
 
 cc_tool(
     name = "llvm-ar",
-    src = "@static-toolchain-artifacts//:bin/llvm-ar",
-    # data = [":exec_platform_multicall_support_files"],
+    src = platform_llvm_binary("bin/llvm-ar"),
 )
 
 cc_tool(
     name = "llvm-libtool-darwin",
-    src = "@static-toolchain-artifacts//:bin/llvm-libtool-darwin",
-    # data = [":exec_platform_multicall_support_files"],
+    src = platform_llvm_binary("bin/llvm-libtool-darwin"),
 )
 
 cc_tool(
     name = "llvm-objcopy",
-    src = "@static-toolchain-artifacts//:bin/llvm-objcopy",
-    # data = [":exec_platform_multicall_support_files"],
+    src = platform_llvm_binary("bin/llvm-objcopy"),
 )
 
 cc_tool(
     name = "llvm-strip",
-    src = "@static-toolchain-artifacts//:bin/llvm-strip",
-    # data = [":exec_platform_multicall_support_files"],
-)
-
-
-#################################
-#   Platform-specific aliases   #
-#################################
-
-# These aliases are used to reduce duplication of `select` statements throughout
-# this build file. The select statements in these aliases are evaluated under
-# the exec configuration.
-
-alias(
-    name = "exec_platform_builtin_headers",
-    actual = "@zig-srcs//:all_files",
-    visibility = ["//visibility:private"],
-)
-
-alias(
-    name = "exec_platform_multicall_support_files",
-    actual = "@zig-srcs//:all_files",
-    visibility = ["//visibility:private"],
-)
-
-alias(
-    name = "exec_platform_linker_builtins",
-    actual = "@zig-srcs//:all_files",
-    visibility = ["//visibility:private"],
+    src = platform_llvm_binary("bin/llvm-strip"),
 )
 
 ##
@@ -126,19 +83,160 @@ alias(
 ##
 
 cc_args(
-    name = "pouet",
+    name = "builtin_headers_include_paths",
     actions = [
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
-    args = ["$(AR)"],
-    data = ["README"],
-    visibility = ["//visibility:public"],
+    args = [
+        "-isystem",
+        "{builtin_headers_include_path}",
+    ],
+    format = {
+        "builtin_headers_include_path": "//lib:include",
+    },
+    data = [
+        "//lib:include",
+    ],
 )
+
+cc_args(
+    name = "linux_system_headers_include_paths",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = [
+        "-isystem",
+        "{linux_system_headers_include_path}",
+        "-isystem",
+        "{linux_system_headers_include_path2}",
+    ],
+    format = {
+        "linux_system_headers_include_path": "@zig-srcs//lib:libc/include/aarch64-linux-any",
+        "linux_system_headers_include_path2": "@zig-srcs//lib:libc/include/any-linux-any",
+    },
+    data = [
+        "@zig-srcs//lib:libc/include/aarch64-linux-any",
+        "@zig-srcs//lib:libc/include/any-linux-any",
+    ],
+)
+
+cc_args(
+    name = "glibc_headers_include_paths",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = [
+        "-DNO_BOOTSTRAP",
+        # "__GLIBC_MINOR__={d}", version.minor
+        "-isystem",
+        "{libc_headers_include_path}",
+        "-isystem",
+        "{libc_headers_include_path2}",
+    ],
+    format = {
+        "libc_headers_include_path": "@zig-srcs//lib:libc/include/aarch64-linux-gnu",
+        "libc_headers_include_path2": "@zig-srcs//lib:libc/include/generic-glibc",
+    },
+    data = [
+        "@zig-srcs//lib:libc/include/aarch64-linux-gnu",
+        "@zig-srcs//lib:libc/include/generic-glibc",
+    ],
+)
+
+cc_args(
+    name = "libcxx_headers_include_paths",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = [
+        "-std=c++23",
+        # "D_LIBCPP_HAS_MUSL_LIBC",
+
+        "-DLIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+        "-D_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
+        "-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
+
+        # if (!comp.config.any_non_single_threaded) {
+        #     try argv.append("-D_LIBCPP_HAS_NO_THREADS");
+        # }
+
+        # // See the comment in libcxx.zig for more details about this.
+        "-D_LIBCPP_PSTL_BACKEND_SERIAL",
+
+        "-D_LIBCPP_ABI_VERSION=1",
+        "-D_LIBCPP_ABI_NAMESPACE=__1",
+
+        "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
+
+        "-isystem",
+        "{libcxx_headers_include_path}",
+        "-isystem",
+        "{libcxxabi_headers_include_path}",
+    ],
+    format = {
+        "libcxx_headers_include_path": "@zig-srcs//lib:libcxx/include",
+        "libcxxabi_headers_include_path": "@zig-srcs//lib:libcxxabi/include",
+    },
+    data = [
+        "@zig-srcs//lib:libcxx/include",
+        "@zig-srcs//lib:libcxxabi/include",
+    ],
+)
+
+cc_args(
+    name = "use_lld",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = [
+        "-fuse-ld=lld",
+        "-v",
+        "-nostdinc",
+        "-nostdlib",
+        # extra hermetic options (prevent clang to pass default -L/lib/... to the linker)
+        "--sysroot=/dev/null",
+        "-L.", # needed to -l:bazel-out/...
+        "-l:{Scrt1}",
+        "-l:{compiler_rt_builtins}",
+        "-l:{libunwind}",
+        "-l:{libcxx}",
+        "-l:{libc}",
+        "-l:{libdl}",
+        "-l:{libpthread}",
+    ],
+    data = [
+        "@zig-srcs//lib:Scrt1.static",
+        "@compiler-rt//lib/builtins:builtins.static",
+        "@zig-srcs//lib/libunwind",
+        "@zig-srcs//lib:c++",
+        "//libc.so/aarch64:libc",
+        "//libc.so/aarch64:libdl",
+        "//libc.so/aarch64:libpthread",
+    ],
+    format = {
+        "Scrt1": "@zig-srcs//lib:Scrt1.static",
+        "compiler_rt_builtins": "@compiler-rt//lib/builtins:builtins.static",
+        "libunwind": "@zig-srcs//lib/libunwind",
+        "libcxx": "@zig-srcs//lib:c++",
+        "libc": "//libc.so/aarch64:libc",
+        "libdl": "//libc.so/aarch64:libdl",
+        "libpthread": "//libc.so/aarch64:libpthread",
+    },
+)
+
+        # "//lib:c++",
+        # "//lib:c",
+        # "//lib/libunwind",
+        # "//lib:Scrt1",
 
 cc_toolchain(
     name = "xclang",
     args = [
-        ":pouet",
+        "libcxx_headers_include_paths",
+        "builtin_headers_include_paths",
+        "linux_system_headers_include_paths",
+        "glibc_headers_include_paths",
+        "use_lld",
         # "//toolchain/args:no_absolute_paths_for_builtins",
     ],
     enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],

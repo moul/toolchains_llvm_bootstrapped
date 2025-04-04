@@ -11,14 +11,31 @@ bazel_dep(name = "with_cfg.bzl", version = "0.9.1")
 
 local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
 local_repository(
-    name = "static-toolchain-artifacts",
-    path = "static-toolchain-artifacts",
+    name = "static-toolchain-artifacts-darwin-arm64",
+    path = "static-toolchain-artifacts-darwin-arm64",
+)
+
+local_repository(
+    name = "static-toolchain-artifacts-linux-x86_64",
+    path = "static-toolchain-artifacts-linux-x86_64",
+)
+
+local_repository(
+    name = "static-toolchain-artifacts-linux-arm64",
+    path = "static-toolchain-artifacts-linux-arm64",
 )
 
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")    
 http_archive(
     name = "zig-srcs",
     urls = ["https://github.com/ziglang/zig/archive/refs/tags/0.14.0.tar.gz"],
+    strip_prefix = "zig-0.14.0",
+)
+
+http_archive(
+    name = "compiler-rt",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.0/compiler-rt-20.1.0.src.tar.xz"],
+    strip_prefix = "compiler-rt-20.1.0.src",
 )
 
 register_toolchains(

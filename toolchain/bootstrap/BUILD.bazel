@@ -2,6 +2,7 @@ load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
 load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
 load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
 load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
+load("//toolchain:selects.bzl", "platform_llvm_binary")
 
 licenses(["notice"])
 
@@ -44,37 +45,37 @@ cc_tool_map(
 
 cc_tool(
     name = "clang",
-    src = "@static-toolchain-artifacts//:bin/clang",
+    src = platform_llvm_binary("bin/clang"),
 )
 
 cc_tool(
     name = "clang++",
-    src = "@static-toolchain-artifacts//:bin/clang++",
+    src = platform_llvm_binary("bin/clang++"),
 )
 
 cc_tool(
     name = "lld",
-    src = "@static-toolchain-artifacts//:bin/ld.lld",
+    src = platform_llvm_binary("bin/ld.lld"),
 )
 
 cc_tool(
     name = "llvm-ar",
-    src = "@static-toolchain-artifacts//:bin/llvm-ar",
+    src = platform_llvm_binary("bin/llvm-ar"),
 )
 
 cc_tool(
     name = "llvm-libtool-darwin",
-    src = "@static-toolchain-artifacts//:bin/llvm-libtool-darwin",
+    src = platform_llvm_binary("bin/llvm-libtool-darwin"),
 )
 
 cc_tool(
     name = "llvm-objcopy",
-    src = "@static-toolchain-artifacts//:bin/llvm-objcopy",
+    src = platform_llvm_binary("bin/llvm-objcopy"),
 )
 
 cc_tool(
     name = "llvm-strip",
-    src = "@static-toolchain-artifacts//:bin/llvm-strip",
+    src = platform_llvm_binary("bin/llvm-strip"),
 )
 
 constraint_setting(

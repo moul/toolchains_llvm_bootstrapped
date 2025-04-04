@@ -1,16 +1,18 @@
 
 load("@aspect_bazel_lib//lib:tar.bzl", "tar")
 
-def release_tar(name):
+# .stripped is currently not buildable on macosx when cross compiling clang with hermetic_cc_toolchain because it doesn't expose the strip binary
+BUILD_STRIPPED = False
 
+def release_tar(name):
     BINS = [
-        "@llvm-project//clang:clang.stripped",
-        "@llvm-project//lld:lld.stripped",
-        "@llvm-project//llvm:llvm-ar.stripped",
-        "@llvm-project//llvm:llvm-as.stripped",
-        "@llvm-project//llvm:llvm-libtool-darwin.stripped",
-        "@llvm-project//llvm:llvm-nm.stripped",
-        "@llvm-project//llvm:llvm-objcopy.stripped",
+        "@llvm-project//clang:clang{}".format(".stripped" if BUILD_STRIPPED else ""),
+        "@llvm-project//lld:lld{}".format(".stripped" if BUILD_STRIPPED else ""),
+        "@llvm-project//llvm:llvm-ar{}".format(".stripped" if BUILD_STRIPPED else ""),
+        "@llvm-project//llvm:llvm-as{}".format(".stripped" if BUILD_STRIPPED else ""),
+        "@llvm-project//llvm:llvm-libtool-darwin{}".format(".stripped" if BUILD_STRIPPED else ""),
+        "@llvm-project//llvm:llvm-nm{}".format(".stripped" if BUILD_STRIPPED else ""),
+        "@llvm-project//llvm:llvm-objcopy{}".format(".stripped" if BUILD_STRIPPED else ""),
     ] + [
         "@glibc-stubs-generator//:glibc-stubs-generator"
         # "@llvm-project//llvm-cov:llvm-cov",
@@ -24,17 +26,17 @@ def release_tar(name):
         srcs = BINS,
         cmd = """\
 cat <<EOF > $(@)
-bin/clang uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//clang:clang.stripped)
+bin/clang uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//clang:clang{strip_suffix})
 bin/clang++ uid=0 gid=0 time=1672560000 mode=0755 type=link link=clang
 bin/clang-cpp uid=0 gid=0 time=1672560000 mode=0755 type=link link=clang
-bin/lld uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//lld:lld.stripped)
+bin/lld uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//lld:lld{strip_suffix})
 bin/ld64.lld uid=0 gid=0 time=1672560000 mode=0755 type=link link=ld.lld
 bin/wasm-ld uid=0 gid=0 time=1672560000 mode=0755 type=link link=ld.lld
-bin/llvm-ar uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-ar.stripped)
-bin/llvm-as uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-as.stripped)
-bin/llvm-libtool-darwin uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-libtool-darwin.stripped)
-bin/llvm-nm uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-nm.stripped)
-bin/llvm-objcopy uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-objcopy.stripped)
+bin/llvm-ar uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-ar{strip_suffix})
+bin/llvm-as uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-as{strip_suffix})
+bin/llvm-libtool-darwin uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-libtool-darwin{strip_suffix})
+bin/llvm-nm uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-nm{strip_suffix})
+bin/llvm-objcopy uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-objcopy{strip_suffix})
 bin/glibc-stubs-generator uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @glibc-stubs-generator//:glibc-stubs-generator)
 bin/llvm-strip uid=0 gid=0 time=1672560000 mode=0755 type=link link=llvm-objcopy
 bin/clang-tidy uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
@@ -43,7 +45,9 @@ bin/clangd uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
 bin/llvm-symbolizer uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
 bin/glibc-stubs-generator
 EOF
-""",
+""".format(
+            strip_suffix = ".stripped" if BUILD_STRIPPED else "",
+        ),
         outs = [
             "{}.mtree".format(name),
         ],

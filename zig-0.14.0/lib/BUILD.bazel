@@ -1,5 +1,6 @@
-load("//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
-load("//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
+# JUST A TEST
+load("@@//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
+load("@@//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@bazel_skylib//rules/directory:directory.bzl", "directory")
 load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
@@ -193,21 +194,6 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
-directory(
-    name = "builtin_headers_directory",
-    srcs = glob([
-        "include/**",
-    ]),
-    visibility = ["//visibility:public"],
-)
-
-subdirectory(
-    name = "include",
-    path = "include",
-    parent = ":builtin_headers_directory",
-    visibility = ["//visibility:public"],
-)
-
 cc_bootstrap_library(
     name = "linux_system_headers",
     hdrs = glob([
@@ -311,18 +297,32 @@ copy_to_directory(
 cc_bootstrap_library(
     name = "c++",
     defines = [
-        "_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
         # "_LIBCPP_HAS_NO_THREADS",
         "NDEBUG",
+        "_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE", # select based on compilation_mode
         "_LIBCPP_BUILDING_LIBRARY",
         "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
         "_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER",
         "_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
         "LIBCXX_BUILDING_LIBCXXABI",
+
+        # See libcxx/include/__algorithm/pstl_backends/cpu_backends/backend.h
+        # for potentially enabling some fancy features here, which would
+        # require corresponding changes in libcxx.zig, as well as
+        # Compilation.addCCArgs. This option makes it use serial backend which
+        # is simple and works everywhere.
         "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
         "_LIBCPP_PSTL_BACKEND_SERIAL",
         "_LIBCPP_ABI_VERSION=1",
         "_LIBCPP_ABI_NAMESPACE=__1",
+
+        # "_LIBCPP_HAS_MUSL_LIBC"
+        # if (target.isGnuLibC()) {
+        #   glibc 2.16 introduced aligned_alloc
+        #   if (target.os.versionRange().gnuLibCVersion().?.order(.{ .major = 2, .minor = 16, .patch = 0 }) == .lt) {
+        #     try cflags.append("-D_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION");
+        #   }
+        # }
     ],
     features = ["-default_compile_flags"],
     copts = [
@@ -331,22 +331,9 @@ cc_bootstrap_library(
         "-Wno-user-defined-literals",
         "-Wno-covered-switch-default",
         "-Wno-suggest-override",
-
-        # "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
-        # # "-D_LIBCPP_HAS_NO_THREADS",
-        # "-DNDEBUG",
-        # "-D_LIBCPP_BUILDING_LIBRARY",
-        # "-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
-        # "-D_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER",
-        # "-D_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
-        # "-DLIBCXX_BUILDING_LIBCXXABI",
-        # "-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
-        # "-D_LIBCPP_PSTL_BACKEND_SERIAL",
         "-fvisibility=hidden",
         "-fvisibility-inlines-hidden",
         "-faligned-allocation",
-        # "-D_LIBCPP_ABI_VERSION=1",
-        # "-D_LIBCPP_ABI_NAMESPACE=__1",
     ],
     includes = [
         "libcxx/include",

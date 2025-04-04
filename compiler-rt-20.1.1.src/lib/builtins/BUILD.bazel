@@ -1,3 +1,5 @@
+load("@//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
+load("@//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
 load(":targets.bzl", "atomic_helper_cc_library")
 
 filegroup(
@@ -247,12 +249,12 @@ aarch64_atomic_deps = [
     if pat == "cas" or size != 16
 ]
 
-cc_library(
+cc_bootstrap_library(
     name = "aarch64_atomic",
     deps = aarch64_atomic_deps,
 )
 
-cc_library(
+cc_bootstrap_library(
     name = "builtins",
     # srcs = [":x86_64_sources"],
     srcs = [":aarch64_sources"],
@@ -305,14 +307,14 @@ cc_library(
         ":aarch64_atomic",
     ],
     implementation_deps = [
-        "//lib:linux_system_headers",
-        "//lib:builtin_headers",
-        "//lib:c",
+        "@@//lib:linux_system_headers",
+        "@@//lib:builtin_headers",
+        "@@//lib:c",
     ],
     visibility = ["//visibility:public"],
 )
 
-cc_static_library(
+cc_bootstrap_static_library(
     name = "builtins.static",
     deps = [
         ":builtins",
@@ -320,20 +322,20 @@ cc_static_library(
     visibility = ["//visibility:public"],
 )
 
-cc_library(
+cc_bootstrap_library(
     name = "crtbegin",
     srcs = ["crtbegin.c"],
     defines = ["EH_USE_FRAME_REGISTRY"],
     visibility = ["//visibility:public"],
 )
 
-cc_library(
+cc_bootstrap_library(
     name = "crtend",
     srcs = ["crtend.c"],
     visibility = ["//visibility:public"],
 )
 
-cc_library(
+cc_bootstrap_library(
     name = "crt",
     visibility = ["//visibility:public"],
     deps = [
