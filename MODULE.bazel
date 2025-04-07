@@ -9,33 +9,55 @@ bazel_dep(name = "platforms", version = "0.0.11")
 bazel_dep(name = "rules_cc", version = "0.1.1")
 bazel_dep(name = "with_cfg.bzl", version = "0.9.1")
 
-local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
-local_repository(
-    name = "static-toolchain-artifacts-darwin-arm64",
-    path = "static-toolchain-artifacts-darwin-arm64",
-)
-
-local_repository(
-    name = "static-toolchain-artifacts-linux-x86_64",
-    path = "static-toolchain-artifacts-linux-x86_64",
-)
-
-local_repository(
-    name = "static-toolchain-artifacts-linux-arm64",
-    path = "static-toolchain-artifacts-linux-arm64",
-)
-
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")    
+
+http_archive(
+    name = "static-toolchain-artifacts-darwin-arm64",
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-darwin-arm64.tar.zst"],
+    strip_prefix = "static-toolchain-artifacts-darwin-arm64",
+    build_file = "//:BUILD.artifacts.tpl",
+)
+# local_path_override(
+#     module_name = "static-toolchain-artifacts-darwin-arm64",
+#     path = "static-toolchain-artifacts-darwin-arm64",
+# )
+
+http_archive(
+    name = "static-toolchain-artifacts-linux-arm64",
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-arm64.tar.zst"],
+    strip_prefix = "static-toolchain-artifacts-linux-arm64",
+    build_file = "//:BUILD.artifacts.tpl",
+)
+# local_path_override(
+#     module_name = "static-toolchain-artifacts-linux-arm64",
+#     path = "static-toolchain-artifacts-linux-arm64",
+# )   
+
+http_archive(
+    name = "static-toolchain-artifacts-linux-x86_64",
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-x86_64.tar.zst"],
+    strip_prefix = "static-toolchain-artifacts-linux-x86_64",
+    build_file = "//:BUILD.artifacts.tpl",
+)
+# local_path_override(
+#     module_name = "static-toolchain-artifacts-linux-x86_64",
+#     path = "static-toolchain-artifacts-linux-x86_64",
+# )
+
 http_archive(
     name = "zig-srcs",
     urls = ["https://github.com/ziglang/zig/archive/refs/tags/0.14.0.tar.gz"],
     strip_prefix = "zig-0.14.0",
+    integrity = "sha256-tFWJt4KpQGpBSjysIBygJDZQ+b7ctFNzDBJL9vB6sz8=",
+    build_file = "//overlays/ziglang/zig:BUILD.tpl",
 )
 
 http_archive(
     name = "compiler-rt",
-    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.0/compiler-rt-20.1.0.src.tar.xz"],
-    strip_prefix = "compiler-rt-20.1.0.src",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/compiler-rt-20.1.1.src.tar.xz"],
+    strip_prefix = "compiler-rt-20.1.1.src",
+    integrity = "sha256-xPdTEXzb/+Watd86rUknk+awKaJZGYyEO7C5yCxZ700=",
+    build_file = "//overlays/llvm-project/compiler-rt:BUILD.tpl",
 )
 
 register_toolchains(
@@ -66,7 +88,7 @@ register_toolchains(
     "@zig_sdk//libc_aware/toolchain:linux_arm64_musl",
     "@zig_sdk//libc_aware/toolchain:linux_amd64_musl",
     # Fine until we want to build for macOS on CI
-    # We can remove once we are bootstrapped and have a real clang and ld from llvm
+    # We can remove once we are bootstrzapped and have a real clang and ld from llvm
     # "@zig_sdk//toolchain:darwin_amd64",
     # "@zig_sdk//toolchain:darwin_arm64",
 )
@@ -75,7 +97,7 @@ register_toolchains(
 
 RULES_ZIG_COMMIT = "b9739c615ce62b64ee595ac4bcd9ee7cc06b0422" # branch=zml
 
-bazel_dep(name = "rules_zig", version = "0.0.0")
+bazel_dep(name = "rules_zig", version = "20250314.0-b9739c6")
 archive_override(
     module_name = "rules_zig",
     urls = ["https://github.com/zml/rules_zig/archive/{}.tar.gz".format(RULES_ZIG_COMMIT)],

@@ -1,0 +1,97 @@
+load("//toolchain:selects.bzl", "platform_llvm_binary")
+load("@aspect_bazel_lib//lib:output_files.bzl", "output_files")
+load(":rule.bzl", "glibc_stubs_assembly_files")
+load("//toolchain/bootstrap:cc_bootstrap_shared_library.bzl", "cc_bootstrap_shared_library")
+load("//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
+
+alias(
+    name = "glibc-stubs-generator",
+    actual = platform_llvm_binary("bin/glibc-stubs-generator"),
+)
+
+glibc_stubs_assembly_files(
+    name = "generate_glibc_stubs",
+    target = "x86_64-linux-gnu",
+    abilist = "@zig-srcs//:glibc_abilists",
+    visibility = ["//visibility:public"],
+)
+
+[
+    output_files(
+        name = "lib" + lib + ".s" if lib != "ld" else lib + ".s",
+        target = ":generate_glibc_stubs",
+        paths = [
+            "glibc/build/" + lib + ".s",
+        ],
+        visibility = ["//visibility:public"],
+    ) for lib in ["c", "dl", "ld", "m", "pthread", "resolve", "rt", "utils"]
+]
+
+output_files(
+    name = "all.map",
+    target = ":generate_glibc_stubs",
+    paths = [
+        "glibc/build/all.map",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "libc",
+    srcs = [
+        ":libc.s",
+    ],
+)
+
+cc_bootstrap_shared_library(
+    name = "libc.so",
+    deps = [":libc"],
+    additional_linker_inputs = [
+        ":all.map",
+    ],
+    user_link_flags = [
+        "-Wl,--version-script=$(location :all.map)",
+    ],
+    shared_lib_name = "libc.so.6",
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "libpthread",
+    srcs = [
+        ":libpthread.s",
+    ],
+)
+
+cc_bootstrap_shared_library(
+    name = "libpthread.so",
+    deps = [":libpthread"],
+    additional_linker_inputs = [
+        ":all.map",
+    ],
+    user_link_flags = [
+        "-Wl,--version-script=$(location :all.map)",
+    ],
+    shared_lib_name = "libpthread.so.0",
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "libdl",
+    srcs = [
+        ":libdl.s",
+    ],
+)
+
+cc_bootstrap_shared_library(
+    name = "libdl.so",
+    deps = [":libdl"],
+    additional_linker_inputs = [
+        ":all.map",
+    ],
+    user_link_flags = [
+        "-Wl,--version-script=$(location :all.map)",
+    ],
+    shared_lib_name = "libdl.so.2",
+    visibility = ["//visibility:public"],
+)

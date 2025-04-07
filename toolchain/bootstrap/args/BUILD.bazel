@@ -5,6 +5,26 @@ cc_args(
     actions = [
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
-    args = ["-DBOOTSTRAP_DIFFERENTIATION"],
+    args = [
+        "-DBOOTSTRAP_DIFFERENTIATION",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_args(
+    name = "default_link_flags",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = [
+        "--sysroot=/dev/null",
+        "-fuse-ld=lld",
+        # "--ld-path={lld_path}",
+        "-v",
+        "-nostdinc",
+        "-nostdlib",
+        "-z",
+        "notext",
+    ],
     visibility = ["//visibility:public"],
 )

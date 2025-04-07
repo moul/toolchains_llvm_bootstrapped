@@ -36,6 +36,8 @@ cc_binary(
 
 exports_files(["README.md"])
 
+
+# FIX THIS WITH CONFLICTING NAMES
 platform(
     name = "linux_arm64",
     constraint_values = [
