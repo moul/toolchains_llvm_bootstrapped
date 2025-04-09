@@ -1,5 +1,8 @@
 load("//toolchain:selects.bzl", "platform_llvm_binary")
 load("@aspect_bazel_lib//lib:output_files.bzl", "output_files")
+# load("@aspect_bazel_lib//lib:select_file.bzl", "select_file")
+load("@bazel_skylib//rules:select_file.bzl", "select_file")
+
 load(":rule.bzl", "glibc_stubs_assembly_files")
 load("//toolchain/bootstrap:cc_bootstrap_shared_library.bzl", "cc_bootstrap_shared_library")
 load("//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
@@ -17,22 +20,18 @@ glibc_stubs_assembly_files(
 )
 
 [
-    output_files(
+    select_file(
         name = "lib" + lib + ".s" if lib != "ld" else lib + ".s",
-        target = ":generate_glibc_stubs",
-        paths = [
-            "glibc/build/" + lib + ".s",
-        ],
+        srcs = ":generate_glibc_stubs",
+        subpath = "glibc/build/" + lib + ".s",
         visibility = ["//visibility:public"],
     ) for lib in ["c", "dl", "ld", "m", "pthread", "resolve", "rt", "utils"]
 ]
 
-output_files(
+select_file(
     name = "all.map",
-    target = ":generate_glibc_stubs",
-    paths = [
-        "glibc/build/all.map",
-    ],
+    srcs = ":generate_glibc_stubs",
+    subpath = "glibc/build/all.map",
     visibility = ["//visibility:public"],
 )
 

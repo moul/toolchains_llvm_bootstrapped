@@ -164,10 +164,12 @@ cc_bootstrap_library(
     hdrs = select({
         "@cc-toolchain//constraint:linux_x86_64": linux_system_headers("x86", as_glob = True),
         "@cc-toolchain//constraint:linux_aarch64": linux_system_headers("aarch64", as_glob = True),
+        "@platforms//os:macos": [],
     }, no_match_error = "Unsupported platform"),
     includes = select({
         "@cc-toolchain//constraint:linux_x86_64": linux_system_headers("x86"),
         "@cc-toolchain//constraint:linux_aarch64": linux_system_headers("aarch64"),
+        "@platforms//os:macos": [],
     }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )
@@ -204,14 +206,37 @@ cc_bootstrap_library(
     includes = select({
         "@cc-toolchain//constraint:linux_x86_64": libc_headers("x86_64"),
         "@cc-toolchain//constraint:linux_aarch64": libc_headers("aarch64"),
+        "@platforms//os:macos": ["lib/libc/include/any-macos-any"],
     }, no_match_error = "Unsupported platform"),
     hdrs = select({
         "@cc-toolchain//constraint:linux_x86_64": libc_headers("x86_64", as_glob = True),
         "@cc-toolchain//constraint:linux_aarch64": libc_headers("aarch64", as_glob = True),
+        "@platforms//os:macos": glob(["lib/libc/include/any-macos-any/**"]),
     }, no_match_error = "Unsupported platform"),
-    implementation_deps = [
-        ":linux_system_headers",
-    ],
+    implementation_deps = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:linux": [
+            ":linux_system_headers",
+        ],
+    }),
+    visibility = ["//visibility:public"],
+)
+
+directory(
+    name = "macos_libc_headers_base_directory",
+    srcs = glob(["lib/libc/include/any-macos-any/**"]),
+)
+
+subdirectory(
+    name = "macos_libc_headers_directory",
+    path = "lib/libc/include/any-macos-any",
+    parent = ":macos_libc_headers_base_directory",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "libSystem.tbd",
+    srcs = ["lib/libc/darwin/libSystem.tbd"],
     visibility = ["//visibility:public"],
 )
 
@@ -375,8 +400,12 @@ cc_bootstrap_library(
         "lib/libcxxabi/src/stdlib_stdexcept.cpp",
         "lib/libcxxabi/src/stdlib_typeinfo.cpp",
     ],
-    implementation_deps = [
-        ":linux_system_headers",
+    implementation_deps = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:linux": [
+            ":linux_system_headers",
+        ],
+    }) + [
         ":builtin_headers",
         ":c",
     ],
@@ -467,8 +496,12 @@ cc_bootstrap_library(
         "lib/libunwind/src/Unwind-seh.cpp",
         "lib/libunwind/src/Unwind_AIXExtras.cpp",
     ],
-    implementation_deps = [
-        ":linux_system_headers",
+    implementation_deps = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:linux": [
+            ":linux_system_headers",
+        ],
+    }) + [
         ":builtin_headers",
         ":c",
     ],

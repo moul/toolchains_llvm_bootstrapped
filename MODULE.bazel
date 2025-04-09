@@ -80,7 +80,8 @@ use_repo(toolchains, "zig_sdk", "zig_sdk-linux-amd64", "zig_sdk-linux-arm64", "z
 non_module_deps = use_extension("//:non_module_deps.bzl", "non_module_deps")
 use_repo(non_module_deps, "llvm-raw", "llvm_zlib", "llvm_zstd", "vulkan_headers")
 
-bazel_dep(name = "rules_python", version = "1.2.0") # dependency from llvm-project
+# bazel_dep(name = "rules_python", version = "1.2.0") # dependency from llvm-project
+bazel_dep(name = "rules_python", version = "0.29.0")
 llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
 llvm_configure(name = "llvm-project")
 

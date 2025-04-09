@@ -1,5 +1,5 @@
-load("@//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
-load("@//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
+load("@cc-toolchain//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
+load("@cc-toolchain//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
 load("@cc-toolchain//overlays/llvm-project/compiler-rt:targets.bzl", "atomic_helper_cc_library")
 
 filegroup(
@@ -259,12 +259,17 @@ cc_bootstrap_library(
     srcs = select({
         "@cc-toolchain//constraint:linux_x86_64": [":builtins_x86_64_sources"],
         "@cc-toolchain//constraint:linux_aarch64": [":builtins_aarch64_sources"],
+        "@cc-toolchain//constraint:macos_aarch64": [":builtins_aarch64_sources"],
     }, no_match_error = """
         Platform not supported for compiler-rt.builtins.
         It is likely that we are just missing the filegroups for that platform.
         Please file an issue.
     """),
     copts = [
+        "-fno-builtin",
+        "-std=c11",
+        "-fvisibility=hidden",
+        "-Wbuiltin-declaration-mismatch",
         "-nostdinc",
     ],
     textual_hdrs = [
@@ -282,13 +287,20 @@ cc_bootstrap_library(
         "lib/builtins/int_to_fp_impl.inc",
         "lib/builtins/cpu_model/cpu_model.h",
     ] + select({
-        "@cc-toolchain//constraint:linux_aarch64": [
+        "@platforms//cpu:aarch64": [
             "lib/builtins/cpu_model/AArch64CPUFeatures.inc",
             "lib/builtins/cpu_model/aarch64/hwcap.inc",
-            "lib/builtins/cpu_model/aarch64/fmv/mrs.inc",
-            "lib/builtins/cpu_model/aarch64/fmv/getauxval.inc",
             # "lib/builtins/cpu_model/aarch64/lse_atomics/atomic_helper.inc",
             "lib/builtins/cpu_model/aarch64/lse_atomics/getauxval.inc",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "@cc-toolchain//constraint:linux_aarch64": [
+            "lib/builtins/cpu_model/aarch64/fmv/mrs.inc",
+            "lib/builtins/cpu_model/aarch64/fmv/getauxval.inc",
+        ],
+        "@cc-toolchain//constraint:macos_aarch64": [
+            "lib/builtins/cpu_model/aarch64/fmv/apple.inc",
         ],
         "//conditions:default": [],
     }),
@@ -305,7 +317,7 @@ cc_bootstrap_library(
         "lib/builtins/int_types.h",
         "lib/builtins/int_util.h",
     ] + select({
-        "@cc-toolchain//constraint:linux_aarch64": [
+        "@platforms//cpu:aarch64": [
             "lib/builtins/cpu_model/aarch64.h",
         ],
         "//conditions:default": [],
@@ -313,7 +325,7 @@ cc_bootstrap_library(
     features = ["-default_compile_flags"],
     linkstatic = True,
     deps = select({
-        "@cc-toolchain//constraint:linux_aarch64": [
+        "@platforms//cpu:aarch64": [
             ":builtins_aarch64_atomic",
         ],
         "//conditions:default": [],

@@ -11,6 +11,7 @@ cc_args(
     ] + select({
         "//constraint:linux_x86_64": ["x86_64-linux-gnu"],
         "//constraint:linux_aarch64": ["aarch64-linux-gnu"],
+        "//constraint:macos_aarch64": ["aarch64-apple-darwin"],
     }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )
