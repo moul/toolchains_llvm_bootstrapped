@@ -222,6 +222,102 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
+# pub fn compilerRtOptMode(comp: Compilation) std.builtin.OptimizeMode {
+#     if (comp.debug_compiler_runtime_libs) {
+#         return comp.root_mod.optimize_mode;
+#     }
+#     const target = comp.root_mod.resolved_target.result;
+#     switch (comp.root_mod.optimize_mode) {
+#         .Debug, .ReleaseSafe => return target_util.defaultCompilerRtOptimizeMode(target),
+#         .ReleaseFast => return .ReleaseFast,
+#         .ReleaseSmall => return .ReleaseSmall,
+#     }
+# }
+
+cc_bootstrap_library(
+    name = "c_nonshared",
+    copts = [
+        "-O2", # libc must be compiled with optimizations (should match with above)
+        "-std=gnu11",
+        "-fgnu89-inline",
+        "-fmerge-all-constants",
+        "-frounding-math",
+        "-Wno-unsupported-floating-point-opt", # For targets that don't support -frounding-math.
+        "-fno-common",
+        "-fmath-errno",
+        "-ftls-model=initial-exec",
+        "-Wno-ignored-attributes",
+        "-Qunused-arguments",
+
+        "-Wno-nonportable-include-path",
+
+        "-include",
+        "$(location lib/libc/glibc/include/libc-modules.h)",
+        "-include",
+        "$(location lib/libc/glibc/include/libc-symbols.h)",
+    ],
+    local_defines = [
+        "NO_INITFINI",
+        "_LIBC_REENTRANT",
+        "MODULE_NAME=libc",
+        # "PIC",
+        "LIBC_NONSHARED=1",
+        "TOP_NAMESPACE=glibc",
+    ] + select({
+        "@cc-toolchain//constraint:linux_x86_64": [
+            "CAN_USE_REGISTER_ASM_EBP",
+        ],
+        "//conditions:default": [],
+    }),
+    hdrs = glob(["lib/libc/glibc/**"]),
+    includes = [
+        "lib/libc/glibc/csu",
+    ] + select({
+        "@cc-toolchain//constraint:linux_x86_64": glibc_includes("x86_64"),
+        "@cc-toolchain//constraint:linux_aarch64": glibc_includes("aarch64"),
+    }),
+    srcs = [
+        "lib/libc/glibc/stdlib/atexit.c",
+        "lib/libc/glibc/stdlib/at_quick_exit.c",
+        "lib/libc/glibc/sysdeps/pthread/pthread_atfork.c",
+        "lib/libc/glibc/debug/stack_chk_fail_local.c",
+
+        # if libc <= 2.32
+        # libc_nonshared.a redirected stat functions to xstat until glibc 2.33,
+        # when they were finally versioned like other symbols.
+        
+        "lib/libc/glibc/io/stat-2.32.c",
+        "lib/libc/glibc/io/fstat-2.32.c",
+        "lib/libc/glibc/io/lstat-2.32.c",
+        "lib/libc/glibc/io/stat64-2.32.c",
+        "lib/libc/glibc/io/fstat64-2.32.c",
+        "lib/libc/glibc/io/lstat64-2.32.c",
+        "lib/libc/glibc/io/fstatat-2.32.c",
+        "lib/libc/glibc/io/fstatat64-2.32.c",
+        "lib/libc/glibc/io/mknodat-2.32.c",
+        "lib/libc/glibc/io/mknod-2.32.c",
+
+        # if libc <= 2.33
+        # __libc_start_main used to require statically linked init/fini callbacks
+        # until glibc 2.34 when they were assimilated into the shared library.
+        "lib/libc/glibc/csu/elf-init-2.33.c",
+    ],
+    additional_compiler_inputs = [
+        "lib/libc/glibc/include/libc-modules.h",
+        "lib/libc/glibc/include/libc-symbols.h",
+    ],
+    implementation_deps = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:linux": [
+            ":linux_system_headers",
+        ],
+    }) + [
+        ":builtin_headers",
+        ":c",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 directory(
     name = "macos_libc_headers_base_directory",
     srcs = glob(["lib/libc/include/any-macos-any/**"]),
