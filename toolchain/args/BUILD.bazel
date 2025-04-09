@@ -1,5 +1,16 @@
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 
+# COMMON RESET FLAGS
+# --no-default-config
+# -fno-spell-checking
+
+    # if (target.cpu.arch.isArm()) {
+    #     try argv.append(if (target.cpu.arch.isThumb()) "-mthumb" else "-mno-thumb");
+    # }
+
+# -mcpu for arm assembly 
+
+
 cc_args(
     name = "llvm_target_for_platform",
     actions = [

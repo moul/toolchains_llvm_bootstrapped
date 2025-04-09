@@ -1,11 +1,20 @@
 load("//toolchain:selects.bzl", "platform_llvm_binary")
-load("@aspect_bazel_lib//lib:output_files.bzl", "output_files")
-# load("@aspect_bazel_lib//lib:select_file.bzl", "select_file")
 load("@bazel_skylib//rules:select_file.bzl", "select_file")
-
+load("//glibc:libc_shared_library.bzl", "make_glibc_shared_library")
 load(":rule.bzl", "glibc_stubs_assembly_files")
-load("//toolchain/bootstrap:cc_bootstrap_shared_library.bzl", "cc_bootstrap_shared_library")
-load("//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
+
+LIBC_SO_VERSIONS = {
+    "ld": "",
+    "c": "6",
+    "dl": "2",
+    "m": "6",
+    "pthread": "0",
+    "resolv": "2",
+    "rt": "1",
+    "util": "1",
+}
 
 alias(
     name = "glibc-stubs-generator",
@@ -25,7 +34,7 @@ glibc_stubs_assembly_files(
         srcs = ":generate_glibc_stubs",
         subpath = "glibc/build/" + lib + ".s",
         visibility = ["//visibility:public"],
-    ) for lib in ["c", "dl", "ld", "m", "pthread", "resolve", "rt", "utils"]
+    ) for lib in LIBC_SO_VERSIONS.keys()
 ]
 
 select_file(
@@ -35,62 +44,58 @@ select_file(
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "libc",
-    srcs = [
-        ":libc.s",
-    ],
+
+LIBS = [
+    make_glibc_shared_library(
+        lib_name = "lib" + lib if lib != "ld" else lib,
+        lib_version = version,
+        srcs = [":lib" + lib + ".s" if lib != "ld" else lib + ".s",],
+    ) for (lib, version) in LIBC_SO_VERSIONS.items()
+]
+
+sh_binary(
+    name = "create_glibc_search_directory",
+    srcs = ["copy_glibc.sh"],
 )
 
-cc_bootstrap_shared_library(
-    name = "libc.so",
-    deps = [":libc"],
-    additional_linker_inputs = [
-        ":all.map",
-    ],
-    user_link_flags = [
-        "-Wl,--version-script=$(location :all.map)",
-    ],
-    shared_lib_name = "libc.so.6",
+run_binary(
+    name = "glibc_search_directory",
+    tool = ":create_glibc_search_directory",
+    srcs = LIBS,
+    args = ["$(location :{})".format(lib) for lib in LIBS],
+    env = {
+        "OUTPUT_DIR": "$(RULEDIR)/libs",
+    }, 
+    out_dirs = ["libs"],
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "libpthread",
-    srcs = [
-        ":libpthread.s",
-    ],
+sh_binary(
+    name = "create_libSystem_search_directory",
+    srcs = ["copy_libSystem.sh"],
 )
 
-cc_bootstrap_shared_library(
-    name = "libpthread.so",
-    deps = [":libpthread"],
-    additional_linker_inputs = [
-        ":all.map",
-    ],
-    user_link_flags = [
-        "-Wl,--version-script=$(location :all.map)",
-    ],
-    shared_lib_name = "libpthread.so.0",
+run_binary(
+    name = "libSystem_search_directory",
+    tool = ":create_libSystem_search_directory",
+    srcs = ["@zig-srcs//:libSystem.tbd"],
+    args = ["$(location @zig-srcs//:libSystem.tbd)"],
+    env = {
+        "OUTPUT_DIR": "$(RULEDIR)/libs",
+    }, 
+    out_dirs = ["libs"],
     visibility = ["//visibility:public"],
 )
 
-cc_library(
-    name = "libdl",
-    srcs = [
-        ":libdl.s",
-    ],
-)
-
-cc_bootstrap_shared_library(
-    name = "libdl.so",
-    deps = [":libdl"],
-    additional_linker_inputs = [
-        ":all.map",
-    ],
-    user_link_flags = [
-        "-Wl,--version-script=$(location :all.map)",
-    ],
-    shared_lib_name = "libdl.so.2",
+alias(
+    name = "search_directory",
+    actual = select({
+        "@platforms//os:macos": ":libSystem_search_directory",
+        "@platforms//os:linux": ":glibc_search_directory",
+    }),
     visibility = ["//visibility:public"],
 )
+
+# Some invocations have -lc copts so we need to support this in a hermetic context. 
+# It was either creating a directory layout or making a wrapper
+# I chose the layout because it will also serve the purpose of generating sysroots for those who want this instead.
