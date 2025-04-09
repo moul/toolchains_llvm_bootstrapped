@@ -266,35 +266,37 @@ subdirectory(
     visibility = ["//visibility:public"],
 )
 
+COMMON_CXX_DEFINES = [
+    "_LIBCPP_ABI_VERSION=1",
+    "_LIBCPP_ABI_NAMESPACE=__1",
+    "_LIBCPP_HAS_THREADS", # HANDLE NO THREADS
+    "_LIBCPP_HAS_MONOTONIC_CLOCK",
+    "_LIBCPP_HAS_TERMINAL",
+    "_LIBCPP_HAS_NOMUSL_LIBC", # HANDLE MUSL
+    "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
+    "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+    "_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
+    "_LIBCPP_HAS_FILESYSTEM", # HANDLE NO FILEYSSTEM
+    "_LIBCPP_HAS_RANDOM_DEVICE",
+    "_LIBCPP_HAS_LOCALIZATION",
+    "_LIBCPP_HAS_UNICODE",
+    "_LIBCPP_HAS_WIDE_CHARACTERS",
+    "_LIBCPP_HAS_NO_STD_MODULES",
+    "_LIBCPP_HAS_TIME_ZONE_DATABASE", # LINUX
+    "_LIBCPP_PSTL_BACKEND_SERIAL",
+    "_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
+    # "_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION", # GLIBC < 2.16
+    "_LIBCPP_ENABLE_CXX17_REMOVED_UNEXPECTED_FUNCTIONS",
+]
+
 cc_bootstrap_library(
     name = "c++",
-    defines = [
-        # "_LIBCPP_HAS_NO_THREADS",
+    defines = COMMON_CXX_DEFINES + [
         "NDEBUG",
-        "_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE", # select based on compilation_mode
+        "LIBC_NAMESPACE=__llvm_libc_common_utils",
         "_LIBCPP_BUILDING_LIBRARY",
-        "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
-        "_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER",
-        "_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
         "LIBCXX_BUILDING_LIBCXXABI",
-
-        # See libcxx/include/__algorithm/pstl_backends/cpu_backends/backend.h
-        # for potentially enabling some fancy features here, which would
-        # require corresponding changes in libcxx.zig, as well as
-        # Compilation.addCCArgs. This option makes it use serial backend which
-        # is simple and works everywhere.
-        "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
-        "_LIBCPP_PSTL_BACKEND_SERIAL",
-        "_LIBCPP_ABI_VERSION=1",
-        "_LIBCPP_ABI_NAMESPACE=__1",
-
-        # "_LIBCPP_HAS_MUSL_LIBC"
-        # if (target.isGnuLibC()) {
-        #   glibc 2.16 introduced aligned_alloc
-        #   if (target.os.versionRange().gnuLibCVersion().?.order(.{ .major = 2, .minor = 16, .patch = 0 }) == .lt) {
-        #     try cflags.append("-D_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION");
-        #   }
-        # }
+        "_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER",
     ],
     features = ["-default_compile_flags"],
     copts = [
@@ -305,17 +307,19 @@ cc_bootstrap_library(
         "-Wno-suggest-override",
         "-fvisibility=hidden",
         "-fvisibility-inlines-hidden",
-        "-faligned-allocation",
+        "-faligned-allocation", # .zos = -fno-aligned-allocation
     ],
     includes = [
         "lib/libcxx/include",
         "lib/libcxx/src",
         "lib/libcxxabi/include",
         "lib/libcxxabi/src",
+        "lib/libcxx/libc",
     ],
     hdrs = glob([
         "lib/libcxx/include/**",
         "lib/libcxxabi/include/**",
+        "lib/libcxx/libc/**",
     ]),
     textual_hdrs = glob([
         "lib/libcxx/src/**/*.h",
@@ -348,7 +352,6 @@ cc_bootstrap_library(
         "lib/libcxx/src/ios.cpp",
         "lib/libcxx/src/ios.instantiations.cpp",
         "lib/libcxx/src/iostream.cpp",
-        "lib/libcxx/src/legacy_pointer_safety.cpp",
         "lib/libcxx/src/locale.cpp",
         "lib/libcxx/src/memory.cpp",
         "lib/libcxx/src/memory_resource.cpp",

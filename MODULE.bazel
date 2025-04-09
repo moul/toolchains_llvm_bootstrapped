@@ -46,9 +46,9 @@ http_archive(
 
 http_archive(
     name = "zig-srcs",
-    urls = ["https://github.com/ziglang/zig/archive/refs/tags/0.14.0.tar.gz"],
-    strip_prefix = "zig-0.14.0",
-    integrity = "sha256-tFWJt4KpQGpBSjysIBygJDZQ+b7ctFNzDBJL9vB6sz8=",
+    urls = ["https://ziglang.org/builds/zig-macos-aarch64-0.15.0-dev.263+d8153fa74.tar.xz"],
+    strip_prefix = "zig-macos-aarch64-0.15.0-dev.263+d8153fa74",
+    integrity = "sha256-9gblYeoBFiPgRGsWCiuZMj+IXErUIqU5jfXYu/ek++w=",
     build_file = "//overlays/ziglang/zig:BUILD.tpl",
 )
 
