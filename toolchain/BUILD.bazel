@@ -1,9 +1,8 @@
 load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
-load("@rules_cc//cc/toolchains:feature_set.bzl", "cc_feature_set")
 load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
 load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
-load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
+load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 load("//toolchain:selects.bzl", "platform_llvm_binary")
 
 licenses(["notice"])
@@ -84,266 +83,96 @@ cc_tool(
 ##
 ##
 
-cc_args(
-    name = "builtin_headers_include_paths",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
-    args = [
-        "-isystem",
-        "{builtin_headers_include_path}",
-    ],
-    format = {
-        "builtin_headers_include_path": "@zig-srcs//:include",
-    },
-    data = [
-        "@zig-srcs//:include",
-    ],
-)
-
-cc_args(
-    name = "linux_system_headers_include_paths",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
-    args = [
-        "-isystem",
-        "{linux_system_headers_include_path}",
-        "-isystem",
-        "{linux_system_headers_include_path2}",
-    ],
-    format = {
-        "linux_system_headers_include_path": "@zig-srcs//:linux_system_headers_arch_specific_directory",
-        "linux_system_headers_include_path2": "@zig-srcs//:linux_system_headers_generic_directory",
-    },
-    data = [
-        "@zig-srcs//:linux_system_headers_arch_specific_directory",
-        "@zig-srcs//:linux_system_headers_generic_directory",
-    ],
-)
-
-cc_args(
-    name = "macos_libc_headers_include_paths",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
-    args = [
-        "-isystem",
-        "{macos_libc_headers_include_path}",
-    ],
-    format = {
-        "macos_libc_headers_include_path": "@zig-srcs//:macos_libc_headers_directory",
-    },
-    data = [
-        "@zig-srcs//:macos_libc_headers_directory",
-    ],
-)
-
-cc_args(
-    name = "glibc_headers_include_paths",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
-    args = [
-        "-DNO_BOOTSTRAP",
-        # "__GLIBC_MINOR__={d}", version.minor
-        "-isystem",
-        "{libc_headers_include_path}",
-        "-isystem",
-        "{libc_headers_include_path2}",
-    ],
-    format = {
-        "libc_headers_include_path": "@zig-srcs//:libc_headers_arch_specific_directory",
-        "libc_headers_include_path2": "@zig-srcs//:libc_headers_generic_directory",
-    },
-    data = [
-        "@zig-srcs//:libc_headers_arch_specific_directory",
-        "@zig-srcs//:libc_headers_generic_directory",
-    ],
-)
-COMMON_CXX_DEFINES = [
-    "-D_LIBCPP_ABI_VERSION=1",
-    "-D_LIBCPP_ABI_NAMESPACE=__1",
-    "-D_LIBCPP_HAS_THREADS", # HANDLE NO THREADS
-    "-D_LIBCPP_HAS_MONOTONIC_CLOCK",
-    "-D_LIBCPP_HAS_TERMINAL",
-    "-D_LIBCPP_HAS_NOMUSL_LIBC", # HANDLE MUSL
-    "-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
-    "-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
-    "-D_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
-    "-D_LIBCPP_HAS_FILESYSTEM", # HANDLE NO FILEYSSTEM
-    "-D_LIBCPP_HAS_RANDOM_DEVICE",
-    "-D_LIBCPP_HAS_LOCALIZATION",
-    "-D_LIBCPP_HAS_UNICODE",
-    "-D_LIBCPP_HAS_WIDE_CHARACTERS",
-    "-D_LIBCPP_HAS_NO_STD_MODULES",
-    "-D_LIBCPP_HAS_TIME_ZONE_DATABASE", # LINUX
-    "-D_LIBCPP_PSTL_BACKEND_SERIAL",
-    "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
-    # "-D_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION", # GLIBC < 2.16
-    "-D_LIBCPP_ENABLE_CXX17_REMOVED_UNEXPECTED_FUNCTIONS",
-]
-
-
-# move args in a generated config file ?
-cc_args(
-    name = "libcxx_headers_include_paths",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:cpp_compile_actions",
-    ],
-    args = COMMON_CXX_DEFINES + [
-      
-        "-isystem",
-        "{libcxx_headers_include_path}",
-        "-isystem",
-        "{libcxxabi_headers_include_path}",
-    ],
-    format = {
-        "libcxx_headers_include_path": "@zig-srcs//:libcxx/include",
-        "libcxxabi_headers_include_path": "@zig-srcs//:libcxxabi/include",
-    },
-    data = [
-        "@zig-srcs//:libcxx/include",
-        "@zig-srcs//:libcxxabi/include",
-    ],
-)
-
-cc_args(
-    name = "hermetic_args",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:link_actions",
-    ],
-    args = [
-        "-nostdinc",
-        "-nostdlib",
-        # extra hermetic options (prevent clang to pass default -L/lib/... to the linker)
-        "--sysroot=/dev/null",
-    ],
-)
-
-cc_args(
-    name = "macos_default_libs",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:link_actions",
-    ],
-    # -l: is not supported by lld64
-    args = [
-        # "{System}",
-        "{compiler_rt_builtins}",
-        "{libcxx}",
-        "-L{libc_library_search_path}",
-        "-lSystem",
-    ],
-    format = {
-        # "System": "@zig-srcs//:libSystem.tbd",
-        "compiler_rt_builtins": "@compiler-rt//:builtins.static",
-        "libcxx": "@zig-srcs//:c++",
-        "libc_library_search_path": "//glibc:search_directory",
-    },
-    data = [
-        # "@zig-srcs//:libSystem.tbd",
-        "@compiler-rt//:builtins.static",
-        "@zig-srcs//:c++",
-        "//glibc:search_directory",
-    ],
-)
-
-cc_args(
-    name = "linux_default_libs",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:link_actions",
-    ],
-    args = [
-        "-L.", # needed to -l:bazel-out/...
-        "-l:{Scrt1}",
-        "-l:{compiler_rt_builtins}",
-        "-l:{libunwind}",
-        "-l:{libcxx}",
-        "-l:{libc_nonshared}",
-        "-L{libc_library_search_path}",
-        "-lc",
-        "-ldl",
-        "-lpthread",
-        # "-l:{libc}",
-        # "-l:{libdl}",
-        # "-l:{libpthread}",
-    ],
-    data = [
-        "@zig-srcs//:Scrt1.static",
-        "@compiler-rt//:builtins.static",
-        "@zig-srcs//:libunwind",
-        "@zig-srcs//:c++",
-        "@zig-srcs//:c_nonshared",
-        "//glibc:search_directory",
-        # "//glibc:libc.so",
-        # "//glibc:libdl.so",
-        # "//glibc:libpthread.so",
-    ],
-    format = {
-        "Scrt1": "@zig-srcs//:Scrt1.static",
-        "compiler_rt_builtins": "@compiler-rt//:builtins.static",
-        "libunwind": "@zig-srcs//:libunwind",
-        "libcxx": "@zig-srcs//:c++",
-        "libc_nonshared": "@zig-srcs//:c_nonshared",
-        # "libc": "//glibc:libc.so",
-        # "libdl": "//glibc:libdl.so",
-        # "libpthread": "//glibc:libpthread.so",
-        "libc_library_search_path": "//glibc:search_directory",
-    },
-)
-
-cc_args(
-    name = "use_lld",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:link_actions",
-    ],
-    args = [
-        "-fuse-ld=lld",
-        # "--ld-path={lld_path}",
-        "-mmacosx-version-min=13.0",
-        "-v",
-    ],
+cc_args_list(
+    name = "default_link_flags",
+    args = select({
+        "@platforms//os:macos": [
+            "//toolchain/args/macos:macos_default_link_flags",
+        ],
+        "//conditions:default": [],
+    }, no_match_error = "Unsupported platform for default_link_flags"),
 )
 
 cc_args_list(
     name = "default_libs",
     args = select({
         "@platforms//os:macos": [
-            ":macos_default_libs",
+            "//toolchain/args/macos:macos_default_libs",
         ],
         "@platforms//os:linux": [
-            ":linux_default_libs",
+            "//toolchain/args/linux:linux_default_libs",
         ],
+        "//conditions:default": [],
     }, no_match_error = "Unsupported platform for default_libs"),
 )
 
 cc_args_list(
-    name = "libc_include_paths",
-    args = select({
-        "@platforms//os:macos": [
-            "macos_libc_headers_include_paths",
-        ],
-        "@platforms//os:linux": [
-            "linux_system_headers_include_paths",
-            "glibc_headers_include_paths",
-        ],
-    }, no_match_error = "Unsupported platform"),
+    name = "macos_toolchain_args",
+    args = [
+        # hermetic compile flags as well ?,
+        "//toolchain/args/macos:macos_sdk_sysroot",
+        "//toolchain/args:llvm_target_for_platform",
+        "//toolchain/args:libcxx_headers_include_paths",
+        "//toolchain/args:builtin_headers_include_paths",
+        # "libc_include_paths",
+
+        # Link
+        # "//toolchain/args/macos:hermetic_link_args",
+        "//toolchain/args:use_lld",
+        ":default_link_flags",
+        ":default_libs",
+    ],
+)
+
+cc_args_list(
+    name = "linux_toolchain_args",
+    args = [
+        # hermetic compile flags as well ?,
+        "//toolchain/args/linux:linux_no_sysroot",
+        "//toolchain/args:llvm_target_for_platform",
+        "//toolchain/args:libcxx_headers_include_paths",
+        "//toolchain/args:builtin_headers_include_paths",
+        "//toolchain/args/linux:linux_system_headers_include_paths",
+        "//toolchain/args/linux:glibc_headers_include_paths",
+
+        # Link
+        "//toolchain/args:use_lld",
+        ":default_link_flags",
+        ":default_libs",
+    ],
+)
+
+cc_args(
+    name = "verbose",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = [
+        "-v",
+    ],
 )
 
 cc_toolchain(
     name = "xclang",
-    args = [
-        # hermetic as well ?
-        "//toolchain/args:llvm_target_for_platform",
-        "libcxx_headers_include_paths",
-        "builtin_headers_include_paths",
-        "libc_include_paths",
+    args = [":verbose"] + select({
+        "@platforms//os:macos": [":macos_toolchain_args"],
+        "@platforms//os:linux": [":linux_toolchain_args"],
+        "//conditions:default": [],
+    }, no_match_error = "Unsupported platform for xclang"),
+    # args = [
+    #     # hermetic compile flags as well ?,
+    #     "macos_sdk_sysroot",
+    #     "//toolchain/args:llvm_target_for_platform",
+    #     "libcxx_headers_include_paths",
+    #     "builtin_headers_include_paths",
+    #     # "libc_include_paths",
 
-        # Link
-        "hermetic_args",
-        "use_lld",
-        "default_libs",
-    ],
+    #     # Link
+    #     "hermetic_args",
+    #     "use_lld",
+    #     "default_libs",
+    # ],
     enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
     known_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
     tool_map = ":all_tools",

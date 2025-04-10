@@ -9,8 +9,9 @@ for arg in "$@"; do
     name="${filename%.*}"
 
     cp $arg "$OUTPUT_DIR"
-    if [[ $filename != "ld.so" ]]; then
-        ln -s "$filename" "$OUTPUT_DIR/${filename%%.so*}.so"
+    if [ "$filename" != "ld.so" ]; then
+        echo "INPUT($filename)" > "$OUTPUT_DIR/${filename%%.so*}.so"
+        # ln -s "$filename" "$OUTPUT_DIR/${filename%%.so*}.so"
     fi
 done
 

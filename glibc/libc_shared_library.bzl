@@ -11,6 +11,8 @@ def make_glibc_shared_library(
         srcs = srcs,
     )
 
+    soname = lib_name + ".so{}".format("."+lib_version if len(lib_version) > 0 else "")
+
     cc_bootstrap_shared_library(
         name = lib_name + ".so",
         deps = [lib_name],
@@ -19,8 +21,9 @@ def make_glibc_shared_library(
         ],
         user_link_flags = [
             "-Wl,--version-script=$(location :all.map)",
+            "-Wl,-soname,{}".format(soname)
         ],
-        shared_lib_name = lib_name +".so{}".format("."+lib_version if len(lib_version) > 0 else ""),
+        shared_lib_name = soname,
         visibility = ["//visibility:public"],
     )
 

@@ -1,0 +1,73 @@
+
+load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
+load("@rules_cc//cc/toolchains/args:sysroot.bzl", "cc_sysroot")
+
+package(default_visibility = ["//visibility:public"])
+
+# cc_args(
+#     name = "macos_libc_headers_include_paths",
+#     actions = [
+#         "@rules_cc//cc/toolchains/actions:compile_actions",
+#     ],
+#     args = [
+#         "-isystem",
+#         "{macos_libc_headers_include_path}",
+#     ],
+#     format = {
+#         "macos_libc_headers_include_path": "@zig-srcs//:macos_libc_headers_directory",
+#     },
+#     data = [
+#         "@zig-srcs//:macos_libc_headers_directory",
+#     ],
+# )
+
+cc_sysroot(
+    name = "macos_sdk_sysroot",
+    sysroot = "@macosx15.4.sdk//:sysroot",
+    args = [
+        "-nostdinc++",
+        "-nobuiltininc",
+        "-nodefaultlibs",
+    ],
+    data = [
+        "@macosx15.4.sdk//:sysroot",
+    ],
+)
+
+cc_args(
+    name = "macos_default_link_flags",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = [
+        "-mmacosx-version-min=14.0",
+    ],
+)
+
+cc_args(
+    name = "macos_default_libs",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    # -l: is not supported by lld64
+    args = [
+        # "{System}",
+        "{compiler_rt_builtins}",
+        "{libcxx}",
+        # "-L{libc_library_search_path}",
+        "-lSystem",
+    ],
+    format = {
+        # "System": "@zig-srcs//:libSystem.tbd",
+        "compiler_rt_builtins": "@compiler-rt//:builtins.static",
+        "libcxx": "@zig-srcs//:c++",
+        # "libc_library_search_path": "//glibc:search_directory",
+    },
+    data = [
+        # "@zig-srcs//:libSystem.tbd",
+        "@compiler-rt//:builtins.static",
+        "@zig-srcs//:c++",
+        # "//glibc:search_directory",
+    ],
+)
+
