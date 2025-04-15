@@ -75,7 +75,7 @@ http_pkg_archive(
         "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/System/Library/Frameworks/Ruby.framework/Versions/Current/Headers/ruby",
     ],
     sha256 = "f8b0600aa4ad9b0b0b150fb62691dc561f47bc33ebc40546439f1460a0680913",
-    build_file = "//:_overrides/MacOSX15.4.sdk/BUILD.bazel",
+    build_file = "//overlays/macosx.sdk:BUILD.MacOSX15.4.sdk.tpl",
     strip_prefix = "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
 )
 # local_path_override(
