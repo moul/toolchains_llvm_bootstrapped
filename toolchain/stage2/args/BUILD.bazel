@@ -1,12 +1,12 @@
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 
 cc_args(
-    name = "bootstrap_differentiation",
+    name = "bootstrap_stage_differentiation",
     actions = [
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
     args = [
-        "-DBOOTSTRAP_DIFFERENTIATION",
+        "-DBOOTSTRAP_STAGE_2",
         "-mmacosx-version-min=14.0",
     ],
     visibility = ["//visibility:public"],

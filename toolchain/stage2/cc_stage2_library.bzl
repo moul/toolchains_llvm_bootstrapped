@@ -17,7 +17,7 @@ _builder.set("host_linkopt", [""])
 
 _builder.set(
     "host_platform",
-    Label("//toolchain/bootstrap:bootstrap_stage_1_platform"),
+    Label("//toolchain/stage2:bootstrap_stage_2_platform"),
 )
 
-cc_bootstrap_library, _cc_bootstrap_library_internal  = _builder.build()
+cc_stage2_library, _cc_stage2_library_internal  = _builder.build()

@@ -84,26 +84,26 @@ constraint_setting(
 )
 
 constraint_value(
-    name = "bootstrap_stage_1",
+    name = "bootstrap_stage_2",
     constraint_setting = ":bootstrap_stage",
     visibility = ["//visibility:public"],
 )
 
 platform(
-    name = "bootstrap_stage_1_platform",
+    name = "bootstrap_stage_2_platform",
     constraint_values = [
-        ":bootstrap_stage_1",
+        ":bootstrap_stage_2",
     ],
     parents = ["@local_config_platform//:host"],
     visibility = ["//visibility:public"],
 )
 
 cc_toolchain(
-    name = "bootstrap",
+    name = "stage2",
     args = [
         "//toolchain/args:llvm_target_for_platform",
-        "//toolchain/bootstrap/args:bootstrap_differentiation",
-        "//toolchain/bootstrap/args:default_link_flags",
+        "//toolchain/stage2/args:bootstrap_stage_differentiation",
+        "//toolchain/stage2/args:default_link_flags",
     ],
     enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
     known_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
@@ -112,11 +112,11 @@ cc_toolchain(
 )
 
 toolchain(
-    name = "bootstrap_toolchain",
-    toolchain = ":bootstrap",
+    name = "stage2_toolchain",
+    toolchain = ":stage2",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
     exec_compatible_with = HOST_CONSTRAINTS + [
-        "//toolchain/bootstrap:bootstrap_stage_1",
+        "//toolchain/stage2:bootstrap_stage_2",
     ],
     visibility = ["//visibility:public"],
 )

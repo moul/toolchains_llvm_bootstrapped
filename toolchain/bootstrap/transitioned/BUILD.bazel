@@ -1,7 +1,0 @@
-load("//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
-
-cc_bootstrap_library(
-    name = "transitioned",
-    srcs = ["main.cc"],
-    visibility = ["//visibility:public"],
-)

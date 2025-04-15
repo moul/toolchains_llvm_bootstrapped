@@ -1,5 +1,5 @@
-load("@cc-toolchain//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
-load("@cc-toolchain//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
+load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
+load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load("@cc-toolchain//overlays/llvm-project/compiler-rt:targets.bzl", "atomic_helper_cc_library")
 
 filegroup(
@@ -249,12 +249,12 @@ builtins_aarch64_atomic_deps = [
     if pat == "cas" or size != 16
 ]
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "builtins_aarch64_atomic",
     deps = builtins_aarch64_atomic_deps,
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "builtins",
     srcs = select({
         "@cc-toolchain//constraint:linux_x86_64": [":builtins_x86_64_sources"],
@@ -338,7 +338,7 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_static_library(
+cc_stage2_static_library(
     name = "builtins.static",
     deps = [
         ":builtins",

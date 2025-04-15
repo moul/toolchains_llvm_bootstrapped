@@ -1,5 +1,5 @@
-load("@cc-toolchain//toolchain/bootstrap:cc_bootstrap_library.bzl", "cc_bootstrap_library")
-load("@cc-toolchain//toolchain/bootstrap:cc_bootstrap_static_library.bzl", "cc_bootstrap_static_library")
+load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
+load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load("@bazel_skylib//rules/directory:directory.bzl", "directory")
 load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
 load("@cc-toolchain//overlays/ziglang/zig:helpers.bzl", "glibc_includes", "libc_headers", "linux_system_headers")
@@ -10,7 +10,7 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "init",
     copts = [
         "-nostdinc",
@@ -20,7 +20,7 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "abi_note",
     srcs = [
         "lib/libc/glibc/csu/abi-note.S",
@@ -47,7 +47,7 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "start",
     srcs = select({
         "@cc-toolchain//constraint:linux_x86_64": ["lib/libc/glibc/sysdeps/x86_64/start.S"],
@@ -123,19 +123,19 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "Scrt1",
     deps = [":start", ":init", ":abi_note"],
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_static_library(
+cc_stage2_static_library(
     name = "Scrt1.static",
     deps = [":Scrt1"],
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "builtin_headers",
     includes = [
         "lib/include",
@@ -159,7 +159,7 @@ subdirectory(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "linux_system_headers",
     hdrs = select({
         "@cc-toolchain//constraint:linux_x86_64": linux_system_headers("x86", as_glob = True),
@@ -200,7 +200,7 @@ subdirectory(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "c",
     # order matters
     includes = select({
@@ -234,7 +234,7 @@ cc_bootstrap_library(
 #     }
 # }
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "c_nonshared",
     copts = [
         "-O2", # libc must be compiled with optimizations (should match with above)
@@ -385,7 +385,7 @@ COMMON_CXX_DEFINES = [
     "_LIBCPP_ENABLE_CXX17_REMOVED_UNEXPECTED_FUNCTIONS",
 ]
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "c++abi",
     defines = COMMON_CXX_DEFINES + [
         "NDEBUG",
@@ -455,7 +455,7 @@ cc_bootstrap_library(
     visibility = ["//visibility:public"],
 )
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "c++",
     defines = COMMON_CXX_DEFINES + [
         "NDEBUG",
@@ -599,7 +599,7 @@ subdirectory(
 
 ## libunwind
 
-cc_bootstrap_library(
+cc_stage2_library(
     name = "libunwind",
     copts = [
         "-nostdinc",

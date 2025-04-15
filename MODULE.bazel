@@ -84,7 +84,7 @@ http_pkg_archive(
 # )
 
 register_toolchains(
-    "//toolchain/bootstrap:bootstrap_toolchain",
+    "//toolchain/stage2:stage2_toolchain",
     "//toolchain:xclang_toolchain",
 )
 
