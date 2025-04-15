@@ -55,9 +55,9 @@ cc_args(
         # compiler symbols.
         "-no-canonical-prefixes",
         "-Wno-builtin-macro-redefined",
-        "-D__DATE__=\\\"redacted\\\"",
-        "-D__TIMESTAMP__=\\\"redacted\\\"",
-        "-D__TIME__=\\\"redacted\\\"",
+        "-D__DATE__=\"redacted\"",
+        "-D__TIMESTAMP__=\"redacted\"",
+        "-D__TIME__=\"redacted\"",
     ],
 )
 
