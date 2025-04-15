@@ -1,8 +1,7 @@
 load("//toolchain:selects.bzl", "platform_llvm_binary")
 load("@bazel_skylib//rules:select_file.bzl", "select_file")
-load("//glibc:libc_shared_library.bzl", "make_glibc_shared_library")
+load(":libc_shared_library.bzl", "make_glibc_shared_library")
 load(":rule.bzl", "glibc_stubs_assembly_files")
-load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
 
 LIBC_SO_VERSIONS = {
@@ -21,6 +20,7 @@ alias(
     actual = platform_llvm_binary("bin/glibc-stubs-generator"),
 )
 
+# Generate assembly files for the glibc (one per lib)
 glibc_stubs_assembly_files(
     name = "generate_glibc_stubs",
     target = select({
@@ -31,6 +31,7 @@ glibc_stubs_assembly_files(
     visibility = ["//visibility:public"],
 )
 
+# Make one target per lib assembly file
 [
     select_file(
         name = "lib" + lib + ".s" if lib != "ld" else lib + ".s",
@@ -47,12 +48,18 @@ select_file(
     visibility = ["//visibility:public"],
 )
 
-
+# Make one cc_shared_library target per lib, using the assembly file
 LIBS = [
     make_glibc_shared_library(
         lib_name = "lib" + lib if lib != "ld" else lib,
         lib_version = version,
         srcs = [":lib" + lib + ".s" if lib != "ld" else lib + ".s",],
+        extra_link_flags = [
+            # _IO_stdin_used is defined as a global symbol in .rodata
+            # and needs to be relocated at runtime with values from the CRTs.
+            "-z",
+            "notext",
+        ] if lib == "c" else [],
     ) for (lib, version) in LIBC_SO_VERSIONS.items()
 ]
 
@@ -61,6 +68,7 @@ sh_binary(
     srcs = ["copy_glibc.sh"],
 )
 
+# Create a directory that will act as a search path for the libraries
 run_binary(
     name = "glibc_search_directory",
     tool = ":create_glibc_search_directory",
@@ -78,6 +86,7 @@ sh_binary(
     srcs = ["copy_libSystem.sh"],
 )
 
+# Do the same for libSystem
 run_binary(
     name = "libSystem_search_directory",
     tool = ":create_libSystem_search_directory",
@@ -90,6 +99,12 @@ run_binary(
     visibility = ["//visibility:public"],
 )
 
+# Some invocations have -lc copts so we need to support those in a hermetic
+# context. I had the choice between creating a directory layout or making a
+# compiler wrapper that would ignore specific -l flags.
+#
+# > I chose the layout because it will also serve the purpose of generating
+# > sysroots for those who want this instead.
 alias(
     name = "search_directory",
     actual = select({
@@ -99,6 +114,3 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-# Some invocations have -lc copts so we need to support this in a hermetic context. 
-# It was either creating a directory layout or making a wrapper
-# I chose the layout because it will also serve the purpose of generating sysroots for those who want this instead.

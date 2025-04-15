@@ -5,6 +5,7 @@ def make_glibc_shared_library(
     lib_name,
     lib_version,
     srcs,
+    extra_link_flags = [],
 ):
     cc_library(
         name = lib_name,
@@ -22,7 +23,7 @@ def make_glibc_shared_library(
         user_link_flags = [
             "-Wl,--version-script=$(location :all.map)",
             "-Wl,-soname,{}".format(soname)
-        ],
+        ] + extra_link_flags,
         shared_lib_name = soname,
         visibility = ["//visibility:public"],
     )

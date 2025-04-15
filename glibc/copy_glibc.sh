@@ -2,7 +2,7 @@
 
 # set -ex
 
-#TODO: Handle libc_nonshared.a etc...
+#TODO: Handle libc_nonshared.a and co for the sysroot generation.
 for arg in "$@"; do
     filename=$(basename "$arg")
     # get the name of the file without the extension

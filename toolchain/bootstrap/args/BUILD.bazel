@@ -21,11 +21,9 @@ cc_args(
         "--sysroot=/dev/null",
         "-fuse-ld=lld",
         # "--ld-path={lld_path}",
-        "-v",
+        # "-v",
         "-nostdinc",
         "-nostdlib",
-        "-z",
-        "notext",
     ],
     visibility = ["//visibility:public"],
 )
