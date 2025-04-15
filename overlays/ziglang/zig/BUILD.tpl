@@ -386,6 +386,76 @@ COMMON_CXX_DEFINES = [
 ]
 
 cc_bootstrap_library(
+    name = "c++abi",
+    defines = COMMON_CXX_DEFINES + [
+        "NDEBUG",
+        "LIBCXX_BUILDING_LIBCXXABI",
+        # DHAVE___CXA_THREAD_ATEXIT_IMPL (gnu but not linux and glibc >= 2.18)
+    ],
+    copts = [
+        "-fvisibility=hidden",
+        "-fvisibility-inlines-hidden",
+        # "-fPIC", #TODO: Support PIC
+        "-nostdinc",
+        "-nostdinc++",
+        "-fstrict-aliasing",
+        "-std=c++23",
+        "-Wno-user-defined-literals",
+        "-Wno-covered-switch-default",
+        "-Wno-suggest-override",
+    ],
+    includes = [
+        "lib/libcxx/include",
+        "lib/libcxx/src",
+        "lib/libcxxabi/include",
+        "lib/libcxxabi/src",
+        "lib/libcxx/libc",
+    ],
+    hdrs = glob([
+        "lib/libcxx/include/**",
+        "lib/libcxxabi/include/**",
+        "lib/libcxx/libc/**",
+    ]),
+    textual_hdrs = glob([
+        "lib/libcxx/src/**/*.h",
+        "lib/libcxx/src/**/*.ipp",
+        "lib/libcxxabi/src/**/*.h",
+        "lib/libcxxabi/src/**/*.def",
+    ]),
+    srcs = [
+        "lib/libcxxabi/src/abort_message.cpp",
+        "lib/libcxxabi/src/cxa_aux_runtime.cpp",
+        "lib/libcxxabi/src/cxa_default_handlers.cpp",
+        "lib/libcxxabi/src/cxa_demangle.cpp",
+        "lib/libcxxabi/src/cxa_exception.cpp",
+        "lib/libcxxabi/src/cxa_exception_storage.cpp",
+        "lib/libcxxabi/src/cxa_guard.cpp",
+        "lib/libcxxabi/src/cxa_handlers.cpp",
+        "lib/libcxxabi/src/cxa_noexception.cpp",
+        "lib/libcxxabi/src/cxa_personality.cpp",
+        "lib/libcxxabi/src/cxa_thread_atexit.cpp", # not if no threads
+        "lib/libcxxabi/src/cxa_vector.cpp",
+        "lib/libcxxabi/src/cxa_virtual.cpp",
+        "lib/libcxxabi/src/fallback_malloc.cpp",
+        "lib/libcxxabi/src/private_typeinfo.cpp",
+        "lib/libcxxabi/src/stdlib_exception.cpp",
+        "lib/libcxxabi/src/stdlib_new_delete.cpp",
+        "lib/libcxxabi/src/stdlib_stdexcept.cpp",
+        "lib/libcxxabi/src/stdlib_typeinfo.cpp",
+    ],
+    implementation_deps = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:linux": [
+            ":linux_system_headers",
+        ],
+    }) + [
+        ":builtin_headers",
+        ":c",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_bootstrap_library(
     name = "c++",
     defines = COMMON_CXX_DEFINES + [
         "NDEBUG",
@@ -396,14 +466,15 @@ cc_bootstrap_library(
     ],
     features = ["-default_compile_flags"],
     copts = [
+        "-fvisibility=hidden",
+        "-fvisibility-inlines-hidden",
+        "-faligned-allocation", # .zos = -fno-aligned-allocation
         "-nostdinc",
+        "-nostdinc++",
         "-std=c++23",
         "-Wno-user-defined-literals",
         "-Wno-covered-switch-default",
         "-Wno-suggest-override",
-        "-fvisibility=hidden",
-        "-fvisibility-inlines-hidden",
-        "-faligned-allocation", # .zos = -fno-aligned-allocation
     ],
     includes = [
         "lib/libcxx/include",
@@ -479,6 +550,7 @@ cc_bootstrap_library(
         "lib/libcxx/src/vector.cpp",
         "lib/libcxx/src/verbose_abort.cpp",
     ] + [
+        # thread files
         "lib/libcxx/src/atomic.cpp",
         "lib/libcxx/src/barrier.cpp",
         "lib/libcxx/src/condition_variable.cpp",
@@ -489,26 +561,6 @@ cc_bootstrap_library(
         "lib/libcxx/src/shared_mutex.cpp",
         # "lib/libcxx/src/support/win32/thread_win32.cpp",
         "lib/libcxx/src/thread.cpp",
-    ] + [
-        "lib/libcxxabi/src/abort_message.cpp",
-        "lib/libcxxabi/src/cxa_aux_runtime.cpp",
-        "lib/libcxxabi/src/cxa_default_handlers.cpp",
-        "lib/libcxxabi/src/cxa_demangle.cpp",
-        "lib/libcxxabi/src/cxa_exception.cpp",
-        "lib/libcxxabi/src/cxa_exception_storage.cpp",
-        "lib/libcxxabi/src/cxa_guard.cpp",
-        "lib/libcxxabi/src/cxa_handlers.cpp",
-        "lib/libcxxabi/src/cxa_noexception.cpp",
-        "lib/libcxxabi/src/cxa_personality.cpp",
-        "lib/libcxxabi/src/cxa_thread_atexit.cpp", # not if no threads
-        "lib/libcxxabi/src/cxa_vector.cpp",
-        "lib/libcxxabi/src/cxa_virtual.cpp",
-        "lib/libcxxabi/src/fallback_malloc.cpp",
-        "lib/libcxxabi/src/private_typeinfo.cpp",
-        "lib/libcxxabi/src/stdlib_exception.cpp",
-        "lib/libcxxabi/src/stdlib_new_delete.cpp",
-        "lib/libcxxabi/src/stdlib_stdexcept.cpp",
-        "lib/libcxxabi/src/stdlib_typeinfo.cpp",
     ],
     implementation_deps = select({
         "@platforms//os:macos": [],
