@@ -3,6 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 def _non_module_deps_impl(mctx):
     http_archive(
         name = "llvm-raw",
+        build_file_content = "# EMPTY",
         sha256 = "4d5ebbd40ce1e984a650818a4bb5ae86fc70644dec2e6d54e78b4176db3332e0",
         patch_args = ["-p1"],
         patches = [
@@ -40,8 +41,6 @@ def _non_module_deps_impl(mctx):
 
     return mctx.extension_metadata(
         reproducible = True,
-        root_module_direct_deps = "all",
-        root_module_direct_dev_deps = [],
     )
 
 non_module_deps = module_extension(
