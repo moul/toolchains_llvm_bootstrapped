@@ -125,6 +125,16 @@ cc_args(
     ],
     args = [
         "-fuse-ld=lld",
+        # lld will be used if it's next to clang.
+        # It would have been great to set the path explicitly.
         # "--ld-path={lld_path}",
-    ],
+    ] + select({
+        "@platforms//os:macos": [],
+        "//conditions:default": [
+            "-Wl,-no-as-needed", #TODO: ???
+            "-Wl,--build-id=md5",
+            "-Wl,--hash-style=gnu",
+            "-Wl,-z,relro,-z,now",
+        ],
+    }),
 )

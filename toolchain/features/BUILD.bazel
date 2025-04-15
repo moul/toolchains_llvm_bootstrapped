@@ -1,0 +1,97 @@
+load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
+load("@rules_cc//cc/toolchains:feature.bzl", "cc_feature")
+load("@rules_cc//cc/toolchains:feature_set.bzl", "cc_feature_set")
+
+# [x] opt
+# [x] dbg
+# [] fastbuild
+# [] static_linking_mode
+# [] dynamic_linking_mode
+# [] per_object_debug_info
+# [] static_link_cpp_runtimes
+
+cc_args(
+    name = "opt_link_flags",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = select({
+        "@platforms//os:macos": [
+             #TODO: should be on a config that match ld64 specifically
+            "-Wl,-dead_strip",
+        ],
+        "//conditions:default": [
+            #TODO: should be somehow done only if the choosen linker supports it
+            "-Wl,--gc-sections",
+        ],
+    }),
+)
+
+cc_args(
+    name = "opt_compile_flags",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = [
+        # No debug symbols.
+        # Maybe we should enable https://gcc.gnu.org/wiki/DebugFission for opt or
+        # even generally? However, that can't happen here, as it requires special
+        # handling in Bazel.
+        "-g0",
+
+        # Conservative choice for -O
+        # -O3 can increase binary size and even slow down the resulting binaries.
+        # Profile first and / or use FDO if you need better performance than this.
+        "-O2",
+
+        # Security hardening on by default.
+        # Conservative choice; -D_FORTIFY_SOURCE=2 may be unsafe in some cases.
+        "-D_FORTIFY_SOURCE=1",
+
+        # Disable assertions
+        "-DNDEBUG",
+
+        # Removal of unused code and data at link time (can this increase binary
+        # size in some cases?).
+        "-ffunction-sections",
+        "-fdata-sections",
+    ],
+)
+
+cc_feature(
+    name = "opt",
+    overrides = "@rules_cc//cc/toolchains/features:opt",
+    args = [
+        ":opt_compile_flags",
+        ":opt_link_flags",
+    ],
+)
+
+cc_args(
+    name = "dbg_compile_flags",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = [
+        "-g",
+    ],
+)
+
+cc_feature(
+    name = "dbg",
+    overrides = "@rules_cc//cc/toolchains/features:dbg",
+    args = [
+        ":dbg_compile_flags",
+    ],
+)
+
+###
+
+cc_feature_set(
+    name = "all_non_legacy_builtin_features",
+    all_of = [
+        ":opt",
+        ":dbg",
+    ],
+    visibility = ["//visibility:public"],
+)

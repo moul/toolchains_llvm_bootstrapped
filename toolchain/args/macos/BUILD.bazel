@@ -40,8 +40,13 @@ cc_args(
         "@rules_cc//cc/toolchains/actions:link_actions",
     ],
     args = [
-        "-mmacosx-version-min=14.0",
+        "-mmacosx-version-min=14.0", #TODO: Needed for compile action as well
+        "-headerpad_max_install_names",
     ],
+    env = {
+        # Required for hermetic links on macOS
+        "ZERO_AR_DATE": "1",
+    },
 )
 
 cc_args(
