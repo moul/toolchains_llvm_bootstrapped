@@ -3,7 +3,7 @@ load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
 load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
 load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
-load("//toolchain:selects.bzl", "platform_llvm_binary")
+load("//toolchain:selects.bzl", "platform_llvm_binary", "platform_llvm_binaries")
 
 licenses(["notice"])
 
@@ -57,6 +57,11 @@ cc_tool(
 cc_tool(
     name = "lld",
     src = platform_llvm_binary("bin/clang++"),
+    data = platform_llvm_binaries([
+        "bin/ld.lld",
+        "bin/ld64.lld",
+        "bin/lld",
+    ]),
 )
 
 cc_tool(
@@ -82,6 +87,7 @@ cc_tool(
 ##
 ##
 ##
+
 
 cc_args_list(
     name = "default_link_flags",
