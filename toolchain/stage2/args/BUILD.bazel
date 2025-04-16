@@ -7,7 +7,6 @@ cc_args(
     ],
     args = [
         "-DBOOTSTRAP_STAGE_2",
-        "-mmacosx-version-min=14.0",
     ],
     visibility = ["//visibility:public"],
 )
@@ -21,7 +20,6 @@ cc_args(
         "--sysroot=/dev/null",
         "-fuse-ld=lld",
         # "--ld-path={lld_path}",
-        # "-v",
         "-nostdinc",
         "-nostdlib",
     ],

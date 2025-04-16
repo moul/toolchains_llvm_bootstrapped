@@ -117,6 +117,7 @@ cc_args_list(
     args = [
         # hermetic compile flags as well ?,
         "//toolchain/args/macos:macos_sdk_sysroot",
+        "//toolchain/args/macos:macos_minimum_os_flags",
         "//toolchain/args:llvm_target_for_platform",
         "//toolchain/args:libcxx_headers_include_paths",
         "//toolchain/args:builtin_headers_include_paths",

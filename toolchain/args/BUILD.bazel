@@ -92,32 +92,6 @@ cc_args(
     ],
 )
 
-# cc_args(
-#     name = "hermetic_compile_args",
-#     actions = [
-#         "@rules_cc//cc/toolchains/actions:compile_actions",
-#     ],
-#     args = [
-#         "-nostdinc",
-#         "-nostdlib",
-#         # Just in case :)
-#         "--sysroot=/dev/null",
-#     ],
-# )
-
-# cc_args(
-#     name = "hermetic_link_args",
-#     actions = [
-#         "@rules_cc//cc/toolchains/actions:link_actions",
-#     ],
-#     args = [
-#         "-nostdinc",
-#         "-nostdlib",
-#         # extra hermetic options (prevent clang to pass default -L/lib/... to the linker)
-#         "--sysroot=/dev/null",
-#     ],
-# )
-
 cc_args(
     name = "use_lld",
     actions = [
