@@ -35,6 +35,7 @@ cc_sysroot(
     ],
 )
 
+#TODO: Retrieve this from the apple fragment
 cc_args(
     name = "macos_minimum_os_flags",
     actions = [

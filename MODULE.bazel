@@ -15,7 +15,8 @@ http_archive(
     name = "static-toolchain-artifacts-darwin-arm64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-darwin-arm64.tar.zst"],
     strip_prefix = "static-toolchain-artifacts-darwin-arm64",
-    build_file = "//:BUILD.artifacts.tpl",
+    integrity = "sha256-nFGFEZtpuqtrW2XmdvOeGU/kLwPGC0pxnkebHUsMF50=",
+    build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
 )
 # local_path_override(
 #     module_name = "static-toolchain-artifacts-darwin-arm64",
@@ -26,7 +27,7 @@ http_archive(
     name = "static-toolchain-artifacts-linux-arm64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-arm64.tar.zst"],
     strip_prefix = "static-toolchain-artifacts-linux-arm64",
-    build_file = "//:BUILD.artifacts.tpl",
+    build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
 )
 # local_path_override(
 #     module_name = "static-toolchain-artifacts-linux-arm64",
@@ -37,20 +38,13 @@ http_archive(
     name = "static-toolchain-artifacts-linux-x86_64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-x86_64.tar.zst"],
     strip_prefix = "static-toolchain-artifacts-linux-x86_64",
-    build_file = "//:BUILD.artifacts.tpl",
+    build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
 )
 # local_path_override(
 #     module_name = "static-toolchain-artifacts-linux-x86_64",
 #     path = "static-toolchain-artifacts-linux-x86_64",
 # )
 
-# http_archive(
-#     name = "zig-srcs",
-#     urls = ["https://ziglang.org/builds/zig-macos-aarch64-0.15.0-dev.263+d8153fa74.tar.xz"],
-#     strip_prefix = "zig-macos-aarch64-0.15.0-dev.263+d8153fa74",
-#     integrity = "sha256-9gblYeoBFiPgRGsWCiuZMj+IXErUIqU5jfXYu/ek++w=",
-#     build_file = "//overlays/ziglang/zig:BUILD.tpl",
-# )
 http_archive(
     name = "zig-srcs",
     urls = ["https://github.com/ziglang/zig/archive/ddcf6fcdf3452a4a7d55a27e7112e794447120b6.tar.gz"],

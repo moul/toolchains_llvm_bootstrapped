@@ -40,8 +40,8 @@ cc_stage2_library(
     includes = [
         "lib/libc/glibc/csu",
     ] + select({
-        "@cc-toolchain//constraint:linux_x86_64": glibc_includes("x86_64"),
-        "@cc-toolchain//constraint:linux_aarch64": glibc_includes("aarch64"),
+        "@cc-toolchain//platforms/config:linux_x86_64": glibc_includes("x86_64"),
+        "@cc-toolchain//platforms/config:linux_aarch64": glibc_includes("aarch64"),
     }),
     implementation_deps = [":c"],
     visibility = ["//visibility:public"],
@@ -50,8 +50,8 @@ cc_stage2_library(
 cc_stage2_library(
     name = "start",
     srcs = select({
-        "@cc-toolchain//constraint:linux_x86_64": ["lib/libc/glibc/sysdeps/x86_64/start.S"],
-        "@cc-toolchain//constraint:linux_aarch64": ["lib/libc/glibc/sysdeps/aarch64/start.S"],
+        "@cc-toolchain//platforms/config:linux_x86_64": ["lib/libc/glibc/sysdeps/x86_64/start.S"],
+        "@cc-toolchain//platforms/config:linux_aarch64": ["lib/libc/glibc/sysdeps/aarch64/start.S"],
     }, no_match_error = "Unsupported platform"),
     copts = [
         "-nostdinc",
@@ -113,8 +113,8 @@ cc_stage2_library(
     #     allow_empty = True
     # ),
     includes = select({
-        "@cc-toolchain//constraint:linux_x86_64": glibc_includes("x86_64"),
-        "@cc-toolchain//constraint:linux_aarch64": glibc_includes("aarch64"),
+        "@cc-toolchain//platforms/config:linux_x86_64": glibc_includes("x86_64"),
+        "@cc-toolchain//platforms/config:linux_aarch64": glibc_includes("aarch64"),
     }),
     implementation_deps = [
         ":linux_system_headers",
@@ -162,13 +162,13 @@ subdirectory(
 cc_stage2_library(
     name = "linux_system_headers",
     hdrs = select({
-        "@cc-toolchain//constraint:linux_x86_64": linux_system_headers("x86", as_glob = True),
-        "@cc-toolchain//constraint:linux_aarch64": linux_system_headers("aarch64", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_x86_64": linux_system_headers("x86", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_aarch64": linux_system_headers("aarch64", as_glob = True),
         "@platforms//os:macos": [],
     }, no_match_error = "Unsupported platform"),
     includes = select({
-        "@cc-toolchain//constraint:linux_x86_64": linux_system_headers("x86"),
-        "@cc-toolchain//constraint:linux_aarch64": linux_system_headers("aarch64"),
+        "@cc-toolchain//platforms/config:linux_x86_64": linux_system_headers("x86"),
+        "@cc-toolchain//platforms/config:linux_aarch64": linux_system_headers("aarch64"),
         "@platforms//os:macos": [],
     }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
@@ -177,8 +177,8 @@ cc_stage2_library(
 directory(
     name = "linux_system_headers_directory",
     srcs = select({
-        "@cc-toolchain//constraint:linux_x86_64": linux_system_headers("x86", as_glob = True),
-        "@cc-toolchain//constraint:linux_aarch64": linux_system_headers("aarch64", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_x86_64": linux_system_headers("x86", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_aarch64": linux_system_headers("aarch64", as_glob = True),
     }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )
@@ -186,8 +186,8 @@ directory(
 subdirectory(
     name = "linux_system_headers_arch_specific_directory",
     path = select({
-        "@cc-toolchain//constraint:linux_x86_64": "lib/libc/include/x86-linux-any",
-        "@cc-toolchain//constraint:linux_aarch64": "lib/libc/include/aarch64-linux-any",
+        "@cc-toolchain//platforms/config:linux_x86_64": "lib/libc/include/x86-linux-any",
+        "@cc-toolchain//platforms/config:linux_aarch64": "lib/libc/include/aarch64-linux-any",
     }, no_match_error = "Unsupported platform"),
     parent = ":linux_system_headers_directory",
     visibility = ["//visibility:public"],
@@ -204,13 +204,13 @@ cc_stage2_library(
     name = "c",
     # order matters
     includes = select({
-        "@cc-toolchain//constraint:linux_x86_64": libc_headers("x86_64"),
-        "@cc-toolchain//constraint:linux_aarch64": libc_headers("aarch64"),
+        "@cc-toolchain//platforms/config:linux_x86_64": libc_headers("x86_64"),
+        "@cc-toolchain//platforms/config:linux_aarch64": libc_headers("aarch64"),
         "@platforms//os:macos": ["lib/libc/include/any-macos-any"],
     }, no_match_error = "Unsupported platform"),
     hdrs = select({
-        "@cc-toolchain//constraint:linux_x86_64": libc_headers("x86_64", as_glob = True),
-        "@cc-toolchain//constraint:linux_aarch64": libc_headers("aarch64", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_x86_64": libc_headers("x86_64", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_aarch64": libc_headers("aarch64", as_glob = True),
         "@platforms//os:macos": glob(["lib/libc/include/any-macos-any/**"]),
     }, no_match_error = "Unsupported platform"),
     implementation_deps = select({
@@ -264,7 +264,7 @@ cc_stage2_library(
         "LIBC_NONSHARED=1",
         "TOP_NAMESPACE=glibc",
     ] + select({
-        "@cc-toolchain//constraint:linux_x86_64": [
+        "@cc-toolchain//platforms/config:linux_x86_64": [
             "CAN_USE_REGISTER_ASM_EBP",
         ],
         "//conditions:default": [],
@@ -273,8 +273,8 @@ cc_stage2_library(
     includes = [
         "lib/libc/glibc/csu",
     ] + select({
-        "@cc-toolchain//constraint:linux_x86_64": glibc_includes("x86_64"),
-        "@cc-toolchain//constraint:linux_aarch64": glibc_includes("aarch64"),
+        "@cc-toolchain//platforms/config:linux_x86_64": glibc_includes("x86_64"),
+        "@cc-toolchain//platforms/config:linux_aarch64": glibc_includes("aarch64"),
     }),
     srcs = [
         "lib/libc/glibc/stdlib/atexit.c",
@@ -339,8 +339,8 @@ filegroup(
 directory(
     name = "libc_headers_directory",
     srcs = select({
-        "@cc-toolchain//constraint:linux_x86_64": libc_headers("x86_64", as_glob = True),
-        "@cc-toolchain//constraint:linux_aarch64": libc_headers("aarch64", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_x86_64": libc_headers("x86_64", as_glob = True),
+        "@cc-toolchain//platforms/config:linux_aarch64": libc_headers("aarch64", as_glob = True),
     }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )
@@ -348,8 +348,8 @@ directory(
 subdirectory(
     name = "libc_headers_arch_specific_directory",
     path = select({
-        "@cc-toolchain//constraint:linux_x86_64": "lib/libc/include/x86_64-linux-gnu",
-        "@cc-toolchain//constraint:linux_aarch64": "lib/libc/include/aarch64-linux-gnu",
+        "@cc-toolchain//platforms/config:linux_x86_64": "lib/libc/include/x86_64-linux-gnu",
+        "@cc-toolchain//platforms/config:linux_aarch64": "lib/libc/include/aarch64-linux-gnu",
     }, no_match_error = "Unsupported platform"),
     parent = ":libc_headers_directory",
     visibility = ["//visibility:public"],

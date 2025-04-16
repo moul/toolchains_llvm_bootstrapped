@@ -22,9 +22,9 @@ cc_args(
     args = [
         "-target",
     ] + select({
-        "//constraint:linux_x86_64": ["x86_64-linux-gnu"],
-        "//constraint:linux_aarch64": ["aarch64-linux-gnu"],
-        "//constraint:macos_aarch64": ["aarch64-apple-darwin"],
+        "//platforms/config:linux_x86_64": ["x86_64-linux-gnu"],
+        "//platforms/config:linux_aarch64": ["aarch64-linux-gnu"],
+        "//platforms/config:macos_aarch64": ["aarch64-apple-darwin"],
     }, no_match_error = "Unsupported platform"),
 )
 

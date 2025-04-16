@@ -24,8 +24,8 @@ alias(
 glibc_stubs_assembly_files(
     name = "generate_glibc_stubs",
     target = select({
-        "//constraint:linux_x86_64": "x86_64-linux-gnu",
-        "//constraint:linux_aarch64": "aarch64-linux-gnu",
+        "//platforms/config:linux_x86_64": "x86_64-linux-gnu",
+        "//platforms/config:linux_aarch64": "aarch64-linux-gnu",
     }),
     abilist = "@zig-srcs//:glibc_abilists",
     visibility = ["//visibility:public"],

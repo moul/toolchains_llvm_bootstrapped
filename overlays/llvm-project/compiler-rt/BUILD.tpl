@@ -257,9 +257,9 @@ cc_stage2_library(
 cc_stage2_library(
     name = "builtins",
     srcs = select({
-        "@cc-toolchain//constraint:linux_x86_64": [":builtins_x86_64_sources"],
-        "@cc-toolchain//constraint:linux_aarch64": [":builtins_aarch64_sources"],
-        "@cc-toolchain//constraint:macos_aarch64": [":builtins_aarch64_sources"],
+        "@cc-toolchain//platforms/config:linux_x86_64": [":builtins_x86_64_sources"],
+        "@cc-toolchain//platforms/config:linux_aarch64": [":builtins_aarch64_sources"],
+        "@cc-toolchain//platforms/config:macos_aarch64": [":builtins_aarch64_sources"],
     }, no_match_error = """
         Platform not supported for compiler-rt.builtins.
         It is likely that we are just missing the filegroups for that platform.
@@ -295,11 +295,11 @@ cc_stage2_library(
         ],
         "//conditions:default": [],
     }) + select({
-        "@cc-toolchain//constraint:linux_aarch64": [
+        "@cc-toolchain//platforms/config:linux_aarch64": [
             "lib/builtins/cpu_model/aarch64/fmv/mrs.inc",
             "lib/builtins/cpu_model/aarch64/fmv/getauxval.inc",
         ],
-        "@cc-toolchain//constraint:macos_aarch64": [
+        "@cc-toolchain//platforms/config:macos_aarch64": [
             "lib/builtins/cpu_model/aarch64/fmv/apple.inc",
         ],
         "//conditions:default": [],
