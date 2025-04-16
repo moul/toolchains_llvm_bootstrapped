@@ -269,7 +269,7 @@ cc_stage2_library(
         "-fno-builtin",
         "-std=c11",
         "-fvisibility=hidden",
-        "-Wbuiltin-declaration-mismatch",
+        # "-Wbuiltin-declaration-mismatch",
         "-nostdinc",
     ],
     textual_hdrs = [
