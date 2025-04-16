@@ -29,8 +29,9 @@ bin/clang uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @ll
 bin/clang++ uid=0 gid=0 time=1672560000 mode=0755 type=link link=clang
 bin/clang-cpp uid=0 gid=0 time=1672560000 mode=0755 type=link link=clang
 bin/lld uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//lld:lld{strip_suffix})
-bin/ld64.lld uid=0 gid=0 time=1672560000 mode=0755 type=link link=ld.lld
-bin/wasm-ld uid=0 gid=0 time=1672560000 mode=0755 type=link link=ld.lld
+bin/ld.lld uid=0 gid=0 time=1672560000 mode=0755 type=link link=lld
+bin/ld64.lld uid=0 gid=0 time=1672560000 mode=0755 type=link link=lld
+bin/wasm-ld uid=0 gid=0 time=1672560000 mode=0755 type=link link=lld
 bin/llvm-ar uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-ar{strip_suffix})
 bin/llvm-as uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-as{strip_suffix})
 bin/llvm-libtool-darwin uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-libtool-darwin{strip_suffix})
