@@ -118,8 +118,10 @@ The main idea is that it uses a 1st toolchain (only the cross compiler and cross
 
 # Thanks
 
-None of this would have been possible without the support of @zml for which this toolchain has initially been created so I would like to thank the whole team and in particular @steeve for brainstorming the idea and providing guidance and support.
+None of this would have been possible without the support of [zml.ai](https://zml.ai/) for whom this toolchain has initially been created. They are building an **high performance inference suite** and this is by far the most impressive bazel project I've worked on.
+
+A particular thank you to [@steeve](https://github.com/steeve), the founder of [zml.ai](https://zml.ai) for planting the idea and providing guidance and support.
 
 Special thanks to the Bazel community for answering many of my interrogations on the Bazel slack and providing guidance when needed.
 
-Special mention for @dzbarsky, @fmeum, @keith, @armandomontanez and the whole `rules_cc` team for being supportive and reactive!
+Special mention for [@dzbarsky](https://github.com/dzbarsky), [@fmeum](https://github.com/fmeum), [@keith](https://github.com/keith), [@armandomontanez](https://github.com/armandomontanez) and the whole [bazelbuild/rules_cc](https://github.com/bazelbuild/rules_cc) team at Google for being supportive and reactive!
