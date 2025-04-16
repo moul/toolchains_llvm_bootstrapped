@@ -15,7 +15,7 @@ http_archive(
     name = "static-toolchain-artifacts-darwin-arm64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-darwin-arm64.tar.zst"],
     strip_prefix = "static-toolchain-artifacts-darwin-arm64",
-    sha256 = "9c5185119b69baab6b5b65e676f39e194fe42f03c60b4a719e479b1d4b0c179d",
+    sha256 = "613f9365321cee27a0e151cac6f43c58903452aeb9226c57199f41b0bf32874e",
     build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
 )
 http_archive(
@@ -31,10 +31,16 @@ http_archive(
 
 http_archive(
     name = "static-toolchain-artifacts-linux-arm64",
-    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-arm64.tar.zst"],
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-arm64-musl.tar.zst"],
     strip_prefix = "static-toolchain-artifacts-linux-arm64",
-    sha256 = "52c7b6557519e8090b2ed4144ebb3ef2627b502143ada5bb58e8c59e632b4799",
+    sha256 = "12171e17233ecfa1312c1220cc67884442f0b94d88c0d94502133f29576fd9f6",
     build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
+)
+http_archive(
+    name = "static-extras-toolchain-artifacts-linux-arm64",
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-extras-toolchain-artifacts-linux-arm64-musl.tar.zst"],
+    sha256 = "f5b21df60c5dd058eab5991f9aff0b131d4503a1d149a08bdce3e9b322023b05",
+    build_file = "//bootstrap/extras:BUILD.extras.tpl",
 )
 # local_path_override(
 #     module_name = "static-toolchain-artifacts-linux-arm64",
@@ -43,10 +49,16 @@ http_archive(
 
 http_archive(
     name = "static-toolchain-artifacts-linux-x86_64",
-    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-x86_64.tar.zst"],
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-x86_64-musl.tar.zst"],
     strip_prefix = "static-toolchain-artifacts-linux-x86_64",
-    sha256 = "4ad82ff014e20b884e3f658dc7a2bc1163f1340309b93c232acf83b920f100bb",
+    sha256 = "64fbea28bfa681c885da0655fd41733a418121525a446ca690e8296b5355745b",
     build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
+)
+http_archive(
+    name = "static-extras-toolchain-artifacts-linux-x86_64",
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-extras-toolchain-artifacts-linux-x86_64-musl.tar.zst"],
+    sha256 = "098ae87e597259aad700a3bc1bf3a6f597a2a64ffc7be376859c1ebbaa885fa6",
+    build_file = "//bootstrap/extras:BUILD.extras.tpl",
 )
 # local_path_override(
 #     module_name = "static-toolchain-artifacts-linux-x86_64",
