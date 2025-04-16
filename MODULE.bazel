@@ -95,11 +95,19 @@ archive_override(
     strip_prefix = "hermetic_cc_toolchain-{}".format(HERMETIC_CC_TOOLCHAIN_COMMIT),
 )
 
-bazel_dep(name = "glibc-stubs-generator", version = "0.0.0", dev_dependency = True)
-local_path_override(
+GLIBC_STUBS_GENERATOR_COMMIT = "8e02eb59503781f352ef6b9caf980da96e9a36c3"
+
+bazel_dep(name = "glibc-stubs-generator", version = "0.0.1", dev_dependency = True)
+archive_override(
     module_name = "glibc-stubs-generator",
-    path = "../glibc-stubs-generator",
+    urls = ["https://github.com/cerisier/glibc-stubs-generator/archive/{}.tar.gz".format(GLIBC_STUBS_GENERATOR_COMMIT)],
+    integrity = "sha256-TYyydxwJBbo4TSGQdVxfGNWEowLSBvoNWSfb4lQT7Kg=",
+    strip_prefix = "glibc-stubs-generator-{}".format(GLIBC_STUBS_GENERATOR_COMMIT),
 )
+# local_path_override(
+#     module_name = "glibc-stubs-generator",
+#     path = "../glibc-stubs-generator",
+# )
 
 toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains", dev_dependency = True)
 use_repo(toolchains, "zig_sdk")
