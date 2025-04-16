@@ -8,12 +8,12 @@ _builder = with_cfg(
 # a specific set of flags and compilation mode. It is not safe to let the user
 # interfere with them using default command line flags.
 # TODO: Expose a build setting to extend stage1 flags.
-_builder.set("copt", [""])
-_builder.set("cxxopt", [""])
-_builder.set("linkopt", [""])
-_builder.set("host_copt", [""])
-_builder.set("host_cxxopt", [""])
-_builder.set("host_linkopt", [""])
+_builder.set("copt", [])
+_builder.set("cxxopt", [])
+_builder.set("linkopt", [])
+_builder.set("host_copt", [])
+_builder.set("host_cxxopt", [])
+_builder.set("host_linkopt", [])
 
 _builder.set(
     "host_platform",
