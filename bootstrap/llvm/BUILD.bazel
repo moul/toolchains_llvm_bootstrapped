@@ -1,0 +1,24 @@
+load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
+load("//bootstrap:platforms.bzl", "PLATFORMS")
+load("//bootstrap/llvm:llvm_release.bzl", "llvm_release")
+
+[
+    llvm_release(name = platform.split(":")[1])
+    for platform in PLATFORMS
+]
+
+[
+    platform_transition_filegroup(
+        name = "for_" + platform.split(":")[1],
+        srcs = [
+            ":{}".format(platform.split(":")[1]),
+        ],
+        target_platform = platform,
+    )
+    for platform in PLATFORMS
+]
+
+filegroup(
+    name = "for_all_platforms",
+    srcs = ["for_" + platform.split(":")[1] for platform in PLATFORMS],
+)

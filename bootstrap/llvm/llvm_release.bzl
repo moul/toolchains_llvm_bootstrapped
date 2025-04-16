@@ -4,7 +4,7 @@ load("@aspect_bazel_lib//lib:tar.bzl", "tar")
 # .stripped is currently not buildable on macosx when cross compiling clang with hermetic_cc_toolchain because it doesn't expose the strip binary
 BUILD_STRIPPED = False
 
-def release_tar(name):
+def llvm_release(name):
     BINS = [
         "@llvm-project//clang:clang{}".format(".stripped" if BUILD_STRIPPED else ""),
         "@llvm-project//lld:lld{}".format(".stripped" if BUILD_STRIPPED else ""),
@@ -14,7 +14,6 @@ def release_tar(name):
         "@llvm-project//llvm:llvm-nm{}".format(".stripped" if BUILD_STRIPPED else ""),
         "@llvm-project//llvm:llvm-objcopy{}".format(".stripped" if BUILD_STRIPPED else ""),
     ] + [
-        "@glibc-stubs-generator//:glibc-stubs-generator"
         # "@llvm-project//llvm-cov:llvm-cov",
         # "@llvm-project//llvm-dwp:llvm-dwp",
         # "@llvm-project//llvm-objdump:llvm-objdump",
@@ -37,13 +36,11 @@ bin/llvm-as uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @
 bin/llvm-libtool-darwin uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-libtool-darwin{strip_suffix})
 bin/llvm-nm uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-nm{strip_suffix})
 bin/llvm-objcopy uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//llvm:llvm-objcopy{strip_suffix})
-bin/glibc-stubs-generator uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @glibc-stubs-generator//:glibc-stubs-generator)
 bin/llvm-strip uid=0 gid=0 time=1672560000 mode=0755 type=link link=llvm-objcopy
 bin/clang-tidy uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
 bin/clang-format uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
 bin/clangd uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
 bin/llvm-symbolizer uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
-bin/glibc-stubs-generator
 EOF
 """.format(
             strip_suffix = ".stripped" if BUILD_STRIPPED else "",

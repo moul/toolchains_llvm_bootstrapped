@@ -1,53 +1,33 @@
-# common          --experimental_platform_in_output_dir
 common          --enable_platform_specific_config
 
-common          --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 common          --incompatible_strict_action_env
+common          --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 
-# build           --dynamic_mode=off
-# build           --force_pic
-# build           --features=thin_lto
-# ThinLTO feature doesn't exist in Zig toolchain, so we must set the flags manually.
-# It also doesn't support LTO on darwin targets, so we can't set this globally.
-# Instead, we configure copt/linkopt inside the toolchain itself (with a WORKSPACE patch).
-#common --copt -flto=thin
+common          --experimental_cc_static_library
+common          --experimental_platform_in_output_dir
 
-# TODO(zbarsky): This doesn't compile due to "zlib.h" vs <zlib.h> usage.
+# TODO: LLVM doesn't compile otherwise due to "zlib.h" vs <zlib.h> usage.
 common --@llvm_zlib//:llvm_enable_zlib=false
 
-# Compilation Flags
-build           -c opt
-build           --strip=always
-build           --copt=-ffunction-sections
-build           --copt=-fdata-sections
-build:macos     --linkopt=-Wl,-dead_strip
+build:bootstrap           -c opt
+build:bootstrap           --strip=always
+build:bootstrap           --copt=-ffunction-sections
+build:bootstrap           --copt=-fdata-sections
+build:bootstrap           --dynamic_mode=off
+# ThinLTO feature doesn't exist in Zig toolchain, so we must set the flags manually.
+# It also doesn't support LTO on darwin targets, so we can't set this globally.
+# build:bootstrap --copt -flto=thin
 
-# hermetic_cc_toolchain registers strip as /usr/bin/false
-build:macos     --stripopt=-rSTx
+# TODO: add this back when the bootstrap toolchain is ourselves
+# Right now, lld is used for linux target, but host ld64 is used for macos target.
+# Because of this, strip args are not the same and depend on the target, not host.
 
-# apple strip strips in place without removing the symbol section
-# build:macos     --linkopt=-Wl,-no_exported_symbols
+build:bootstrap_for_linux_target           --stripopt=--strip-all
+#       because hermetic_cc_toolchain registers strip as /usr/bin/false.
 
-# build           --stripopt=--strip-all
+# TODO: remove this when the bootstrap toolchain is ourselves
+build:bootstrap_for_macos_target           --stripopt=-rSTx
+build:bootstrap_for_macos_target           --linkopt=-Wl,-dead_strip
 
 build:macos     --sandbox_add_mount_pair=/var/tmp
 build:linux     --sandbox_add_mount_pair=/tmp
-
-build:docker-sandbox --experimental_docker_image=ed1544e454989078f5dec1bfdabd8c5cc9c48e0705d07b678ab6ae3fb61952d2
-build:docker-sandbox --spawn_strategy=docker --strategy=Javac=docker --genrule_strategy=docker
-build:docker-sandbox --define=EXECUTOR=remote
-build:docker-sandbox --experimental_docker_verbose
-build:docker-sandbox --experimental_enable_docker_sandbox
-
-common --override_repository=+_repo_rules2+zig-srcs=zig-0.14.0
-common --override_repository=+_repo_rules2+compiler-rt=compiler-rt-20.1.1.src
-
-build --experimental_cc_static_library
-
-# REVERT
-# build:macos --platforms=//:linux_arm64
-# build --copt="-target"
-# build --copt="aarch64-linux-gnu"
-
-# build:macos --linkopt="-target"
-# build:macos --linkopt="aarch64-linux-gnu"
