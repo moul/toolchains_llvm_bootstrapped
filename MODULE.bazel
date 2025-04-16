@@ -14,7 +14,6 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 http_archive(
     name = "static-toolchain-artifacts-darwin-arm64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-darwin-arm64.tar.zst"],
-    strip_prefix = "static-toolchain-artifacts-darwin-arm64",
     sha256 = "613f9365321cee27a0e151cac6f43c58903452aeb9226c57199f41b0bf32874e",
     build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
 )
@@ -32,7 +31,6 @@ http_archive(
 http_archive(
     name = "static-toolchain-artifacts-linux-arm64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-arm64-musl.tar.zst"],
-    strip_prefix = "static-toolchain-artifacts-linux-arm64",
     sha256 = "12171e17233ecfa1312c1220cc67884442f0b94d88c0d94502133f29576fd9f6",
     build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
 )
@@ -50,7 +48,6 @@ http_archive(
 http_archive(
     name = "static-toolchain-artifacts-linux-x86_64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-x86_64-musl.tar.zst"],
-    strip_prefix = "static-toolchain-artifacts-linux-x86_64",
     sha256 = "64fbea28bfa681c885da0655fd41733a418121525a446ca690e8296b5355745b",
     build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
 )
