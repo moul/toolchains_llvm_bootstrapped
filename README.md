@@ -12,13 +12,13 @@ This toolchain brings a zero config, zero sysroot, and fully hermetic C/C++ cros
 
 Add this to your MODULE.bazel:
 ```python
-CC_TOOLCHAIN_COMMIT = "f3886f2a9b0f0e0249871153e07fb7f2875175d2"
+CC_TOOLCHAIN_COMMIT = "dec0912240a57a7ff3043728def116ef022718bf"
 
 bazel_dep(name = "cc-toolchain", version = "0.0.1")
 archive_override(
     module_name = "cc-toolchain",
     urls = ["https://github.com/cerisier/cc-toolchain/archive/{}.tar.gz".format(CC_TOOLCHAIN_COMMIT)],
-    integrity = "sha256-GyatEU01BX97O73yPJt2LV/tlWyQ+aed3dWHlDWsoTE=",
+    integrity = "sha256-K5uiZUAAuW/+5iOiFDneXa8xffE8ehWdNipa95HfE6c=",
     strip_prefix = "cc-toolchain-{}".format(CC_TOOLCHAIN_COMMIT),
 )
 
