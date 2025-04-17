@@ -166,6 +166,6 @@ register_toolchains("@zig_toolchains//:all", dev_dependency = True)
 
 # setting them last 
 register_toolchains(
-    # "//toolchain/stage2:stage2_toolchain",
-    # "//toolchain:xclang_toolchain",
+    "//toolchain/stage2:stage2_toolchain",
+    "//toolchain:xclang_toolchain",
 )
