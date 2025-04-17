@@ -105,7 +105,7 @@ cc_args(
     ] + select({
         "@platforms//os:macos": [],
         "//conditions:default": [
-            "-Wl,-no-as-needed", #TODO: ???
+            "-Wl,-no-as-needed",
             "-Wl,--build-id=md5",
             "-Wl,--hash-style=gnu",
             "-Wl,-z,relro,-z,now",
