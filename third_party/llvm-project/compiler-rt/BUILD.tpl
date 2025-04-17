@@ -1,6 +1,6 @@
 load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
-load("@cc-toolchain//overlays/llvm-project/compiler-rt:targets.bzl", "atomic_helper_cc_library")
+load("@cc-toolchain//third_party/llvm-project/compiler-rt:targets.bzl", "atomic_helper_cc_library")
 
 filegroup(
     name = "builtins_srcs",

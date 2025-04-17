@@ -2,7 +2,7 @@ load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library
 load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load("@bazel_skylib//rules/directory:directory.bzl", "directory")
 load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
-load("@cc-toolchain//overlays/ziglang/zig:helpers.bzl", "glibc_includes", "libc_headers", "linux_system_headers")
+load("@cc-toolchain//third_party/ziglang/zig:helpers.bzl", "glibc_includes", "libc_headers", "linux_system_headers")
 
 alias(
     name = "glibc_abilists",

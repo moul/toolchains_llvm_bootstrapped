@@ -7,8 +7,8 @@ def _non_module_deps_impl(mctx):
         sha256 = "4d5ebbd40ce1e984a650818a4bb5ae86fc70644dec2e6d54e78b4176db3332e0",
         patch_args = ["-p1"],
         patches = [
-            "//:267e293510ad0e273443bc1b6c3655f6307e3992.patch",
-            "//:llvm.patch",
+            "//third_party/llvm-project:llvm-267e293510ad0e273443bc1b6c3655f6307e3992.patch",
+            "//third_party/llvm-project:llvm-extra.patch",
         ],
         strip_prefix = "llvm-project-20.1.1.src",
         urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/llvm-project-20.1.1.src.tar.xz"],

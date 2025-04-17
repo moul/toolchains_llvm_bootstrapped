@@ -67,7 +67,7 @@ http_archive(
     urls = ["https://github.com/ziglang/zig/archive/ddcf6fcdf3452a4a7d55a27e7112e794447120b6.tar.gz"],
     strip_prefix = "zig-ddcf6fcdf3452a4a7d55a27e7112e794447120b6",
     integrity = "sha256-sYdt1inP/EQX/kYjlpelnAK+iVaGT6MDbvynHKUDd7g=",
-    build_file = "//overlays/ziglang/zig:BUILD.tpl",
+    build_file = "//third_party/ziglang/zig:BUILD.tpl",
 )
 
 http_archive(
@@ -75,7 +75,7 @@ http_archive(
     urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/compiler-rt-20.1.1.src.tar.xz"],
     strip_prefix = "compiler-rt-20.1.1.src",
     integrity = "sha256-xPdTEXzb/+Watd86rUknk+awKaJZGYyEO7C5yCxZ700=",
-    build_file = "//overlays/llvm-project/compiler-rt:BUILD.tpl",
+    build_file = "//third_party/llvm-project/compiler-rt:BUILD.tpl",
 )
 
 http_pkg_archive = use_repo_rule("//:http_pkg_archive.bzl", "http_pkg_archive")
@@ -86,7 +86,7 @@ http_pkg_archive(
         "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/System/Library/Frameworks/Ruby.framework/Versions/Current/Headers/ruby",
     ],
     sha256 = "f8b0600aa4ad9b0b0b150fb62691dc561f47bc33ebc40546439f1460a0680913",
-    build_file = "//overlays/macosx.sdk:BUILD.MacOSX15.4.sdk.tpl",
+    build_file = "//third_party/macosx.sdk:BUILD.MacOSX15.4.sdk.tpl",
     strip_prefix = "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
 )
 # local_path_override(
