@@ -172,19 +172,6 @@ cc_args_list(
 cc_toolchain(
     name = "xclang",
     args = [":verbose", ":toolchain_args"],
-    # args = [
-    #     # hermetic compile flags as well ?,
-    #     "macos_sdk_sysroot",
-    #     "//toolchain/args:llvm_target_for_platform",
-    #     "libcxx_headers_include_paths",
-    #     "builtin_headers_include_paths",
-    #     # "libc_include_paths",
-
-    #     # Link
-    #     "hermetic_args",
-    #     "use_lld",
-    #     "default_libs",
-    # ],
     known_features = [
         "@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features",
         "//toolchain/features:all_non_legacy_builtin_features",

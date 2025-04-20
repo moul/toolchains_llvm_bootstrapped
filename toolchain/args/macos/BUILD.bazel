@@ -24,14 +24,14 @@ package(default_visibility = ["//visibility:public"])
 
 cc_sysroot(
     name = "macos_sdk_sysroot",
-    sysroot = "@macosx15.4.sdk//:sysroot",
+    sysroot = "@macosx15.4.sdk//:sysroot-minimal",
     args = [
         "-nostdinc++",
         "-nobuiltininc",
         "-nodefaultlibs",
     ],
     data = [
-        "@macosx15.4.sdk//:sysroot",
+        "@macosx15.4.sdk//:sysroot-minimal",
     ],
 )
 
