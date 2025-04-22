@@ -5,8 +5,6 @@ load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
 load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
 load("//toolchain:selects.bzl", "platform_llvm_binary", "platform_llvm_binaries")
 
-licenses(["notice"])
-
 # This `select` happens under the target configuration. For macOS,
 # llvm-libtool-darwin should be used when creating static libraries even if the
 # exec platform is linux.
