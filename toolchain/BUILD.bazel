@@ -179,7 +179,8 @@ cc_toolchain(
     ],
     enabled_features = [
         "@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features",
-        "//toolchain/features:all_non_legacy_builtin_features",
+        # Do not enable this manually. Those features are enabled internally by --compilation_mode flags family.
+        # "//toolchain/features:all_non_legacy_builtin_features",
         "//toolchain/features/legacy:all_legacy_builtin_features",
     ],
     tool_map = ":all_tools",
