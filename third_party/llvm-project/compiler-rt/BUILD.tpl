@@ -1,9 +1,18 @@
 load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load("@cc-toolchain//third_party/llvm-project/compiler-rt:targets.bzl", "atomic_helper_cc_library")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
+# Avoid duplicate filename warning because of arch specific fp_mode.c
+copy_file(
+    name = "generic_fpmode.c",
+    src = "lib/builtins/fp_mode.c",
+    out = "lib/builtins/generic_fp_mode.c",
+    allow_symlink = True,
+)
 
 filegroup(
-    name = "builtins_srcs",
+    name = "builtins_generic_srcs",
     srcs = [
         "lib/builtins/absvdi2.c",
         "lib/builtins/absvsi2.c",
@@ -69,7 +78,8 @@ filegroup(
         "lib/builtins/floatunsisf.c",
         "lib/builtins/floatuntidf.c",
         "lib/builtins/floatuntisf.c",
-        # "fp_mode.c",
+        # Generatedby :generic_fp_mode.c
+        "lib/builtins/generic_fp_mode.c",
         "lib/builtins/int_util.c",
         "lib/builtins/lshrdi3.c",
         "lib/builtins/lshrti3.c",
@@ -138,7 +148,17 @@ filegroup(
 
         # Not Fuchsia.
         "lib/builtins/clear_cache.c",
-    ],
+    ] + select({
+        "@platforms//os:macos": [
+            "lib/builtins/atomic_flag_clear.c",
+            "lib/builtins/atomic_flag_clear_explicit.c",
+            "lib/builtins/atomic_flag_test_and_set.c",
+            "lib/builtins/atomic_flag_test_and_set_explicit.c",
+            "lib/builtins/atomic_signal_fence.c",
+            "lib/builtins/atomic_thread_fence.c",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 filegroup(
@@ -202,7 +222,7 @@ filegroup(
 filegroup(
     name = "builtins_x86_64_sources",
     srcs = [
-        ":builtins_srcs",
+        ":builtins_generic_srcs",
         ":builtins_generic_tf_sources",
         ":builtins_x86_arch_sources",
         ":builtins_x86_80_bit_sources",
@@ -229,7 +249,7 @@ filegroup(
 filegroup(
     name = "builtins_aarch64_sources",
     srcs = [
-        ":builtins_srcs",
+        ":builtins_generic_srcs",
         ":builtins_generic_tf_sources",
         ":builtins_aarch64_arch_sources",
         # "aarch64/chkstk.S", # if MINGW
