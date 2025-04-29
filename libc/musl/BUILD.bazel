@@ -4,6 +4,7 @@ load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load(":libc_musl_srcs_filegroup.bzl", "libc_musl_srcs_filegroup")
+load("//toolchain:selects.bzl", "platform_llvm_binary", "platform_llvm_binaries")
 
 libc_musl_srcs_filegroup(
     name = "musl_arch_compile_srcs",
@@ -112,10 +113,39 @@ copy_file(
     allow_symlink = True,
 )
 
+MUSL_LIBS = [
+    "m",
+    "rt",
+    "pthread",
+    "util",
+    "resolv",
+    "dl",
+    "crypt",
+    "xnet",
+]
+
+alias(
+    name = "llvm_ar",
+    actual = platform_llvm_binary("bin/llvm-ar"),
+)
+
+[
+    genrule(
+        name = "musl_lib{}".format(lib),
+        srcs = [],
+        outs = ["lib{}.a".format(lib)],
+        tools = [":llvm_ar"],
+        cmd = "$(location :llvm_ar) rc $@",
+        visibility = ["//visibility:public"],
+    ) for lib in MUSL_LIBS
+]
+
 copy_to_directory(
     name = "search_directory",
     srcs = [
         ":musl_libc.a",
+    ] + [
+        ":musl_lib{}".format(lib) for lib in MUSL_LIBS
     ],
     visibility = ["//visibility:public"],
 )

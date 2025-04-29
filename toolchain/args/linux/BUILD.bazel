@@ -163,12 +163,12 @@ cc_args(
         # But in the way we handle generating libc stubs, we chose to generate
         # empty libs for those that have been removed so that we do not have to
         # handle varying inclusions.
-        # "-lm",
-        # "-lpthread",
+        "-lm",
+        "-lpthread",
         "-lc",
-        # "-ldl",
-        # "-lrt",
-        # "-lutil",
+        "-ldl",
+        "-lrt",
+        "-lutil",
         "-Wl,--pop-state",
     ],
     data = [
