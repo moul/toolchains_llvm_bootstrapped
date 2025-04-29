@@ -246,7 +246,6 @@ cc_stage2_library(
     # glibc_c_nonshared
     name = "c_nonshared",
     copts = [
-        "-O2", # libc must be compiled with optimizations (should match with above)
         "-std=gnu11",
         "-fgnu89-inline",
         "-fmerge-all-constants",

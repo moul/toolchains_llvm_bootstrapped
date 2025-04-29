@@ -1,5 +1,31 @@
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 
+# libc must be compiled with optimizations (should match with above)
+cc_args(
+    name = "opt_compile_flags",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args =  [
+        "-DNDEBUG",
+        "-O2",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_args(
+    name = "dbg_compile_flags",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = [
+        "-D_DEBUG",
+        "-O0",
+        "-g",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 cc_args(
     name = "default_link_flags",
     actions = [

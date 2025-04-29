@@ -119,7 +119,14 @@ cc_toolchain(
         "//toolchain/args:llvm_target_for_platform",
         "//toolchain/stage2/args:default_link_flags",
         ":platform_specific_args",
-    ],
+    ] + select({
+        "//config:stage2_optimization_mode_debug": [
+            "//toolchain/stage2/args:dbg_compile_flags",
+        ],
+        "//conditions:default": [
+            "//toolchain/stage2/args:opt_compile_flags",
+        ],
+    }),
     enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
     known_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
     tool_map = ":all_tools",
