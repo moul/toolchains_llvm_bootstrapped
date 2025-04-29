@@ -1,11 +1,19 @@
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 
+# compile_actions minus assemble_actions (only preprocess_assemble)
+OPT_FLAGS_COMPILE_ACTIONS = [
+    "@rules_cc//cc/toolchains/actions:cpp_compile_actions",
+    "@rules_cc//cc/toolchains/actions:c_compile_actions",
+    "@rules_cc//cc/toolchains/actions:preprocess_assemble",
+    "@rules_cc//cc/toolchains/actions:objc_compile",
+    "@rules_cc//cc/toolchains/actions:objcpp_compile",
+]
+
 # libc must be compiled with optimizations (should match with above)
 cc_args(
     name = "opt_compile_flags",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
+    # compile_actions minus assemble_actions (only preprocess_assemble)
+    actions = OPT_FLAGS_COMPILE_ACTIONS,
     args =  [
         "-DNDEBUG",
         "-O2",
@@ -15,9 +23,7 @@ cc_args(
 
 cc_args(
     name = "dbg_compile_flags",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
+    actions = OPT_FLAGS_COMPILE_ACTIONS,
     args = [
         "-D_DEBUG",
         "-O0",
