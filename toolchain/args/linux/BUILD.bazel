@@ -44,7 +44,6 @@ cc_args(
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
     args = [
-        "-DNO_BOOTSTRAP",
         # "__GLIBC_MINOR__={d}", version.minor
         "-isystem",
         "{libc_headers_include_path}",
@@ -135,7 +134,6 @@ cc_args(
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
     args = [
-        "-DNO_BOOTSTRAP",
         "-isystem",
         "{libc_headers_include_path}",
     ],

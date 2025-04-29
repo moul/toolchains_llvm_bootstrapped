@@ -1,17 +1,6 @@
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 
 cc_args(
-    name = "bootstrap_stage_differentiation",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
-    args = [
-        "-DBOOTSTRAP_STAGE_2",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-cc_args(
     name = "default_link_flags",
     actions = [
         "@rules_cc//cc/toolchains/actions:link_actions",

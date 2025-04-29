@@ -117,7 +117,6 @@ cc_toolchain(
     name = "stage2",
     args = [
         "//toolchain/args:llvm_target_for_platform",
-        "//toolchain/stage2/args:bootstrap_stage_differentiation",
         "//toolchain/stage2/args:default_link_flags",
         ":platform_specific_args",
     ],
