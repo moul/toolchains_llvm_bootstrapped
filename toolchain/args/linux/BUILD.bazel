@@ -62,7 +62,7 @@ cc_args(
 )
 
 cc_args(
-    name = "linux_default_libs",
+    name = "linux_default_libs_gnu",
     actions = [
         "@rules_cc//cc/toolchains/actions:link_actions",
     ],
@@ -70,7 +70,21 @@ cc_args(
         "-L.", # needed to -l:bazel-out/...
         "-l:{Scrt1}",
         "-l:{compiler_rt_builtins}",
-        "-l:{libunwind}",
+
+        # return switch (target.os.tag) {
+        #     .macos,
+        #     .ios,
+        #     .watchos,
+        #     .tvos,
+        #     .visionos,
+        #     .freestanding,
+        #     .wasi, // Wasm/WASI currently doesn't offer support for libunwind, so don't link it.
+        #     => false,
+
+        #     .windows => target.abi.isGnu(),
+        #     else => true,
+        # };
+        "-l:{libunwind}", # only if libcxx on linux
         "-l:{libcxx}",
         "-l:{libcxxabi}",
         "-l:{libc_nonshared}",
@@ -99,7 +113,7 @@ cc_args(
         "@zig-srcs//:c++",
         "@zig-srcs//:c++abi",
         "@zig-srcs//:c_nonshared",
-        "//glibc:search_directory",
+        "//libc/glibc:search_directory",
     ],
     format = {
         "Scrt1": "@zig-srcs//:glibc_Scrt1.static",
@@ -108,6 +122,86 @@ cc_args(
         "libcxx": "@zig-srcs//:c++",
         "libcxxabi": "@zig-srcs//:c++abi",
         "libc_nonshared": "@zig-srcs//:c_nonshared",
-        "libc_library_search_path": "//glibc:search_directory",
+        "libc_library_search_path": "//libc/glibc:search_directory",
     },
+)
+
+
+###
+
+cc_args(
+    name = "musl_libc_headers_include_paths",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:compile_actions",
+    ],
+    args = [
+        "-DNO_BOOTSTRAP",
+        "-isystem",
+        "{libc_headers_include_path}",
+    ],
+    format = {
+        "libc_headers_include_path": "@musl_libc//:headers_aarch64_include_directory",
+    },
+    data = [
+        "@musl_libc//:headers_aarch64_include_directory",
+    ],
+)
+
+#TODO: Factorize this and gnu
+cc_args(
+    name = "linux_default_libs_musl",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = [
+        "-L.", # needed to -l:bazel-out/...
+        "-l:{Scrt1}",
+        "-l:{compiler_rt_builtins}",
+        "-l:{libunwind}", # only if libcxx on linux
+        "-l:{libcxx}",
+        "-l:{libcxxabi}",
+        # We need to support copts like -lc -ldl etc... 
+        "-L{libc_library_search_path}",
+
+        "-Wl,--start-group",
+        # In newer versions of musl_libc various libs such as libm, librt are
+        # normally included in libc and not available as separate libraries.
+        #
+        # But in the way we handle generating libc stubs, we chose to generate
+        # empty libs for those that have been removed so that we do not have to
+        # handle varying inclusions.
+        # "-lm",
+        # "-lpthread",
+        "-lc",
+        # "-ldl",
+        # "-lrt",
+        # "-lutil",
+        "-Wl,--end-group",
+    ],
+    data = [
+        "//libc/musl:musl_Scrt1",
+        "@compiler-rt//:builtins.static",
+        "@zig-srcs//:libunwind",
+        "@zig-srcs//:c++",
+        "@zig-srcs//:c++abi",
+        "//libc/musl:search_directory",
+    ],
+    format = {
+        "Scrt1": "//libc/musl:musl_Scrt1",
+        "compiler_rt_builtins": "@compiler-rt//:builtins.static",
+        "libunwind": "@zig-srcs//:libunwind",
+        "libcxx": "@zig-srcs//:c++",
+        "libcxxabi": "@zig-srcs//:c++abi",
+        "libc_library_search_path": "//libc/musl:search_directory",
+    },
+)
+
+alias(
+    name = "linux_default_libs",
+    actual = select({
+        "//constraints/libc:musl": ":linux_default_libs_musl",
+        "//platforms/config/libc_aware:gnu": ":linux_default_libs_gnu",
+        #TODO: Remove once we have set the default glibc for a given target
+        "//constraints/libc:unconstrained": ":linux_default_libs_gnu",
+    }),
 )

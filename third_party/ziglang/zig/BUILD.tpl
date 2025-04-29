@@ -43,7 +43,7 @@ cc_stage2_library(
         "@cc-toolchain//platforms/config:linux_x86_64": glibc_includes("x86_64"),
         "@cc-toolchain//platforms/config:linux_aarch64": glibc_includes("aarch64"),
     }),
-    implementation_deps = [":gnu-libc"],
+    implementation_deps = [":gnu_libc_headers"],
     visibility = ["//visibility:public"],
 )
 
@@ -118,7 +118,7 @@ cc_stage2_library(
     }),
     implementation_deps = [
         ":linux_system_headers",
-        ":gnu-libc",
+        ":gnu_libc_headers",
     ],
     visibility = ["//visibility:public"],
 )
@@ -201,7 +201,7 @@ subdirectory(
 )
 
 cc_stage2_library(
-    name = "gnu-libc",
+    name = "gnu_libc_headers",
     # order matters
     includes = select({
         "@cc-toolchain//platforms/config:linux_x86_64": glibc_headers("x86_64"),
@@ -231,6 +231,14 @@ cc_stage2_library(
 #         .Debug, .ReleaseSafe => return target_util.defaultCompilerRtOptimizeMode(target),
 #         .ReleaseFast => return .ReleaseFast,
 #         .ReleaseSmall => return .ReleaseSmall,
+#     }
+# }
+
+# pub fn defaultCompilerRtOptimizeMode(target: std.Target) std.builtin.OptimizeMode {
+#     if (target.cpu.arch.isWasm() and target.os.tag == .freestanding) {
+#         return .ReleaseSmall;
+#     } else {
+#         return .ReleaseFast;
 #     }
 # }
 
@@ -314,7 +322,7 @@ cc_stage2_library(
         ],
     }) + [
         ":posix_headers",
-        ":gnu-libc",
+        ":gnu_libc_headers",
     ],
     visibility = ["//visibility:public"],
 )
@@ -369,7 +377,6 @@ COMMON_CXX_DEFINES = [
     "_LIBCPP_HAS_THREADS", # HANDLE NO THREADS
     "_LIBCPP_HAS_MONOTONIC_CLOCK",
     "_LIBCPP_HAS_TERMINAL",
-    "_LIBCPP_HAS_NOMUSL_LIBC", # HANDLE MUSL
     "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
     "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
     "_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
@@ -384,7 +391,16 @@ COMMON_CXX_DEFINES = [
     "_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
     # "_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION", # GLIBC < 2.16
     "_LIBCPP_ENABLE_CXX17_REMOVED_UNEXPECTED_FUNCTIONS",
-]
+] + select({
+    "@cc-toolchain//constraints/libc:musl": [
+        "_LIBCPP_HAS_MUSL_LIBC",
+        "_LIBCXX_HAS_MUSL_LIBC",
+    ],
+    "//conditions:default": [
+        "_LIBCXX_HAS_NOMUSL_LIBC",
+        "_LIBCPP_HAS_NOMUSL_LIBC",
+    ],
+})
 
 cc_stage2_library(
     name = "c++abi",
@@ -451,8 +467,14 @@ cc_stage2_library(
         ],
     }) + [
         ":posix_headers",
-        ":gnu-libc",
-    ],
+    ] + select({
+        "@cc-toolchain//constraints/libc:musl": [
+            "@musl_libc//:musl_libc_headers",
+        ],
+        "//conditions:default": [
+            ":gnu_libc_headers",
+        ],
+    }),
     visibility = ["//visibility:public"],
 )
 
@@ -564,14 +586,20 @@ cc_stage2_library(
         "lib/libcxx/src/thread.cpp",
     ],
     implementation_deps = select({
-        "@platforms//os:macos": [],
         "@platforms//os:linux": [
             ":linux_system_headers",
         ],
+        "//conditions:default": [],
     }) + [
         ":posix_headers",
-        ":gnu-libc",
-    ],
+    ] + select({
+        "@cc-toolchain//constraints/libc:musl": [
+            "@musl_libc//:musl_libc_headers",
+        ],
+        "//conditions:default": [
+            ":gnu_libc_headers",
+        ],
+    }),
     visibility = ["//visibility:public"],
 )
 
@@ -666,7 +694,13 @@ cc_stage2_library(
         ],
     }) + [
         ":posix_headers",
-        ":gnu-libc",
-    ],
+    ] + select({
+        "@cc-toolchain//constraints/libc:musl": [
+            "@musl_libc//:musl_libc_headers",
+        ],
+        "//conditions:default": [
+            ":gnu_libc_headers",
+        ],
+    }),
     visibility = ["//visibility:public"],
 )

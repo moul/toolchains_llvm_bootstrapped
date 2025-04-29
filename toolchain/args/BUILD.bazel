@@ -22,8 +22,13 @@ cc_args(
     args = [
         "-target",
     ] + select({
-        "//platforms/config:linux_x86_64": ["x86_64-linux-gnu"],
-        "//platforms/config:linux_aarch64": ["aarch64-linux-gnu"],
+        #TODO: Generate this automatically
+        "//platforms/config/libc_aware:linux_x86_64": ["x86_64-linux-gnu"],
+        "//platforms/config/libc_aware:linux_aarch64": ["aarch64-linux-gnu"],
+        "//platforms/config/libc_aware:linux_x86_64_gnu": ["x86_64-linux-gnu"],
+        "//platforms/config/libc_aware:linux_aarch64_gnu": ["aarch64-linux-gnu"],
+        "//platforms/config/libc_aware:linux_x86_64_musl": ["x86_64-linux-musl"],
+        "//platforms/config/libc_aware:linux_aarch64_musl": ["aarch64-linux-musl"],
         "//platforms/config:macos_aarch64": ["aarch64-apple-darwin"],
     }, no_match_error = "Unsupported platform"),
 )
@@ -53,7 +58,6 @@ COMMON_CXX_DEFINES = [
     "-D_LIBCPP_HAS_THREADS", # HANDLE NO THREADS
     "-D_LIBCPP_HAS_MONOTONIC_CLOCK",
     "-D_LIBCPP_HAS_TERMINAL",
-    "-D_LIBCPP_HAS_NOMUSL_LIBC", # HANDLE MUSL
     "-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
     "-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
     "-D_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
@@ -68,7 +72,16 @@ COMMON_CXX_DEFINES = [
     "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
     # "-D_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION", # GLIBC < 2.16
     "-D_LIBCPP_ENABLE_CXX17_REMOVED_UNEXPECTED_FUNCTIONS",
-]
+] + select({
+    "//constraints/libc:musl": [
+        "-D_LIBCPP_HAS_MUSL_LIBC",
+        "-D_LIBCXX_HAS_MUSL_LIBC",
+    ],
+    "//conditions:default": [
+        "-D_LIBCXX_HAS_NOMUSL_LIBC",
+        "-D_LIBCPP_HAS_NOMUSL_LIBC",
+    ],
+})
 
 # move defines in a generated config file ?
 cc_args(
@@ -93,6 +106,16 @@ cc_args(
 )
 
 cc_args(
+    name = "static_link_executable",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:cpp_link_executable",
+    ],
+    args = [
+        "-static",
+    ],
+)
+
+cc_args(
     name = "use_lld",
     actions = [
         "@rules_cc//cc/toolchains/actions:link_actions",
@@ -104,6 +127,7 @@ cc_args(
         # "--ld-path={lld_path}",
     ] + select({
         "@platforms//os:macos": [],
+        #TODO: Put those at the right place, they are applied too early
         "//conditions:default": [
             "-Wl,-no-as-needed",
             "-Wl,--build-id=md5",
