@@ -338,12 +338,6 @@ subdirectory(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "libSystem.tbd",
-    srcs = ["lib/libc/darwin/libSystem.tbd"],
-    visibility = ["//visibility:public"],
-)
-
 directory(
     name = "glibc_headers_directory",
     srcs = select({
