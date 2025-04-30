@@ -71,7 +71,23 @@ http_archive(
     urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/compiler-rt-20.1.1.src.tar.xz"],
     strip_prefix = "compiler-rt-20.1.1.src",
     integrity = "sha256-xPdTEXzb/+Watd86rUknk+awKaJZGYyEO7C5yCxZ700=",
-    build_file = "//third_party/llvm-project/compiler-rt:BUILD.tpl",
+    build_file = "//third_party/llvm-project/20.1.1/compiler-rt:BUILD.tpl",
+)
+
+http_archive(
+    name = "libcxx",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/libcxx-20.1.1.src.tar.xz"],
+    strip_prefix = "libcxx-20.1.1.src",
+    integrity = "sha256-7qF9qkWQ7AbGAntmxRgBWFrOvy76YP3rmLZOqkdvxR0=",
+    build_file = "//third_party/llvm-project/20.1.1/libcxx:BUILD.tpl",
+)
+
+http_archive(
+    name = "libcxxabi",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/libcxxabi-20.1.1.src.tar.xz"],
+    strip_prefix = "libcxxabi-20.1.1.src",
+    integrity = "sha256-e7JAkLXRi6x7xv3MTAA7kb+ylo7wjuEghH3s1LypWvQ=",
+    build_file = "//third_party/llvm-project/20.1.1/libcxxabi:BUILD.tpl",
 )
 
 http_pkg_archive = use_repo_rule("//:http_pkg_archive.bzl", "http_pkg_archive")

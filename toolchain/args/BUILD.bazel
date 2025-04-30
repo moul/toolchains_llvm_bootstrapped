@@ -51,57 +51,24 @@ cc_args(
     ],
 )
 
-#TODO: deduplicate or even better: generate a __config_site file with this
-COMMON_CXX_DEFINES = [
-    "-D_LIBCPP_ABI_VERSION=1",
-    "-D_LIBCPP_ABI_NAMESPACE=__1",
-    "-D_LIBCPP_HAS_THREADS", # HANDLE NO THREADS
-    "-D_LIBCPP_HAS_MONOTONIC_CLOCK",
-    "-D_LIBCPP_HAS_TERMINAL",
-    "-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
-    "-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
-    "-D_LIBCPP_HAS_NO_VENDOR_AVAILABILITY_ANNOTATIONS",
-    "-D_LIBCPP_HAS_FILESYSTEM", # HANDLE NO FILEYSSTEM
-    "-D_LIBCPP_HAS_RANDOM_DEVICE",
-    "-D_LIBCPP_HAS_LOCALIZATION",
-    "-D_LIBCPP_HAS_UNICODE",
-    "-D_LIBCPP_HAS_WIDE_CHARACTERS",
-    "-D_LIBCPP_HAS_NO_STD_MODULES",
-    "-D_LIBCPP_HAS_TIME_ZONE_DATABASE", # LINUX
-    "-D_LIBCPP_PSTL_BACKEND_SERIAL",
-    "-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
-    # "-D_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION", # GLIBC < 2.16
-    "-D_LIBCPP_ENABLE_CXX17_REMOVED_UNEXPECTED_FUNCTIONS",
-] + select({
-    "//constraints/libc:musl": [
-        "-D_LIBCPP_HAS_MUSL_LIBC",
-        "-D_LIBCXX_HAS_MUSL_LIBC",
-    ],
-    "//conditions:default": [
-        "-D_LIBCXX_HAS_NOMUSL_LIBC",
-        "-D_LIBCPP_HAS_NOMUSL_LIBC",
-    ],
-})
-
-# move defines in a generated config file ?
 cc_args(
     name = "libcxx_headers_include_paths",
     actions = [
         "@rules_cc//cc/toolchains/actions:cpp_compile_actions",
     ],
-    args = COMMON_CXX_DEFINES + [
+    args = [
         "-isystem",
         "{libcxx_headers_include_path}",
         "-isystem",
         "{libcxxabi_headers_include_path}",
     ],
     format = {
-        "libcxx_headers_include_path": "@zig-srcs//:libcxx/include",
-        "libcxxabi_headers_include_path": "@zig-srcs//:libcxxabi/include",
+        "libcxx_headers_include_path": "@libcxx//:libcxx_headers_directory",
+        "libcxxabi_headers_include_path": "@libcxxabi//:libcxxabi_headers_directory",
     },
     data = [
-        "@zig-srcs//:libcxx/include",
-        "@zig-srcs//:libcxxabi/include",
+        "@libcxx//:libcxx_headers_directory",
+        "@libcxxabi//:libcxxabi_headers_directory",
     ],
 )
 

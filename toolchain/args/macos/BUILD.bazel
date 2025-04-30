@@ -78,13 +78,13 @@ cc_args(
     ],
     format = {
         "compiler_rt_builtins": "@compiler-rt//:builtins.static",
-        "libcxx": "@zig-srcs//:c++",
-        "libcxxabi": "@zig-srcs//:c++abi",
+        "libcxx": "@libcxx//:libcxx",
+        "libcxxabi": "@libcxxabi//:libcxxabi",
     },
     data = [
         "@compiler-rt//:builtins.static",
-        "@zig-srcs//:c++",
-        "@zig-srcs//:c++abi",
+        "@libcxx//:libcxx",
+        "@libcxxabi//:libcxxabi",
     ],
 )
 

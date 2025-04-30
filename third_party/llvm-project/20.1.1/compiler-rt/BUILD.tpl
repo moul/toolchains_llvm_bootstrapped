@@ -1,7 +1,7 @@
 load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
-load("@cc-toolchain//third_party/llvm-project/compiler-rt:targets.bzl", "atomic_helper_cc_library")
-load("@cc-toolchain//third_party/llvm-project/compiler-rt:darwin_excludes.bzl", "filter_excludes")
+load("@cc-toolchain//third_party/llvm-project/20.1.1/compiler-rt:targets.bzl", "atomic_helper_cc_library")
+load("@cc-toolchain//third_party/llvm-project/20.1.1/compiler-rt:darwin_excludes.bzl", "filter_excludes")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 BUILTINS_GENERIC_SRCS = [
