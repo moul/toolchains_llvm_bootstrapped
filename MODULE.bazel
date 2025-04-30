@@ -90,6 +90,14 @@ http_archive(
     build_file = "//third_party/llvm-project/20.1.1/libcxxabi:BUILD.tpl",
 )
 
+http_archive(
+    name = "libunwind",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/libunwind-20.1.1.src.tar.xz"],
+    strip_prefix = "libunwind-20.1.1.src",
+    integrity = "sha256-70H6vnDVWAsdtNDjky8DDMpEibUJn7mJ2X2RIfzByKc=",
+    build_file = "//third_party/llvm-project/20.1.1/libunwind:BUILD.tpl",
+)
+
 http_pkg_archive = use_repo_rule("//:http_pkg_archive.bzl", "http_pkg_archive")
 http_pkg_archive(
     name = "macosx15.4.sdk",

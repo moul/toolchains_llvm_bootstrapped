@@ -99,7 +99,7 @@ cc_args(
     data = [
         "@zig-srcs//:glibc_Scrt1.static",
         "@compiler-rt//:builtins.static",
-        "@zig-srcs//:libunwind",
+        "@libunwind//:libunwind",
         "@libcxx//:libcxx",
         "@libcxxabi//:libcxxabi",
         "@zig-srcs//:c_nonshared",
@@ -108,7 +108,7 @@ cc_args(
     format = {
         "Scrt1": "@zig-srcs//:glibc_Scrt1.static",
         "compiler_rt_builtins": "@compiler-rt//:builtins.static",
-        "libunwind": "@zig-srcs//:libunwind",
+        "libunwind": "@libunwind//:libunwind",
         "libcxx": "@libcxx//:libcxx",
         "libcxxabi": "@libcxxabi//:libcxxabi",
         "libc_nonshared": "@zig-srcs//:c_nonshared",
@@ -174,7 +174,7 @@ cc_args(
     data = [
         "//libc/musl:musl_Scrt1",
         "@compiler-rt//:builtins.static",
-        "@zig-srcs//:libunwind",
+        "@libunwind//:libunwind",
         "@libcxx//:libcxx",
         "@libcxxabi//:libcxxabi",
         "//libc/musl:search_directory",
@@ -182,7 +182,7 @@ cc_args(
     format = {
         "Scrt1": "//libc/musl:musl_Scrt1",
         "compiler_rt_builtins": "@compiler-rt//:builtins.static",
-        "libunwind": "@zig-srcs//:libunwind",
+        "libunwind": "@libunwind//:libunwind",
         "libcxx": "@libcxx//:libcxx",
         "libcxxabi": "@libcxxabi//:libcxxabi",
         "libc_library_search_path": "//libc/musl:search_directory",

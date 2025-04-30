@@ -134,7 +134,7 @@ BUILTINS_GENERIC_SRCS = [
     # Not sure whether we want atomic in this or separately.
     "lib/builtins/atomic.c",
 
-    # Not sure whether this is for libunwind or gcc_s. gotta check.
+    # Needed by libunwind for C++ with exceptions.
     "lib/builtins/gcc_personality_v0.c",
 
     # Not Fuchsia.
