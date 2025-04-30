@@ -108,15 +108,7 @@ http_pkg_archive(
 
 ## DEV DEPENDENCIES
 
-HERMETIC_CC_TOOLCHAIN_COMMIT = "1f46faadb5c2751ec96fa8b34e41179b78fa3e7e" # unreleased commit for dev_dependency
-
-bazel_dep(name = "hermetic_cc_toolchain", version = "3.2.0", dev_dependency = True)
-archive_override(
-    module_name = "hermetic_cc_toolchain",
-    urls = ["https://github.com/uber/hermetic_cc_toolchain/archive/{}.tar.gz".format(HERMETIC_CC_TOOLCHAIN_COMMIT)],
-    integrity = "sha256-HC0MsB/XIZXsX4zN/rudu5VsBchObbm8fZ4HShFdxXg=",
-    strip_prefix = "hermetic_cc_toolchain-{}".format(HERMETIC_CC_TOOLCHAIN_COMMIT),
-)
+bazel_dep(name = "hermetic_cc_toolchain", version = "4.0.0", dev_dependency = True)
 
 GLIBC_STUBS_GENERATOR_COMMIT = "728bf4e3627adda4b3eb61eadc474361d15e2b95" # v2.0.1
 
