@@ -206,12 +206,10 @@ cc_stage2_library(
     includes = select({
         "@cc-toolchain//platforms/config:linux_x86_64": glibc_headers("x86_64"),
         "@cc-toolchain//platforms/config:linux_aarch64": glibc_headers("aarch64"),
-        "@platforms//os:macos": ["lib/libc/include/any-macos-any"],
     }, no_match_error = "Unsupported platform"),
     hdrs = select({
         "@cc-toolchain//platforms/config:linux_x86_64": glibc_headers("x86_64", as_glob = True),
         "@cc-toolchain//platforms/config:linux_aarch64": glibc_headers("aarch64", as_glob = True),
-        "@platforms//os:macos": glob(["lib/libc/include/any-macos-any/**"]),
     }, no_match_error = "Unsupported platform"),
     implementation_deps = select({
         "@platforms//os:macos": [],
@@ -323,18 +321,6 @@ cc_stage2_library(
         ":posix_headers",
         ":gnu_libc_headers",
     ],
-    visibility = ["//visibility:public"],
-)
-
-directory(
-    name = "macos_libc_headers_base_directory",
-    srcs = glob(["lib/libc/include/any-macos-any/**"]),
-)
-
-subdirectory(
-    name = "macos_libc_headers_directory",
-    path = "lib/libc/include/any-macos-any",
-    parent = ":macos_libc_headers_base_directory",
     visibility = ["//visibility:public"],
 )
 

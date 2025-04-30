@@ -1315,6 +1315,9 @@ cc_stage2_library(
         "@cc-toolchain//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
+        "@platforms//os:macos": [
+            "@macosx15.4.sdk//:macos_libc_headers",
+        ],
         "//conditions:default": [
             "@zig-srcs//:gnu_libc_headers",
         ],
