@@ -1,5 +1,6 @@
 
-load("@aspect_bazel_lib//lib:tar.bzl", "tar")
+load("@aspect_bazel_lib//lib:tar.bzl", "tar", "mtree_spec", "mtree_mutate")
+load("@llvm-project//:vars.bzl", "LLVM_VERSION_MAJOR")
 
 # .stripped is currently not buildable on macosx when cross compiling clang with hermetic_cc_toolchain because it doesn't expose the strip binary
 BUILD_STRIPPED = False
@@ -20,8 +21,24 @@ def llvm_release(name):
         # "@llvm-project//llvm-profdata:llvm-profdata",
     ]
 
+    mtree_spec(
+        name = "builtin_headers_mtree_",
+        srcs = [
+            "@llvm-project//clang:builtin_headers_files",
+        ],
+        tags = ["manual"],
+    )
+
+    mtree_mutate(
+        name = "builtin_headers_mtree",
+        mtree = "builtin_headers_mtree_",
+        strip_prefix = "clang/lib/Headers",
+        package_dir = "lib/clang/{}/include".format(LLVM_VERSION_MAJOR),
+        tags = ["manual"],
+    )
+
     native.genrule(
-        name = "{}_mtree".format(name),
+        name = "bins_mtree",
         srcs = BINS,
         cmd = """\
 cat <<EOF > $(@)
@@ -47,17 +64,37 @@ EOF
             strip_suffix = ".stripped" if BUILD_STRIPPED else "",
         ),
         outs = [
-            "{}.mtree".format(name),
+            "bins.mtree",
         ],
+        tags = ["manual"],
+    )
+
+    native.genrule(
+        name = "mtree",
+        srcs = [
+            ":bins_mtree",
+            ":builtin_headers_mtree",
+        ],
+        cmd = """\
+            cat $(location :builtin_headers_mtree) >> $(@)
+            cat $(location :bins_mtree) >> $(@)
+        """,
+        outs = [
+            "mtree_spec.mtree",
+        ],
+        tags = ["manual"],
     )
 
     tar(
         name = name,
-        srcs = BINS,
+        srcs = BINS + [
+            "@llvm-project//clang:builtin_headers_files",
+        ],
         args = [
             "--options",
             "zstd:compression-level=22",
         ],
         compress = "zstd",
-        mtree = "{}_mtree".format(name),
+        mtree = ":mtree_spec_mtree",
+        tags = ["manual"],
     )

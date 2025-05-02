@@ -13,7 +13,14 @@ alias(
 cc_stage2_library(
     name = "glibc_init",
     copts = [
-        "-nostdinc",
+        # Normally, we would pass -nostdinc, but since we pass -nostdlibinc
+        # from the stage2 toolchain args regarless, having them both cause a
+        # warning about -nostdlibinc being ignored, so we duplicate the
+        # -nostdlibinc and add -nobuiltininc to avoid the warning.
+        #
+        # -nostdinc = -nostdlibinc -nobuiltininc
+        "-nostdlibinc",
+        "-nobuiltininc",
     ],
     features = ["-default_compile_flags"],
     srcs = ["lib/libc/glibc/csu/init.c"],
@@ -26,7 +33,14 @@ cc_stage2_library(
         "lib/libc/glibc/csu/abi-note.S",
     ],
     copts = [
-        "-nostdinc",
+        # Normally, we would pass -nostdinc, but since we pass -nostdlibinc
+        # from the stage2 toolchain args regarless, having them both cause a
+        # warning about -nostdlibinc being ignored, so we duplicate the
+        # -nostdlibinc and add -nobuiltininc to avoid the warning.
+        #
+        # -nostdinc = -nostdlibinc -nobuiltininc
+        "-nostdlibinc",
+        "-nobuiltininc",
         "-Wa,--noexecstack",
     ],
     local_defines = [
@@ -54,7 +68,14 @@ cc_stage2_library(
         "@cc-toolchain//platforms/config:linux_aarch64": ["lib/libc/glibc/sysdeps/aarch64/start.S"],
     }, no_match_error = "Unsupported platform"),
     copts = [
-        "-nostdinc",
+        # Normally, we would pass -nostdinc, but since we pass -nostdlibinc
+        # from the stage2 toolchain args regarless, having them both cause a
+        # warning about -nostdlibinc being ignored, so we duplicate the
+        # -nostdlibinc and add -nobuiltininc to avoid the warning.
+        #
+        # -nostdinc = -nostdlibinc -nobuiltininc
+        "-nostdlibinc",
+        "-nobuiltininc",
         "-Wno-nonportable-include-path",
         "-Wa,--noexecstack",
         "-include",
@@ -132,30 +153,6 @@ cc_stage2_library(
 cc_stage2_static_library(
     name = "glibc_Scrt1.static",
     deps = [":glibc_Scrt1"],
-    visibility = ["//visibility:public"],
-)
-
-cc_stage2_library(
-    name = "posix_headers",
-    includes = [
-        "lib/include",
-    ],
-    hdrs = glob(["lib/include/**"]),
-    visibility = ["//visibility:public"],
-)
-
-directory(
-    name = "posix_headers_directory",
-    srcs = glob([
-        "lib/include/**",
-    ]),
-    visibility = ["//visibility:public"],
-)
-
-subdirectory(
-    name = "include",
-    path = "lib/include",
-    parent = ":posix_headers_directory",
     visibility = ["//visibility:public"],
 )
 
@@ -318,7 +315,6 @@ cc_stage2_library(
             ":linux_system_headers",
         ],
     }) + [
-        ":posix_headers",
         ":gnu_libc_headers",
     ],
     visibility = ["//visibility:public"],

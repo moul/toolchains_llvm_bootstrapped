@@ -12,10 +12,10 @@ bazel_dep(name = "with_cfg.bzl", version = "0.9.2")
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")    
 
 http_archive(
-    name = "static-toolchain-artifacts-darwin-arm64",
-    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-darwin-arm64.tar.zst"],
-    sha256 = "4c5d9e7fdb449ac8f5109c447dde57f417c5cbe5c5039bddc995af5336942e19",
-    build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
+    name = "llvm-toolchain-minimal-20.1.1-darwin-arm64",
+    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/bootstrap%2Fllvm%2F20.1.1/llvm-toolchain-minimal-20.1.1-darwin-arm64.tar.zst"],
+    sha256 = "764e9f22f6b8da92ff6325f63e9e8a3fb219cdbb04a5e7fd6614967812616b05",
+    build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
 http_archive(
     name = "static-extras-toolchain-artifacts-darwin-arm64",
@@ -25,28 +25,28 @@ http_archive(
 )
 
 http_archive(
-    name = "static-toolchain-artifacts-linux-arm64",
-    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-arm64-musl.tar.zst"],
-    sha256 = "e7f5dba632fe3faa3940a1ed6bf9c26e73da6c76af8c3cfe9e09276452a35255",
-    build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
+    name = "llvm-toolchain-minimal-20.1.1-linux-amd64",
+    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/bootstrap%2Fllvm%2F20.1.1/llvm-toolchain-minimal-20.1.1-linux-amd64-musl.tar.zst"],
+    sha256 = "101fedb574389842a76ee714f530e46a7ee17b77b9f5ce1589a441e921af4c03",
+    build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
+)
+http_archive(
+    name = "static-extras-toolchain-artifacts-linux-amd64",
+    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.2/static-extras-toolchain-artifacts-linux-amd64-musl.tar.zst"],
+    sha256 = "813a43c93101e6bbd3b9e7620f6445d03034e774523b00752934fb87b42a2796",
+    build_file = "//bootstrap/extras:BUILD.extras.tpl",
+)
+
+http_archive(
+    name = "llvm-toolchain-minimal-20.1.1-linux-arm64",
+    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/bootstrap%2Fllvm%2F20.1.1/llvm-toolchain-minimal-20.1.1-linux-arm64-musl.tar.zst"],
+    sha256 = "f1ec58d1c479abeedab5f5ca5be4081781c4c68fb8a4603b5d94d55512a7c9bd",
+    build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
 http_archive(
     name = "static-extras-toolchain-artifacts-linux-arm64",
     urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.2/static-extras-toolchain-artifacts-linux-arm64-musl.tar.zst"],
     sha256 = "42acf797d6929b22e6e62de8924b1fc1478c320d24a28db82fd38fd0cf0c12fe",
-    build_file = "//bootstrap/extras:BUILD.extras.tpl",
-)
-
-http_archive(
-    name = "static-toolchain-artifacts-linux-x86_64",
-    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.1/static-toolchain-artifacts-linux-x86_64-musl.tar.zst"],
-    sha256 = "55bd26d56161d42d48b724a11e531ee37e7729b9e107fda31605a8e464ea720f",
-    build_file = "//bootstrap/llvm:BUILD.llvm_release.tpl",
-)
-http_archive(
-    name = "static-extras-toolchain-artifacts-linux-x86_64",
-    urls = ["https://github.com/cerisier/static-toolchains-artifacts/releases/download/0.0.2/static-extras-toolchain-artifacts-linux-amd64-musl.tar.zst"],
-    sha256 = "813a43c93101e6bbd3b9e7620f6445d03034e774523b00752934fb87b42a2796",
     build_file = "//bootstrap/extras:BUILD.extras.tpl",
 )
 

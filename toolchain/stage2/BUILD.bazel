@@ -1,86 +1,6 @@
-load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
-load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
 load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
 load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
 load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
-load("//toolchain:selects.bzl", "platform_llvm_binary", "platform_llvm_binaries")
-
-# This `select` happens under the target configuration. For macOS,
-# llvm-libtool-darwin should be used when creating static libraries even if the
-# exec platform is linux.
-alias(
-    name = "all_tools",
-    actual = select({
-        "@platforms//os:macos": ":macos_tools",
-        "//conditions:default": ":default_tools",
-    }),
-    visibility = ["//visibility:public"],
-)
-
-COMMON_TOOLS = {
-    "@rules_cc//cc/toolchains/actions:assembly_actions": ":clang",
-    "@rules_cc//cc/toolchains/actions:c_compile": ":clang",
-    "@rules_cc//cc/toolchains/actions:cpp_compile_actions": ":clang++",
-    "@rules_cc//cc/toolchains/actions:link_actions": ":lld",
-    "@rules_cc//cc/toolchains/actions:objcopy_embed_data": ":llvm-objcopy",
-    "@rules_cc//cc/toolchains/actions:strip": ":llvm-strip",
-}
-
-cc_tool_map(
-    name = "default_tools",
-    tools = COMMON_TOOLS | {
-        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-ar",
-    },
-    visibility = ["//visibility:private"],
-)
-
-cc_tool_map(
-    name = "macos_tools",
-    tools = COMMON_TOOLS | {
-        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-libtool-darwin",
-    },
-    visibility = ["//visibility:private"],
-)
-
-cc_tool(
-    name = "clang",
-    src = platform_llvm_binary("bin/clang"),
-)
-
-cc_tool(
-    name = "clang++",
-    src = platform_llvm_binary("bin/clang++"),
-)
-
-cc_tool(
-    name = "lld",
-    src = platform_llvm_binary("bin/clang++"),
-    data = platform_llvm_binaries([
-        "bin/ld.lld",
-        "bin/ld64.lld",
-        "bin/lld",
-    ]),
-)
-
-cc_tool(
-    name = "llvm-ar",
-    src = platform_llvm_binary("bin/llvm-ar"),
-)
-
-cc_tool(
-    name = "llvm-libtool-darwin",
-    src = platform_llvm_binary("bin/llvm-libtool-darwin"),
-)
-
-cc_tool(
-    name = "llvm-objcopy",
-    src = platform_llvm_binary("bin/llvm-objcopy"),
-)
-
-cc_tool(
-    name = "llvm-strip",
-    src = platform_llvm_binary("bin/llvm-strip"),
-)
 
 constraint_setting(
     name = "bootstrap_stage",
@@ -108,18 +28,19 @@ cc_args_list(
         "@platforms//os:macos": [
             "//toolchain/args/macos:macos_minimum_os_flags",
             "//toolchain/args/macos:macos_default_link_flags",
+            "//toolchain/args/macos:macos_sdk_sysroot",
+            "//toolchain/args/macos:hermetic_macos_args_cpp",
+        ],
+        "@platforms//os:linux": [
+            "//toolchain/args/linux:hermetic_linux_args",
         ],
         "//conditions:default": [],
     }),
 )
 
-cc_toolchain(
-    name = "stage2",
-    args = [
-        "//toolchain/args:llvm_target_for_platform",
-        "//toolchain/stage2/args:default_link_flags",
-        ":platform_specific_args",
-    ] + select({
+cc_args_list(
+    name = "optimization_flags",
+    args = select({
         "//config:stage2_optimization_mode_debug": [
             "//toolchain/stage2/args:dbg_compile_flags",
         ],
@@ -127,9 +48,20 @@ cc_toolchain(
             "//toolchain/stage2/args:opt_compile_flags",
         ],
     }),
+)
+
+cc_toolchain(
+    name = "stage2",
+    args = [
+        "//toolchain/args:llvm_target_for_platform",
+        "//toolchain/stage2/args:default_compile_flags",
+        "//toolchain/stage2/args:default_link_flags",
+        ":platform_specific_args",
+        ":optimization_flags",
+    ],
     enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
     known_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
-    tool_map = ":all_tools",
+    tool_map = "//toolchain/llvm:all_tools",
     compiler = "clang",
 )
 

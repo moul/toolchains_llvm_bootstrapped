@@ -22,7 +22,14 @@ def atomic_helper_cc_library(name, pat, size, model):
         name = name,
         srcs = [unique_filename],
         copts = [
-            "-nostdinc",
+            # Normally, we would pass -nostdinc, but since we pass -nostdlibinc
+            # from the stage2 toolchain args regarless, having them both cause a
+            # warning about -nostdlibinc being ignored, so we duplicate the
+            # -nostdlibinc and add -nobuiltininc to avoid the warning.
+            #
+            # -nostdinc = -nostdlibinc -nobuiltininc
+            "-nostdlibinc",
+            "-nobuiltininc",
         ],
         local_defines = [
             "L_{}".format(pat),
@@ -33,8 +40,5 @@ def atomic_helper_cc_library(name, pat, size, model):
             "lib/builtins/assembly.h",
         ],
         includes = ["lib/builtins"],
-        deps = [
-            "@zig-srcs//:posix_headers",
-        ],
     )
     return name

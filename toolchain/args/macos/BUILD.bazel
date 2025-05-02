@@ -4,34 +4,27 @@ load("@rules_cc//cc/toolchains/args:sysroot.bzl", "cc_sysroot")
 
 package(default_visibility = ["//visibility:public"])
 
-# TODO: could be needed if we allow building for macos without the sdk
-# cc_args(
-#     name = "macos_libc_headers_include_paths",
-#     actions = [
-#         "@rules_cc//cc/toolchains/actions:compile_actions",
-#     ],
-#     args = [
-#         "-isystem",
-#         "{macos_libc_headers_include_path}",
-#     ],
-#     format = {
-#         "macos_libc_headers_include_path": "@zig-srcs//:macos_libc_headers_directory",
-#     },
-#     data = [
-#         "@zig-srcs//:macos_libc_headers_directory",
-#     ],
-# )
+cc_args(
+    name = "hermetic_macos_args_cpp",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:cpp_compile_actions",
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = [
+        # When compilinlg C++ we want to exclude c++ standard includes paths
+        # since we provide our own from LLVM.
+        "-nostdinc++",
+    ],
+)
 
 cc_sysroot(
     name = "macos_sdk_sysroot",
     sysroot = "@macosx15.4.sdk//:sysroot-minimal",
-    args = [
-        "-nostdinc++",
-        "-nobuiltininc",
-        "-nodefaultlibs",
-    ],
     data = [
         "@macosx15.4.sdk//:sysroot-minimal",
+    ],
+    args = [
+        "-nostdlib",
     ],
 )
 

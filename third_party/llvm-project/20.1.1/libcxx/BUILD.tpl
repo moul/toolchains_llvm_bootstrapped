@@ -1212,8 +1212,6 @@ cc_stage2_library(
         "-fvisibility=hidden",
         "-fvisibility-inlines-hidden",
         "-faligned-allocation", # .zos = -fno-aligned-allocation
-        "-nostdinc",
-        "-nostdinc++",
         "-std=c++23",
         "-Wno-user-defined-literals",
         "-Wno-covered-switch-default",
@@ -1309,14 +1307,12 @@ cc_stage2_library(
         "@platforms//os:linux": [
             "@zig-srcs//:linux_system_headers",
         ],
-    }) + [
-        "@zig-srcs//:posix_headers",
-    ] + select({
+    }) + select({
         "@cc-toolchain//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "@platforms//os:macos": [
-            "@macosx15.4.sdk//:macos_libc_headers",
+            # "@macosx15.4.sdk//:macos_libc_headers",
         ],
         "//conditions:default": [
             "@zig-srcs//:gnu_libc_headers",

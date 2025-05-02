@@ -314,7 +314,6 @@ cc_stage2_library(
         "-std=c11",
         "-fvisibility=hidden",
         # "-Wbuiltin-declaration-mismatch",
-        "-nostdinc",
     ],
     textual_hdrs = [
         "lib/builtins/fp_add_impl.inc",
@@ -361,14 +360,12 @@ cc_stage2_library(
         "@platforms//os:linux": [
             "@zig-srcs//:linux_system_headers",
         ],
-    }) + [
-        "@zig-srcs//:posix_headers",
-    ] + select({
+    }) + select({
         "@cc-toolchain//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "@platforms//os:macos": [
-            "@macosx15.4.sdk//:macos_libc_headers",
+            # "@macosx15.4.sdk//:macos_libc_headers",
         ],
         "//conditions:default": [
             "@zig-srcs//:gnu_libc_headers",
