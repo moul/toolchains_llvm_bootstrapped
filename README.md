@@ -52,13 +52,20 @@ bazel run //tests:main
 
 ### musl
 
-> TODO: Add support for musl
+Compiling and linking against musl on linux is supported, but only statically.
+
+Use `--platforms //platforms/libc_aware:linux_aarch64_musl`
+
+> By default, the binary will be fully statically link (no dynamic linker at all).
 
 ### glibc versions
 
-For now, it links against the default glibc version for a given target triple, as defined in Zig source code.
+Compiling and linking against an arbitrary version of the glibC is supported.
+If not specified, the default glibc version for a given target triple, as defined in Zig source code, will be used.
 
-> TODO: Allow linking against a specific glibc version
+Use `--platforms //platforms/libc_aware:linux_x86_64_gnu.2.28`
+
+> Note that because we use a fix set of headers (2.38), even if we are compiling against 2.17, compilation might fail for old code that includes headers that were removed in 2.28. The long term fix for this is to generate all possible headers for every single version of the glibc and use them instead of the Zig's fixed set.
 
 ### macOS notes
 
@@ -109,14 +116,20 @@ The main idea is that it uses a 1st toolchain (only the cross compiler and cross
 
 - Allow configuration with the same granularity as `toolchains_llvm` (custom llvm release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
   
-- Use builtin headers, libc++ source and headers from LLVM rather than zig's (Required to support user-provided LLVM release).
-
-- Support `rules_foreign_cc` and `rules_go` out of the box.
-- Support compiling and linking against musl.
-- Support additional targets.
+- Use own generated glibC headers rather than zig's.
+- Use own generated linux system headers rather than zig's.
 - Add basic support for asan/tsan/ubsan.
-- Support linking against arbitrary glibc version.
+- Support `rules_foreign_cc` and `rules_go` out of the box.
+- Support easy LLVM targets (arm, loongarch, mips, riscv, sparc, spirv, thumb).
+- Support WASM targets.
+- Support Windows.
+- Support Objective C.
+- Support **cross** compilation to macOS (Requires unpacking the SDK on linux).
 - Tests and hardening.
+
+### Known issues
+
+- For now, the libc++ is always compiled and linker (even tho compiled -as-needed).
 
 # Thanks
 
