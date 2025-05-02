@@ -138,16 +138,6 @@ bazel_dep(name = "rules_python", version = "0.40.0", dev_dependency = True)
 llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
 llvm_configure(name = "llvm-project")
 
-register_toolchains(
-    "@zig_sdk//libc_aware/toolchain:linux_arm64_musl",
-    "@zig_sdk//libc_aware/toolchain:linux_amd64_musl",
-    # Fine until we want to build for macOS on CI
-    # We can remove once we are bootstrzapped and have a real clang and ld from llvm
-    "@zig_sdk//toolchain:darwin_amd64",
-    "@zig_sdk//toolchain:darwin_arm64",
-    dev_dependency = True,
-)
-
 ## OVERRIDES PORTS FROM DEPENDENCIES 
 
 RULES_ZIG_COMMIT = "b9739c615ce62b64ee595ac4bcd9ee7cc06b0422" # branch=zml
