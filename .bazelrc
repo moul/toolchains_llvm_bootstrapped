@@ -7,7 +7,7 @@ common          --experimental_cc_static_library
 common          --experimental_platform_in_output_dir
 
 # TODO: LLVM doesn't compile otherwise due to "zlib.h" vs <zlib.h> usage.
-common --@llvm_zlib//:llvm_enable_zlib=false
+common:bootstrap --@llvm_zlib//:llvm_enable_zlib=false
 
 build:bootstrap           --extra_toolchains=@zig_sdk//libc_aware/toolchain:linux_arm64_musl,@zig_sdk//libc_aware/toolchain:linux_amd64_musl,@zig_sdk//toolchain:darwin_arm64
 build:bootstrap           -c opt
