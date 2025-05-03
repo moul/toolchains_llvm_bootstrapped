@@ -32,9 +32,13 @@ glibc_stubs_assembly_files(
 # Make one target per lib assembly file
 [
     select_file(
-        name = "lib" + lib + ".s" if lib != "ld" else lib + ".s",
+        # Note the .S suffix.
+        # This is only to avoid warnings about unused flags because rules_cc
+        # treat most flags as compile_actions and most flags are not used
+        # for non preprocessed assembly actions.
+        name = "lib" + lib + ".S" if lib != "ld" else lib + ".S",
         srcs = ":generate_glibc_stubs",
-        subpath = "glibc/build/" + lib + ".s",
+        subpath = "glibc/build/" + lib + ".S",
         visibility = ["//visibility:public"],
     ) for lib in LIBC_SO_VERSIONS.keys()
 ]
@@ -51,7 +55,7 @@ LIBS = [
     make_glibc_shared_library(
         lib_name = "lib" + lib if lib != "ld" else lib,
         lib_version = version,
-        srcs = [":lib" + lib + ".s" if lib != "ld" else lib + ".s",],
+        srcs = [":lib" + lib + ".S" if lib != "ld" else lib + ".S",],
         extra_link_flags = [
             # _IO_stdin_used is defined as a global symbol in .rodata
             # and needs to be relocated at runtime with values from the CRTs.

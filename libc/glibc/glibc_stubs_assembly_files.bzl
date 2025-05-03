@@ -5,14 +5,14 @@ def _glibc_stubs_impl(ctx):
     version_script = ctx.actions.declare_file("build/all.map")
 
     output_files = [
-        ctx.actions.declare_file("build/c.s"),
-        ctx.actions.declare_file("build/dl.s"),
-        ctx.actions.declare_file("build/ld.s"),
-        ctx.actions.declare_file("build/m.s"),
-        ctx.actions.declare_file("build/pthread.s"),
-        ctx.actions.declare_file("build/resolv.s"),
-        ctx.actions.declare_file("build/rt.s"),
-        ctx.actions.declare_file("build/util.s"),
+        ctx.actions.declare_file("build/c.S"),
+        ctx.actions.declare_file("build/dl.S"),
+        ctx.actions.declare_file("build/ld.S"),
+        ctx.actions.declare_file("build/m.S"),
+        ctx.actions.declare_file("build/pthread.S"),
+        ctx.actions.declare_file("build/resolv.S"),
+        ctx.actions.declare_file("build/rt.S"),
+        ctx.actions.declare_file("build/util.S"),
     ]
 
     args = ctx.actions.args()
