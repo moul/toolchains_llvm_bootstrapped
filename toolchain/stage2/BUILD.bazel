@@ -54,10 +54,11 @@ cc_toolchain(
     name = "stage2",
     args = [
         "//toolchain/args:llvm_target_for_platform",
-        "//toolchain/stage2/args:default_compile_flags",
-        "//toolchain/stage2/args:default_link_flags",
+        "//toolchain/args:no_absolute_paths_for_builtins",
+        "//toolchain/args:deterministic_compile_flags",
         ":platform_specific_args",
         ":optimization_flags",
+        "//toolchain/stage2/args:default_link_flags",
     ],
     enabled_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],
     known_features = ["@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features"],

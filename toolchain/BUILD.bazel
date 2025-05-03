@@ -32,13 +32,7 @@ cc_args_list(
         "//toolchain/args/macos:hermetic_macos_args_cpp",
         "//toolchain/args/macos:macos_sdk_sysroot",
         "//toolchain/args/macos:macos_minimum_os_flags",
-        "//toolchain/args:llvm_target_for_platform",
         "//toolchain/args:libcxx_headers_include_paths",
-
-        # Link
-        "//toolchain/args:use_lld",
-        ":default_link_flags",
-        ":default_libs",
     ],
 )
 
@@ -46,7 +40,6 @@ cc_args_list(
     name = "linux_toolchain_args",
     args = [
         "//toolchain/args/linux:hermetic_linux_args",
-        "//toolchain/args:llvm_target_for_platform",
         "//toolchain/args:libcxx_headers_include_paths",
     ] + select({
         "//platforms/config/libc_aware:musl": [
@@ -69,12 +62,7 @@ cc_args_list(
             "//toolchain/args:static_link_executable",
         ],
         "//conditions:default": [],
-    }) + [
-        # Link
-        "//toolchain/args:use_lld",
-        ":default_link_flags",
-        ":default_libs",
-    ],
+    }),
 )
 
 cc_args(
@@ -89,17 +77,36 @@ cc_args(
 )
 
 cc_args_list(
-    name = "toolchain_args",
+    name = "platform_specific_args",
     args = select({
+        # Platform specific flags.
         "@platforms//os:macos": [":macos_toolchain_args"],
         "@platforms//os:linux": [":linux_toolchain_args"],
         "//conditions:default": [],
     }, no_match_error = "Unsupported platform for xclang"),
 )
 
+cc_args_list(
+    name = "toolchain_args",
+    args = [
+        # Common default compile flags.
+        "//toolchain/args:llvm_target_for_platform",
+        "//toolchain/args:no_absolute_paths_for_builtins",
+        "//toolchain/args:deterministic_compile_flags",
+        # ":verbose",
+
+        ":platform_specific_args",
+
+        # Common default link flags.
+        "//toolchain/args:use_lld",
+        ":default_link_flags",
+        ":default_libs",
+    ],
+)
+
 cc_toolchain(
     name = "xclang",
-    args = [":verbose", ":toolchain_args"],
+    args = [":toolchain_args"],
     known_features = [
         "@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features",
         "//toolchain/features:all_non_legacy_builtin_features",
@@ -108,7 +115,6 @@ cc_toolchain(
     enabled_features = [
         "@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features",
         # Do not enable this manually. Those features are enabled internally by --compilation_mode flags family.
-        # "//toolchain/features:all_non_legacy_builtin_features",
         "//toolchain/features/legacy:all_legacy_builtin_features",
     ],
     tool_map = "//toolchain/llvm:all_tools",

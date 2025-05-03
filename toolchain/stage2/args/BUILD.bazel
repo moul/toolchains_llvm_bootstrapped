@@ -32,18 +32,7 @@ cc_args(
     visibility = ["//visibility:public"],
 )
 
-cc_args(
-    name = "default_compile_flags",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
-    args = [
-        "-no-canonical-prefixes",
-        "-Wno-builtin-macro-redefined",
-    ],
-    visibility = ["//visibility:public"],
-)
-
+# Use args/use_lld when it's fixed
 cc_args(
     name = "default_link_flags",
     actions = [

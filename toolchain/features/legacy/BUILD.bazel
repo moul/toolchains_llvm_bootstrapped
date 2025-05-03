@@ -45,37 +45,12 @@ cc_feature(
     ],
 )
 
-cc_args(
-    name = "legacy_unfiltered_compile_flags",
-    actions = [
-        "@rules_cc//cc/toolchains/actions:compile_actions",
-    ],
-    args = [
-        # Make C++ compilation deterministic. Use linkstamping instead of these
-        # compiler symbols.
-        "-no-canonical-prefixes",
-        "-Wno-builtin-macro-redefined",
-        "-D__DATE__=\"redacted\"",
-        "-D__TIMESTAMP__=\"redacted\"",
-        "-D__TIME__=\"redacted\"",
-    ],
-)
-
-cc_feature(
-    name = "unfiltered_compile_flags",
-    overrides = "@rules_cc//cc/toolchains/features/legacy:unfiltered_compile_flags",
-    args = [
-        ":legacy_unfiltered_compile_flags",
-    ],
-)
-
 ###
 
 cc_feature_set(
     name = "all_legacy_builtin_features",
     all_of = [
         ":default_compile_flags",
-        ":unfiltered_compile_flags",
     ],
     visibility = ["//visibility:public"],
 )
