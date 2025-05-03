@@ -7,28 +7,11 @@ common          --experimental_cc_static_library
 common          --experimental_platform_in_output_dir
 
 # TODO: LLVM doesn't compile otherwise due to "zlib.h" vs <zlib.h> usage.
-common:bootstrap --@llvm_zlib//:llvm_enable_zlib=false
+common:bootstrap  --@llvm_zlib//:llvm_enable_zlib=false
 
-build:bootstrap           --extra_toolchains=@zig_sdk//libc_aware/toolchain:linux_arm64_musl,@zig_sdk//libc_aware/toolchain:linux_amd64_musl,@zig_sdk//toolchain:darwin_arm64
-build:bootstrap           -c opt
-build:bootstrap           --strip=always
-build:bootstrap           --copt=-ffunction-sections
-build:bootstrap           --copt=-fdata-sections
-build:bootstrap           --dynamic_mode=off
-# ThinLTO feature doesn't exist in Zig toolchain, so we must set the flags manually.
-# It also doesn't support LTO on darwin targets, so we can't set this globally.
-# build:bootstrap --copt -flto=thin
-
-# TODO: add this back when the bootstrap toolchain is ourselves
-# Right now, lld is used for linux target, but host ld64 is used for macos target.
-# Because of this, strip args are not the same and depend on the target, not host.
-
-build:bootstrap_for_linux_target           --stripopt=--strip-all
-#       because hermetic_cc_toolchain registers strip as /usr/bin/false.
-
-# TODO: remove this when the bootstrap toolchain is ourselves
-build:bootstrap_for_macos_target           --stripopt=-rSTx
-build:bootstrap_for_macos_target           --linkopt=-Wl,-dead_strip
-
-build:macos     --sandbox_add_mount_pair=/var/tmp
-build:linux     --sandbox_add_mount_pair=/tmp
+build:bootstrap   -c opt
+build:bootstrap   --strip=always
+build:bootstrap   --stripopt=--strip-all
+build:bootstrap   --copt=-ffunction-sections
+build:bootstrap   --copt=-fdata-sections
+build:bootstrap   --dynamic_mode=off

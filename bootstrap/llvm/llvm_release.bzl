@@ -3,7 +3,7 @@ load("@aspect_bazel_lib//lib:tar.bzl", "tar", "mtree_spec", "mtree_mutate")
 load("@llvm-project//:vars.bzl", "LLVM_VERSION_MAJOR")
 
 # .stripped is currently not buildable on macosx when cross compiling clang with hermetic_cc_toolchain because it doesn't expose the strip binary
-BUILD_STRIPPED = False
+BUILD_STRIPPED = True
 
 def llvm_release(name):
     BINS = [
@@ -43,6 +43,7 @@ def llvm_release(name):
         cmd = """\
 cat <<EOF > $(@)
 bin/clang uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//clang:clang{strip_suffix})
+bin/clang-{llvm_major} uid=0 gid=0 time=1672560000 mode=0755 type=link link=clang
 bin/clang++ uid=0 gid=0 time=1672560000 mode=0755 type=link link=clang
 bin/clang-cpp uid=0 gid=0 time=1672560000 mode=0755 type=link link=clang
 bin/lld uid=0 gid=0 time=1672560000 mode=0755 type=file content=$(location @llvm-project//lld:lld{strip_suffix})
@@ -62,6 +63,7 @@ bin/llvm-symbolizer uid=0 gid=0 time=1672560000 mode=0755 type=link link=empty
 EOF
 """.format(
             strip_suffix = ".stripped" if BUILD_STRIPPED else "",
+            llvm_major = LLVM_VERSION_MAJOR,
         ),
         outs = [
             "bins.mtree",
@@ -95,6 +97,6 @@ EOF
             "zstd:compression-level=22",
         ],
         compress = "zstd",
-        mtree = ":mtree_spec_mtree",
+        mtree = ":mtree",
         tags = ["manual"],
     )

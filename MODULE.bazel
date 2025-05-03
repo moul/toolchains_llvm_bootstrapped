@@ -118,14 +118,8 @@ http_pkg_archive(
     build_file = "//third_party/macosx.sdk:BUILD.MacOSX15.4.sdk.tpl",
     strip_prefix = "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
 )
-# local_path_override(
-#     module_name = "macosx15.4.sdk",
-#     path = "_overrides/MacOSX15.4.sdk",
-# )
 
 ## DEV DEPENDENCIES
-
-bazel_dep(name = "hermetic_cc_toolchain", version = "4.0.0", dev_dependency = True)
 
 GLIBC_STUBS_GENERATOR_COMMIT = "b8ef1c5f070b8297505a61d32ee9d6ca773d02b3"
 
@@ -136,9 +130,6 @@ archive_override(
     integrity = "sha256-ZctTSdI8zXZrC0f78a7g9WNt8Xi+sIAnBZBNrIf5avk=",
     strip_prefix = "glibc-stubs-generator-{}".format(GLIBC_STUBS_GENERATOR_COMMIT),
 )
-
-toolchains = use_extension("@hermetic_cc_toolchain//toolchain:ext.bzl", "toolchains", dev_dependency = True)
-use_repo(toolchains, "zig_sdk")
 
 non_module_deps = use_extension("//:non_module_deps.bzl", "non_module_deps", dev_dependency = True)
 use_repo(non_module_deps, "llvm-raw", "llvm_zlib", "llvm_zstd", "vulkan_headers")
@@ -169,7 +160,6 @@ use_repo(zig, "zig_toolchains")
 
 register_toolchains("@rules_zig//zig/target:all", dev_dependency = True)
 register_toolchains("@zig_toolchains//:all", dev_dependency = True)
-
 
 # setting them last 
 register_toolchains(
