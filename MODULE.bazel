@@ -131,6 +131,15 @@ archive_override(
     strip_prefix = "glibc-stubs-generator-{}".format(GLIBC_STUBS_GENERATOR_COMMIT),
 )
 
+LIBSTDCXX_STUBS_GENERATOR_COMMIT = "0b271e429a4ab412de16946782257dbede9ca091"
+
+bazel_dep(name = "libstdcxx-stubs-generator", version = "0.0.1", dev_dependency = True)
+archive_override(
+    module_name = "libstdcxx-stubs-generator",
+    urls = ["https://github.com/cerisier/libstdcxx-stubs-generator/archive/{}.tar.gz".format(LIBSTDCXX_STUBS_GENERATOR_COMMIT)],
+    integrity = "sha256-LRoUyHeuA0qGZ7eFJ7iIGz15KiEYPx4Z+l+uY0GUDHw=",
+    strip_prefix = "libstdcxx-stubs-generator-{}".format(LIBSTDCXX_STUBS_GENERATOR_COMMIT),
+)
 non_module_deps = use_extension("//:non_module_deps.bzl", "non_module_deps", dev_dependency = True)
 use_repo(non_module_deps, "llvm-raw", "llvm_zlib", "llvm_zstd", "vulkan_headers")
 
