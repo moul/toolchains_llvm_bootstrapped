@@ -29,7 +29,6 @@ cc_args_list(
             "//toolchain/args/macos:macos_minimum_os_flags",
             "//toolchain/args/macos:macos_default_link_flags",
             "//toolchain/args/macos:macos_sdk_sysroot",
-            "//toolchain/args/macos:hermetic_macos_args_cpp",
         ],
         "@platforms//os:linux": [
             "//toolchain/args/linux:hermetic_linux_args",

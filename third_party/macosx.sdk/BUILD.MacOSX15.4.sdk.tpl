@@ -31,9 +31,6 @@ COMMON_EXCLUDES = [
     "usr/include/pexpert/**",
     "usr/include/Spatial/**",
     "usr/include/tidy/**",
-
-    #TODO: Remove from exluded once we allow linking against the macosx c++ lib.
-    "usr/include/c++/**",
 ])
 
 directory(
@@ -63,16 +60,6 @@ directory(
         "System/Library/Frameworks/Security.framework/**",
 
         "usr/**",
-    ], exclude = COMMON_EXCLUDES),
-    visibility = ["//visibility:public"],
-)
-
-cc_library(
-    name = "macos_libc_headers",
-    # order matters
-    includes = ["usr/include"],
-    hdrs = glob([
-        "usr/include/**",
     ], exclude = COMMON_EXCLUDES),
     visibility = ["//visibility:public"],
 )

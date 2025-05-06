@@ -29,10 +29,8 @@ cc_args_list(
 cc_args_list(
     name = "macos_toolchain_args",
     args = [
-        "//toolchain/args/macos:hermetic_macos_args_cpp",
         "//toolchain/args/macos:macos_sdk_sysroot",
         "//toolchain/args/macos:macos_minimum_os_flags",
-        "//toolchain/args:libcxx_headers_include_paths",
     ],
 )
 

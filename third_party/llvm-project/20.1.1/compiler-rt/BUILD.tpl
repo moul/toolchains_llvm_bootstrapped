@@ -365,7 +365,7 @@ cc_stage2_library(
             "@musl_libc//:musl_libc_headers",
         ],
         "@platforms//os:macos": [
-            # "@macosx15.4.sdk//:macos_libc_headers",
+            # on macOS we implicitly use SDK provided headers
         ],
         "//conditions:default": [
             "@zig-srcs//:gnu_libc_headers",
