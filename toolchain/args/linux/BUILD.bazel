@@ -53,23 +53,19 @@ cc_args_list(
 )
 
 cc_args(
-    name = "linux_system_headers_include_paths",
+    name = "kernel_headers_include_paths",
     actions = [
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
     args = [
         "-isystem",
-        "{linux_system_headers_include_path}",
-        "-isystem",
-        "{linux_system_headers_include_path2}",
+        "{kernel_headers_include_path}",
     ],
     format = {
-        "linux_system_headers_include_path": "@zig-srcs//:linux_system_headers_arch_specific_directory",
-        "linux_system_headers_include_path2": "@zig-srcs//:linux_system_headers_generic_directory",
+        "kernel_headers_include_path": "@kernel_headers//:kernel_headers_directory",
     },
     data = [
-        "@zig-srcs//:linux_system_headers_arch_specific_directory",
-        "@zig-srcs//:linux_system_headers_generic_directory",
+        "@kernel_headers//:kernel_headers_directory",
     ],
 )
 
@@ -82,16 +78,12 @@ cc_args(
         # "__GLIBC_MINOR__={d}", version.minor
         "-isystem",
         "{libc_headers_include_path}",
-        "-isystem",
-        "{libc_headers_include_path2}",
     ],
     format = {
-        "libc_headers_include_path": "@zig-srcs//:glibc_headers_arch_specific_directory",
-        "libc_headers_include_path2": "@zig-srcs//:glibc_headers_generic_directory",
+        "libc_headers_include_path": "@glibc//:glibc_headers_directory",
     },
     data = [
-        "@zig-srcs//:glibc_headers_arch_specific_directory",
-        "@zig-srcs//:glibc_headers_generic_directory",
+        "@glibc//:glibc_headers_directory",
     ],
 )
 
@@ -132,21 +124,21 @@ cc_args(
         "-Wl,--pop-state",
     ],
     data = [
-        "@zig-srcs//:glibc_Scrt1.static",
+        "@glibc//:glibc_Scrt1.static",
         "@compiler-rt//:builtins.static",
         "@libunwind//:libunwind",
         "@libcxx//:libcxx",
         "@libcxxabi//:libcxxabi",
-        "@zig-srcs//:c_nonshared",
+        "@glibc//:c_nonshared",
         "//libc/glibc:search_directory",
     ],
     format = {
-        "Scrt1": "@zig-srcs//:glibc_Scrt1.static",
+        "Scrt1": "@glibc//:glibc_Scrt1.static",
         "compiler_rt_builtins": "@compiler-rt//:builtins.static",
         "libunwind": "@libunwind//:libunwind",
         "libcxx": "@libcxx//:libcxx",
         "libcxxabi": "@libcxxabi//:libcxxabi",
-        "libc_nonshared": "@zig-srcs//:c_nonshared",
+        "libc_nonshared": "@glibc//:c_nonshared",
         "libc_library_search_path": "//libc/glibc:search_directory",
     },
 )

@@ -31,7 +31,7 @@ alias(
 glibc_stubs_assembly_files(
     name = "generate_glibc_stubs",
     target = libc_aware_target_triple(),
-    abilist = "@zig-srcs//:glibc_abilists",
+    abilist = "abilists",
     visibility = ["//visibility:public"],
 )
 

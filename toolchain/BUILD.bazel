@@ -44,12 +44,12 @@ cc_args_list(
             "//toolchain/args/linux:musl_libc_headers_include_paths",
         ],
         "//platforms/config/libc_aware:gnu": [
-            "//toolchain/args/linux:linux_system_headers_include_paths",
+            "//toolchain/args/linux:kernel_headers_include_paths",
             "//toolchain/args/linux:glibc_headers_include_paths",
         ],
         #TODO: Remove once we have set the default glibc for a given target
         "//constraints/libc:unconstrained": [
-            "//toolchain/args/linux:linux_system_headers_include_paths",
+            "//toolchain/args/linux:kernel_headers_include_paths",
             "//toolchain/args/linux:glibc_headers_include_paths",
         ],
         "//conditions:default": [],

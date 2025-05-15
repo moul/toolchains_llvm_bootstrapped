@@ -63,14 +63,14 @@ cc_stage2_library(
     implementation_deps = select({
         "@platforms//os:macos": [],
         "@platforms//os:linux": [
-            "@zig-srcs//:linux_system_headers",
+            "@kernel_headers//:kernel_headers",
         ],
     }) + select({
         "@cc-toolchain//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "//conditions:default": [
-            "@zig-srcs//:gnu_libc_headers",
+            "@glibc//:gnu_libc_headers",
         ],
     }),
     visibility = ["//visibility:public"],

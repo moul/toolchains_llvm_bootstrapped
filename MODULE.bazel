@@ -5,6 +5,7 @@ module(
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.14.0")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "bazel_features", version = "1.20.0")
 bazel_dep(name = "platforms", version = "0.0.11")
 
 RULES_CC_COMMIT = "bbc0814aa22f1748c60722ad8972d16812eb206d" # HEAD
@@ -118,6 +119,16 @@ http_pkg_archive(
     build_file = "//third_party/macosx.sdk:BUILD.MacOSX15.4.sdk.tpl",
     strip_prefix = "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
 )
+
+glibc = use_extension("//libc/glibc/extension:glibc.bzl", "glibc")
+# https://cerisier.github.io/glibc-headers/index.json
+glibc.index(file = "//libc/glibc/extension:glibc_headers_index.json")
+use_repo(glibc, "glibc")
+
+kernel_headers = use_extension("//kernel/extension:kernel_headers.bzl", "kernel_headers")
+# https://cerisier.github.io/kernel-headers/index.json
+kernel_headers.index(file = "//kernel/extension:kernel_headers_index.json")
+use_repo(kernel_headers, "kernel_headers")
 
 ## DEV DEPENDENCIES
 
