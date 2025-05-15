@@ -61,14 +61,6 @@ http_archive(
 )
 
 http_archive(
-    name = "zig-srcs",
-    urls = ["https://github.com/ziglang/zig/archive/ddcf6fcdf3452a4a7d55a27e7112e794447120b6.tar.gz"],
-    strip_prefix = "zig-ddcf6fcdf3452a4a7d55a27e7112e794447120b6",
-    integrity = "sha256-sYdt1inP/EQX/kYjlpelnAK+iVaGT6MDbvynHKUDd7g=",
-    build_file = "//third_party/ziglang/zig:BUILD.tpl",
-)
-
-http_archive(
     name = "musl_libc",
     urls = ["https://musl.libc.org/releases/musl-1.2.5.tar.gz"],
     strip_prefix = "musl-1.2.5",

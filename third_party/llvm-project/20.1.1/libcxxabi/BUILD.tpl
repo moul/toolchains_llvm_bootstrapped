@@ -107,7 +107,7 @@ cc_stage2_library(
             "@glibc//:gnu_libc_headers",
         ],
     }) + [
-        "@zig-srcs//:llvm_libc_headers",
+        "@cc-toolchain//third_party/llvm-project:libc_headers",
     ],
     visibility = ["//visibility:public"],
 )
