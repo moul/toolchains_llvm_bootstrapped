@@ -1,35 +1,30 @@
 # LLVM cross compilation toolchain for Bazel
 
-> ⚠️ **Warning:** This project is still in development and is not yet ready for production.
+> ⚠️ **Warning:** This project is still in development and may break.
 
 ## Description
 
-This toolchain brings a zero config, zero sysroot, and fully hermetic C/C++ cross compilation toolchain to Bazel — out of the box.
+This toolchain brings a zero sysroot, fully hermetic C/C++ cross compilation toolchain to Bazel based on LLVM.
 
-## Basic Usage
+It can cross compile out of the box without any kind of extra configuration.
 
-### MODULE.bazel
+It is based on the new `rules_cc` rule base toolchain API and will work out of the box
+for the entire `rules_cc` ruleset.
 
-Add this to your MODULE.bazel:
-```python
-CC_TOOLCHAIN_COMMIT = "dec0912240a57a7ff3043728def116ef022718bf"
+## Installation
 
-bazel_dep(name = "cc-toolchain", version = "0.0.1")
-archive_override(
-    module_name = "cc-toolchain",
-    urls = ["https://github.com/cerisier/cc-toolchain/archive/{}.tar.gz".format(CC_TOOLCHAIN_COMMIT)],
-    integrity = "sha256-K5uiZUAAuW/+5iOiFDneXa8xffE8ehWdNipa95HfE6c=",
-    strip_prefix = "cc-toolchain-{}".format(CC_TOOLCHAIN_COMMIT),
-)
+See instructions in the [releases](https://github.com/cerisier/toolchains_cc/releases) for installation.
 
-#TODO: Make this more user friendly :)
-register_toolchains(
-    "@cc-toolchain//toolchain/stage2:stage2_toolchain",
-    "@cc-toolchain//toolchain:xclang_toolchain",
-)
+## Examples
+
+If you clone this repository, you can test this toolchain for all the registered platforms:
+
+See all supported platforms:
+```
+bazel query 'kind(platform, //platforms/...)'
 ```
 
-You can build a simple C++ program to play with the toolchain like so:
+Build a simple C++ program to play with the toolchain:
 ```
 bazel build //tests:main --platforms=//platforms:linux_amd64
 ```
@@ -54,18 +49,25 @@ bazel run //tests:main
 
 Compiling and linking against musl on linux is supported, but only statically.
 
-Use `--platforms //platforms/libc_aware:linux_aarch64_musl`
+To target musl, use:
+`--platforms //platforms/libc_aware:linux_aarch64_musl`
 
 > By default, the binary will be fully statically link (no dynamic linker at all).
 
-### glibc versions
+### GNU C Library ("glibc") versions
 
-Compiling and linking against an arbitrary version of the glibC is supported.
-If not specified, the default glibc version for a given target triple, as defined in Zig source code, will be used.
+Compiling and linking against an arbitrary version of the glibc is supported.
+By default, the earliest glibc version that supports your target is used (2.28 in most case).
 
-Use `--platforms //platforms/libc_aware:linux_x86_64_gnu.2.28`
+To target a specific version, use:
+`--platforms //platforms/libc_aware:linux_x86_64_gnu.2.28`
 
-> Note that because we use a fix set of headers (2.38), even if we are compiling against 2.17, compilation might fail for old code that includes headers that were removed in 2.28. The long term fix for this is to generate all possible headers for every single version of the glibc and use them instead of the Zig's fixed set.
+Behind the scenes, your code is compiled using the appropriate headers for the
+target version, and linked against a stub glibc that includes only the symbols
+available in that version.
+
+This guarantees that your program will run on any system with that exact glibc
+version or newer, since it never relies on symbols introduced in later versions.
 
 ### macOS notes
 
@@ -76,9 +78,10 @@ It will support two modes:
 1.	**libSystem-only**: Compiling against a libSystem-compatible libc headers (no SDK or Apple frameworks).
 2.	**macOS SDK**: Compiling against the official macOS SDK for full framework and system support.
 
-✅ Cross-compilation from macOS to macOS is fully supported.
+✅ Compilation from macOS to macOS is supported.
 
 By default, it uses a hermetic SDK, ensuring reproducibility and isolation from the host system.
+The SDK is the official macOS SDK and is downloaded from apple CDN directly.
 
 I'm planning on supporting the local SDK, opt-in.
 
@@ -91,12 +94,17 @@ I have early validation of the most popular targets and os, and will progressive
 ## How does it work ?
 
 Cross compilation usually requires 2 main things:
-1. **A cross compiler and cross linker:** That can generate machine code for the target platform as well as linking binaries in the target platform format.
-2. **A set of target headers and prebuilt libraries:** C runtime (CRT files), libc(glibc,musl,etc..), c++ standard library (stdc++,libc++), compiler runtimes (libgcc/compiler-rt.builtins), compiler plugins (profiler/sanitizers, etc.) as well as other runtime libraries the program requires.
+1. **A cross-compiler and cross-linker** capable of generating and linking binaries for the target platform.
+2. **Target-specific headers and libraries** such as the C runtime (CRT files), libc (glibc, musl, etc.), C++ standard library (libstdc++, libc++), compiler runtimes (libgcc, compiler-rt), and optional components like profilers or sanitizers.
 
-This toolchain only needs the former, that is a cross compiler and a cross linker, and builds all of the latter from source, eliminating the need for target specifics.
+This toolchain only needs the former, that is, a cross compiler and a cross linker, and builds all of the latter from source, eliminating the need for target specifics.
 
-The main idea is that it uses a 1st toolchain (only the cross compiler and cross linker) to build the prerequisites of a 2nd toolchain that is used to compile end user programs.
+This toolchain simplifies the process by requiring only the cross-compiler and cross-linker.
+It builds all the target-specific components from source.
+
+To build programs, this toolchains is composed of 2 bazel toolchains:
+1. A raw toolchain used to compile the target-specific components.
+2. A final toolchain used to compile user programs, including the components built by the 1st.
 
 > TODO: Detailed explanation of the process, especially for glibc stubs.
 
@@ -116,20 +124,23 @@ The main idea is that it uses a 1st toolchain (only the cross compiler and cross
 
 - Allow configuration with the same granularity as `toolchains_llvm` (custom llvm release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
   
-- Use own generated glibC headers rather than zig's.
-- Use own generated linux system headers rather than zig's.
-- Add basic support for asan/tsan/ubsan.
+- [IN PROGRESS] Support linking against libstd++ (`libstdcxx` branch).
+- Support for asan/tsan/ubsan.
 - Support `rules_foreign_cc` and `rules_go` out of the box.
 - Support easy LLVM targets (arm, loongarch, mips, riscv, sparc, spirv, thumb).
 - Support WASM targets.
 - Support Windows.
 - Support Objective C.
-- Support **cross** compilation to macOS (Requires unpacking the SDK on linux).
+- Support **cross-compilation** to macOS (Requires unpacking the SDK on linux).
 - Tests and hardening.
 
 ### Known issues
 
-- For now, the libc++ is always compiled and linker (even tho compiled -as-needed).
+- The C Library is always compiled and linked.
+- The C++ standard library is always compiled and linked (with -as-needed).
+- The final toolchain makes `-nostdinc`, `-nostdlib` family of flags unapplicable.
+  (One idea would be to expose different toolchains for this usecase, or `config_settings`)
+- Usage of `find_cc_toolchain(ctx).compiler_executable` is currently broken if you depend on this toolchain because it will return the raw `clang` executable which by defaults compiles for the current platform. An idea is to create N different compiler wrappers that calls `clang -target <target>` under the hood and have 1 toolchain registered for each supported platform.
 
 # Thanks
 
