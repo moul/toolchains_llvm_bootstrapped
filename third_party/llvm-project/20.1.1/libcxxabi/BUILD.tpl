@@ -15,6 +15,9 @@ copy_to_directory(
     srcs = [
         ":libcxxabi_headers_files",
     ],
+    root_paths = [
+        "include",
+    ],
     visibility = ["//visibility:public"],
 )
 
