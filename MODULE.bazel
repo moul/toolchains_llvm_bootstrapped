@@ -1,5 +1,5 @@
 module(
-    name = "cc-toolchain",
+    name = "toolchains_cc",
     version = "0.0.1",
 )
 

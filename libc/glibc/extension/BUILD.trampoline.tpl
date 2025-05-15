@@ -1,4 +1,4 @@
-load("@cc-toolchain//libc/glibc/extension:make_select_glibc_repository_target.bzl", "make_select_glibc_repository_target")
+load("@toolchains_cc//libc/glibc/extension:make_select_glibc_repository_target.bzl", "make_select_glibc_repository_target")
 
 package(default_visibility = ["//visibility:public"])
 

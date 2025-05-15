@@ -15,11 +15,11 @@ def make_select_kernel_headers_repository_target(bazel_target):
         # introduced later.
         kernel_version = LIBC_KERNEL_VERSIONS["gnu.2.28"]
         apparent_target = "@linux_kernel_headers_{}.{}//:{}".format(arch_to_kernel_arch(target_arch), kernel_version, bazel_target)
-        selection["@cc-toolchain//platforms/config/libc_aware:{}_{}".format(target_os, target_arch)] = apparent_target
+        selection["@toolchains_cc//platforms/config/libc_aware:{}_{}".format(target_os, target_arch)] = apparent_target
 
         for libc_version in LIBCS:
             kernel_version = LIBC_KERNEL_VERSIONS[libc_version]
             apparent_target = "@linux_kernel_headers_{}.{}//:{}".format(arch_to_kernel_arch(target_arch), kernel_version, bazel_target)
-            selection["@cc-toolchain//platforms/config/libc_aware:{}_{}_{}".format(target_os, target_arch, libc_version)] = apparent_target
+            selection["@toolchains_cc//platforms/config/libc_aware:{}_{}_{}".format(target_os, target_arch, libc_version)] = apparent_target
 
     return select(selection)

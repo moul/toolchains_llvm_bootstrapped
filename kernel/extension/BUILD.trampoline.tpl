@@ -1,4 +1,4 @@
-load("@cc-toolchain//kernel/extension:make_select_kernel_headers_repository_target.bzl", "make_select_kernel_headers_repository_target")
+load("@toolchains_cc//kernel/extension:make_select_kernel_headers_repository_target.bzl", "make_select_kernel_headers_repository_target")
 
 package(default_visibility = ["//visibility:public"])
 

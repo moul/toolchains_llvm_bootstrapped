@@ -1,7 +1,7 @@
 load("@bazel_skylib//lib:selects.bzl", "selects")
-load("@cc-toolchain//third_party/libc/glibc:helpers.bzl", "glibc_includes")
-load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
-load("@cc-toolchain//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
+load("@toolchains_cc//third_party/libc/glibc:helpers.bzl", "glibc_includes")
+load("@toolchains_cc//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
+load("@toolchains_cc//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 
 alias(
     name = "gnu_libc_headers",
@@ -65,7 +65,7 @@ cc_stage2_library(
 cc_stage2_library(
     name = "glibc_abi_note",
     srcs = [
-        "@cc-toolchain//third_party/libc/glibc/csu:abi-note-2.31.S",
+        "@toolchains_cc//third_party/libc/glibc/csu:abi-note-2.31.S",
     ],
     copts = [
         # Normally, we would pass -nostdinc, but since we pass -nostdlibinc
@@ -88,8 +88,8 @@ cc_stage2_library(
     includes = [
         "csu",
     ] + select({
-        "@cc-toolchain//platforms/config:linux_x86_64": glibc_includes("x86_64"),
-        "@cc-toolchain//platforms/config:linux_aarch64": glibc_includes("aarch64"),
+        "@toolchains_cc//platforms/config:linux_x86_64": glibc_includes("x86_64"),
+        "@toolchains_cc//platforms/config:linux_aarch64": glibc_includes("aarch64"),
     }),
     visibility = ["//visibility:public"],
 )
@@ -97,8 +97,8 @@ cc_stage2_library(
 cc_stage2_library(
     name = "glibc_start",
     srcs = select({
-        "@cc-toolchain//platforms/config:linux_x86_64": ["sysdeps/x86_64/start.S"],
-        "@cc-toolchain//platforms/config:linux_aarch64": ["sysdeps/aarch64/start.S"],
+        "@toolchains_cc//platforms/config:linux_x86_64": ["sysdeps/x86_64/start.S"],
+        "@toolchains_cc//platforms/config:linux_aarch64": ["sysdeps/aarch64/start.S"],
     }, no_match_error = "Unsupported platform"),
     copts = [
         # Normally, we would pass -nostdinc, but since we pass -nostdlibinc
@@ -131,8 +131,8 @@ cc_stage2_library(
     ],
     hdrs = HDRS,
     includes = select({
-        "@cc-toolchain//platforms/config:linux_x86_64": glibc_includes("x86_64"),
-        "@cc-toolchain//platforms/config:linux_aarch64": glibc_includes("aarch64"),
+        "@toolchains_cc//platforms/config:linux_x86_64": glibc_includes("x86_64"),
+        "@toolchains_cc//platforms/config:linux_aarch64": glibc_includes("aarch64"),
     }),
     implementation_deps = [
         ":kernel_headers",
@@ -203,7 +203,7 @@ cc_stage2_library(
         "LIBC_NONSHARED=1",
         "TOP_NAMESPACE=glibc",
     ] + select({
-        "@cc-toolchain//platforms/config:linux_x86_64": [
+        "@toolchains_cc//platforms/config:linux_x86_64": [
             "CAN_USE_REGISTER_ASM_EBP",
         ],
         "//conditions:default": [],
@@ -213,26 +213,26 @@ cc_stage2_library(
     includes = [
         "csu",
     ] + select({
-        "@cc-toolchain//platforms/config:linux_x86_64": glibc_includes("x86_64"),
-        "@cc-toolchain//platforms/config:linux_aarch64": glibc_includes("aarch64"),
+        "@toolchains_cc//platforms/config:linux_x86_64": glibc_includes("x86_64"),
+        "@toolchains_cc//platforms/config:linux_aarch64": glibc_includes("aarch64"),
     }),
     srcs = [
         # From stdlib/Makefile
-        "@cc-toolchain//third_party/libc/glibc/stdlib:atexit.c",
-        "@cc-toolchain//third_party/libc/glibc/stdlib:at_quick_exit.c",
+        "@toolchains_cc//third_party/libc/glibc/stdlib:atexit.c",
+        "@toolchains_cc//third_party/libc/glibc/stdlib:at_quick_exit.c",
         # From nptl/Makefile
-        "@cc-toolchain//third_party/libc/glibc/nptl:pthread_atfork.c",
+        "@toolchains_cc//third_party/libc/glibc/nptl:pthread_atfork.c",
         # From debug/Makefile
         "debug/stack_chk_fail_local.c",
     ] + selects.with_or({
         (
             # For now the minimum version of all supported platforms is glibc 2.28
-            "@cc-toolchain//constraints/libc:unconstrained",
-            "@cc-toolchain//constraints/libc:gnu.2.28",
-            "@cc-toolchain//constraints/libc:gnu.2.29",
-            "@cc-toolchain//constraints/libc:gnu.2.30",
-            "@cc-toolchain//constraints/libc:gnu.2.31",
-            "@cc-toolchain//constraints/libc:gnu.2.32",
+            "@toolchains_cc//constraints/libc:unconstrained",
+            "@toolchains_cc//constraints/libc:gnu.2.28",
+            "@toolchains_cc//constraints/libc:gnu.2.29",
+            "@toolchains_cc//constraints/libc:gnu.2.30",
+            "@toolchains_cc//constraints/libc:gnu.2.31",
+            "@toolchains_cc//constraints/libc:gnu.2.32",
         ): [
             # libc_nonshared.a redirected stat functions to xstat until glibc 2.33,
             # when they were finally versioned like other symbols.
@@ -251,13 +251,13 @@ cc_stage2_library(
 
             # if libc <= 2.32 but also <= 2.33
             # From csu/Makefile
-            "@cc-toolchain//third_party/libc/glibc/csu:elf-init-2.31.c",
+            "@toolchains_cc//third_party/libc/glibc/csu:elf-init-2.31.c",
         ],
-        "@cc-toolchain//constraints/libc:gnu.2.33": [
+        "@toolchains_cc//constraints/libc:gnu.2.33": [
             # if libc <= 2.32 but also <= 2.33
             # __libc_start_main used to require statically linked init/fini callbacks
             # until glibc 2.34 when they were assimilated into the shared library.
-            "@cc-toolchain//third_party/libc/glibc/csu:elf-init-2.31.c",
+            "@toolchains_cc//third_party/libc/glibc/csu:elf-init-2.31.c",
         ],
         "//conditions:default": [],
     }),

@@ -1,5 +1,5 @@
 
-load("@cc-toolchain//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
+load("@toolchains_cc//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 
 cc_stage2_library(
     name = "libunwind",
@@ -66,7 +66,7 @@ cc_stage2_library(
             "@kernel_headers//:kernel_headers",
         ],
     }) + select({
-        "@cc-toolchain//constraints/libc:musl": [
+        "@toolchains_cc//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "//conditions:default": [
