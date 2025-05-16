@@ -125,6 +125,7 @@ I have early validation of the most popular targets and os, and will progressive
 
 > TODO: Add remaining tasks for production readyness.
 
+- Split in several toolchains per target
 - Allow configuration with the same granularity as `toolchains_llvm`
   (custom LLVM release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
 - [IN PROGRESS] Support linking against libstd++ (`libstdcxx` branch).
