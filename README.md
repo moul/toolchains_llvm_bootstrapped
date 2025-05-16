@@ -15,6 +15,26 @@ for the entire `rules_cc` ruleset.
 
 See instructions in the [releases](https://github.com/cerisier/toolchains_llvm_bootstrapped/releases) for installation.
 
+## How does it work ?
+
+Cross compilation usually requires 2 main components:
+1. **A cross-compiler and cross-linker** capable of generating and linking binaries for the target platform.
+2. **Target-specific headers and libraries** such as the C runtime (CRT files), libc (glibc, musl, etc.), C++ standard library (libstdc++, libc++), compiler runtimes (libgcc, compiler-rt), and optional components like profilers or sanitizers.
+
+Usually, this is done by providing a sysroot for each target platform that contains
+all the target-specific components that match that of the deployment target.
+
+This toolchain simplifies the process by requiring only the cross-compiler and cross-linker.
+It builds all the target-specific components from source.
+
+To build programs, this toolchain is composed of 2 bazel toolchains:
+1. A raw toolchain used to compile the target-specific components.
+2. A final toolchain used to compile user programs, including the components built by the 1st.
+
+> TODO: Write about the differences with the approach of building against sysroots.
+
+> TODO: Write about stubs generation for the glibc.
+
 ## Examples
 
 If you clone this repository, you can test this toolchain for all the registered platforms:
@@ -91,21 +111,6 @@ In theory, this toolchain enables cross compilation to the entire set of LLVM su
 
 I have early validation of the most popular targets and os, and will progressively add support for them as time allows.
 
-## How does it work ?
-
-Cross compilation usually requires 2 main things:
-1. **A cross-compiler and cross-linker** capable of generating and linking binaries for the target platform.
-2. **Target-specific headers and libraries** such as the C runtime (CRT files), libc (glibc, musl, etc.), C++ standard library (libstdc++, libc++), compiler runtimes (libgcc, compiler-rt), and optional components like profilers or sanitizers.
-
-This toolchain simplifies the process by requiring only the cross-compiler and cross-linker.
-It builds all the target-specific components from source.
-
-To build programs, this toolchains is composed of 2 bazel toolchains:
-1. A raw toolchain used to compile the target-specific components.
-2. A final toolchain used to compile user programs, including the components built by the 1st.
-
-> TODO: Detailed explanation of the process, especially for glibc stubs.
-
 ## Prior art
 
 - https://andrewkelley.me/post/zig-cc-powerful-drop-in-replacement-gcc-clang.html I was heavily inspired by (and heavily rely on) the work of [Andrew Kelley](https://github.com/andrewrk) on the [zig](https://github.com/ziglang/zig) programming language compiler.
@@ -120,7 +125,8 @@ To build programs, this toolchains is composed of 2 bazel toolchains:
 
 > TODO: Add remaining tasks for production readyness.
 
-- Allow configuration with the same granularity as `toolchains_llvm` (custom llvm release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
+- Allow configuration with the same granularity as `toolchains_llvm`
+  (custom LLVM release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
 - [IN PROGRESS] Support linking against libstd++ (`libstdcxx` branch).
 - Support for asan/tsan/ubsan.
 - Support `rules_foreign_cc` and `rules_go` out of the box.
