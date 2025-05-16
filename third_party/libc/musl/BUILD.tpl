@@ -72,8 +72,8 @@ genrule(
 alias(
     name = "musl_internal_headers",
     actual = select({
-        "@toolchains_cc//platforms/config:linux_x86_64": ":musl_internal_headers_x86_64",
-        "@toolchains_cc//platforms/config:linux_aarch64": ":musl_internal_headers_aarch64",
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_x86_64": ":musl_internal_headers_x86_64",
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_aarch64": ":musl_internal_headers_aarch64",
     }),
     visibility = ["//visibility:public"],
 )
@@ -183,8 +183,8 @@ filegroup(
 alias(
     name = "musl_libc_headers",
     actual = select({
-        "@toolchains_cc//platforms/config:linux_x86_64": ":musl_libc_headers_x86_64",
-        "@toolchains_cc//platforms/config:linux_aarch64": ":musl_libc_headers_aarch64",
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_x86_64": ":musl_libc_headers_x86_64",
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_aarch64": ":musl_libc_headers_aarch64",
     }),
     visibility = ["//visibility:public"],
 )

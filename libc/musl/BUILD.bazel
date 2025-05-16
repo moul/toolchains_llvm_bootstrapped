@@ -1,8 +1,8 @@
 # load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
 load("@aspect_bazel_lib//lib:copy_file.bzl", "copy_file")
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
-load("@toolchains_cc//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
-load("@toolchains_cc//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
+load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
+load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load(":libc_musl_srcs_filegroup.bzl", "libc_musl_srcs_filegroup")
 load("//toolchain:selects.bzl", "platform_llvm_binary", "platform_llvm_binaries")
 
@@ -10,8 +10,8 @@ libc_musl_srcs_filegroup(
     name = "musl_arch_compile_srcs",
     srcs = ["@musl_libc//:compile_srcs"],
     arch = select({
-        "@toolchains_cc//platforms/config:linux_x86_64": "x86_64",
-        "@toolchains_cc//platforms/config:linux_aarch64": "aarch64",
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_x86_64": "x86_64",
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_aarch64": "aarch64",
     }, no_match_error = "Unsupported platform"),
     visibility = ["//visibility:public"],
 )

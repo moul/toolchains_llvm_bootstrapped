@@ -1,5 +1,5 @@
 module(
-    name = "toolchains_cc",
+    name = "toolchains_llvm_bootstrapped",
     version = "0.0.1",
 )
 
@@ -25,7 +25,7 @@ LLVM_VERSION = "20.1.5"
 
 http_archive(
     name = "llvm-toolchain-minimal-{llvm_version}-darwin-arm64".format(llvm_version = LLVM_VERSION),
-    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-darwin-arm64.tar.zst".format(llvm_version = LLVM_VERSION)],
+    urls = ["https://github.com/cerisier/toolchains_llvm_bootstrapped/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-darwin-arm64.tar.zst".format(llvm_version = LLVM_VERSION)],
     sha256 = "c2e10898943b5d56e1a3552e3fa806382299d2242e312a7dd2ef6af7395c6143",
     build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
@@ -38,7 +38,7 @@ http_archive(
 
 http_archive(
     name = "llvm-toolchain-minimal-{llvm_version}-linux-amd64".format(llvm_version = LLVM_VERSION),
-    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-linux-amd64-musl.tar.zst".format(llvm_version = LLVM_VERSION)],
+    urls = ["https://github.com/cerisier/toolchains_llvm_bootstrapped/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-linux-amd64-musl.tar.zst".format(llvm_version = LLVM_VERSION)],
     sha256 = "2cae415ee7c9654ccaba9d0e97c9db0bb2bfe90bf7317bc7920398ae42c47123",
     build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
@@ -51,7 +51,7 @@ http_archive(
 
 http_archive(
     name = "llvm-toolchain-minimal-{llvm_version}-linux-arm64".format(llvm_version = LLVM_VERSION),
-    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-linux-arm64-musl.tar.zst".format(llvm_version = LLVM_VERSION)],
+    urls = ["https://github.com/cerisier/toolchains_llvm_bootstrapped/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-linux-arm64-musl.tar.zst".format(llvm_version = LLVM_VERSION)],
     sha256 = "6b365b9bcbe780241ddd9aae5dbb00d82ee0b65fa25a5361e126b0df5eb91dd1",
     build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )

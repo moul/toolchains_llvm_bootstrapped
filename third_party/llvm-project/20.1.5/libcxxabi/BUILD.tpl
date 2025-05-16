@@ -1,4 +1,4 @@
-load("@toolchains_cc//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
+load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 
 filegroup(
@@ -103,14 +103,14 @@ cc_stage2_library(
             "@kernel_headers//:kernel_headers",
         ],
     }) + select({
-        "@toolchains_cc//constraints/libc:musl": [
+        "@toolchains_llvm_bootstrapped//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "//conditions:default": [
             "@glibc//:gnu_libc_headers",
         ],
     }) + [
-        "@toolchains_cc//third_party/llvm-project:libc_headers",
+        "@toolchains_llvm_bootstrapped//third_party/llvm-project:libc_headers",
     ],
     visibility = ["//visibility:public"],
 )

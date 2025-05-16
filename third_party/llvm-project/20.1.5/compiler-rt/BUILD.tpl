@@ -1,7 +1,7 @@
-load("@toolchains_cc//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
-load("@toolchains_cc//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
-load("@toolchains_cc//third_party/llvm-project/20.1.5/compiler-rt:targets.bzl", "atomic_helper_cc_library")
-load("@toolchains_cc//third_party/llvm-project/20.1.5/compiler-rt:darwin_excludes.bzl", "filter_excludes")
+load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
+load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
+load("@toolchains_llvm_bootstrapped//third_party/llvm-project/20.1.5/compiler-rt:targets.bzl", "atomic_helper_cc_library")
+load("@toolchains_llvm_bootstrapped//third_party/llvm-project/20.1.5/compiler-rt:darwin_excludes.bzl", "filter_excludes")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 BUILTINS_GENERIC_SRCS = [
@@ -284,9 +284,9 @@ cc_stage2_library(
     name = "builtins",
     includes = ["lib/builtins"],
     srcs = select({
-        "@toolchains_cc//platforms/config:linux_x86_64": [":builtins_x86_64_sources"],
-        "@toolchains_cc//platforms/config:linux_aarch64": [":builtins_aarch64_sources"],
-        "@toolchains_cc//platforms/config:macos_aarch64": [":builtins_aarch64_sources"],
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_x86_64": [":builtins_x86_64_sources"],
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_aarch64": [":builtins_aarch64_sources"],
+        "@toolchains_llvm_bootstrapped//platforms/config:macos_aarch64": [":builtins_aarch64_sources"],
     }, no_match_error = """
         Platform not supported for compiler-rt.builtins.
         It is likely that we are just missing the filegroups for that platform.
@@ -338,11 +338,11 @@ cc_stage2_library(
         ],
         "//conditions:default": [],
     }) + select({
-        "@toolchains_cc//platforms/config:linux_aarch64": [
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_aarch64": [
             "lib/builtins/cpu_model/aarch64/fmv/mrs.inc",
             "lib/builtins/cpu_model/aarch64/fmv/getauxval.inc",
         ],
-        "@toolchains_cc//platforms/config:macos_aarch64": [
+        "@toolchains_llvm_bootstrapped//platforms/config:macos_aarch64": [
             "lib/builtins/cpu_model/aarch64/fmv/apple.inc",
         ],
         "//conditions:default": [],
@@ -361,7 +361,7 @@ cc_stage2_library(
             "@kernel_headers//:kernel_headers",
         ],
     }) + select({
-        "@toolchains_cc//constraints/libc:musl": [
+        "@toolchains_llvm_bootstrapped//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "@platforms//os:macos": [

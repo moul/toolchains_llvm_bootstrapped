@@ -13,7 +13,7 @@ for the entire `rules_cc` ruleset.
 
 ## Installation
 
-See instructions in the [releases](https://github.com/cerisier/toolchains_cc/releases) for installation.
+See instructions in the [releases](https://github.com/cerisier/toolchains_llvm_bootstrapped/releases) for installation.
 
 ## Examples
 
