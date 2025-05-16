@@ -21,10 +21,12 @@ bazel_dep(name = "with_cfg.bzl", version = "0.9.2")
 
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")    
 
+LLVM_VERSION = "20.1.5"
+
 http_archive(
-    name = "llvm-toolchain-minimal-20.1.1-darwin-arm64",
-    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/bootstrap%2Fllvm%2F20.1.1/llvm-toolchain-minimal-20.1.1-darwin-arm64.tar.zst"],
-    sha256 = "764e9f22f6b8da92ff6325f63e9e8a3fb219cdbb04a5e7fd6614967812616b05",
+    name = "llvm-toolchain-minimal-{llvm_version}-darwin-arm64".format(llvm_version = LLVM_VERSION),
+    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-darwin-arm64.tar.zst".format(llvm_version = LLVM_VERSION)],
+    sha256 = "c2e10898943b5d56e1a3552e3fa806382299d2242e312a7dd2ef6af7395c6143",
     build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
 http_archive(
@@ -35,9 +37,9 @@ http_archive(
 )
 
 http_archive(
-    name = "llvm-toolchain-minimal-20.1.1-linux-amd64",
-    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/bootstrap%2Fllvm%2F20.1.1/llvm-toolchain-minimal-20.1.1-linux-amd64-musl.tar.zst"],
-    sha256 = "101fedb574389842a76ee714f530e46a7ee17b77b9f5ce1589a441e921af4c03",
+    name = "llvm-toolchain-minimal-{llvm_version}-linux-amd64".format(llvm_version = LLVM_VERSION),
+    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-linux-amd64-musl.tar.zst".format(llvm_version = LLVM_VERSION)],
+    sha256 = "2cae415ee7c9654ccaba9d0e97c9db0bb2bfe90bf7317bc7920398ae42c47123",
     build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
 http_archive(
@@ -48,9 +50,9 @@ http_archive(
 )
 
 http_archive(
-    name = "llvm-toolchain-minimal-20.1.1-linux-arm64",
-    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/bootstrap%2Fllvm%2F20.1.1/llvm-toolchain-minimal-20.1.1-linux-arm64-musl.tar.zst"],
-    sha256 = "f1ec58d1c479abeedab5f5ca5be4081781c4c68fb8a4603b5d94d55512a7c9bd",
+    name = "llvm-toolchain-minimal-{llvm_version}-linux-arm64".format(llvm_version = LLVM_VERSION),
+    urls = ["https://github.com/cerisier/toolchains_cc/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-linux-arm64-musl.tar.zst".format(llvm_version = LLVM_VERSION)],
+    sha256 = "6b365b9bcbe780241ddd9aae5dbb00d82ee0b65fa25a5361e126b0df5eb91dd1",
     build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
 http_archive(
