@@ -123,7 +123,6 @@ To build programs, this toolchains is composed of 2 bazel toolchains:
 > TODO: Add remaining tasks for production readyness.
 
 - Allow configuration with the same granularity as `toolchains_llvm` (custom llvm release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
-  
 - [IN PROGRESS] Support linking against libstd++ (`libstdcxx` branch).
 - Support for asan/tsan/ubsan.
 - Support `rules_foreign_cc` and `rules_go` out of the box.
@@ -140,7 +139,6 @@ To build programs, this toolchains is composed of 2 bazel toolchains:
 - The C++ standard library is always compiled and linked (with -as-needed).
 - The final toolchain makes `-nostdinc`, `-nostdlib` family of flags unapplicable.
   (One idea would be to expose different toolchains for this usecase, or `config_settings`)
-- Usage of `find_cc_toolchain(ctx).compiler_executable` is currently broken if you depend on this toolchain because it will return the raw `clang` executable which by defaults compiles for the current platform. An idea is to create N different compiler wrappers that calls `clang -target <target>` under the hood and have 1 toolchain registered for each supported platform.
 
 # Thanks
 
