@@ -12,6 +12,7 @@ common:bootstrap  --@llvm_zlib//:llvm_enable_zlib=false
 build:bootstrap   -c opt
 build:bootstrap   --strip=always
 build:bootstrap   --stripopt=--strip-all
+build:bootstrap   --copt=-flto=thin
 build:bootstrap   --copt=-ffunction-sections
 build:bootstrap   --copt=-fdata-sections
 build:bootstrap   --dynamic_mode=off
