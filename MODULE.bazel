@@ -70,34 +70,34 @@ http_archive(
 
 http_archive(
     name = "compiler-rt",
-    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/compiler-rt-20.1.1.src.tar.xz"],
-    strip_prefix = "compiler-rt-20.1.1.src",
-    integrity = "sha256-xPdTEXzb/+Watd86rUknk+awKaJZGYyEO7C5yCxZ700=",
-    build_file = "//third_party/llvm-project/20.1.1/compiler-rt:BUILD.tpl",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/compiler-rt-20.1.5.src.tar.xz"],
+    strip_prefix = "compiler-rt-20.1.5.src",
+    sha256 = "bdcebca627f377ffcff5405cd5694efbddb14c89ad7d0ea481b1646a42bfeca3",
+    build_file = "//third_party/llvm-project/20.1.5/compiler-rt:BUILD.tpl",
 )
 
 http_archive(
     name = "libcxx",
-    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/libcxx-20.1.1.src.tar.xz"],
-    strip_prefix = "libcxx-20.1.1.src",
-    integrity = "sha256-7qF9qkWQ7AbGAntmxRgBWFrOvy76YP3rmLZOqkdvxR0=",
-    build_file = "//third_party/llvm-project/20.1.1/libcxx:BUILD.tpl",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/libcxx-20.1.5.src.tar.xz"],
+    strip_prefix = "libcxx-20.1.5.src",
+    sha256 = "39ceddb7ee02103809e59b8a87904fc40a8e4f33ff5cce95e6da1fc22406349f",
+    build_file = "//third_party/llvm-project/20.1.5/libcxx:BUILD.tpl",
 )
 
 http_archive(
     name = "libcxxabi",
-    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/libcxxabi-20.1.1.src.tar.xz"],
-    strip_prefix = "libcxxabi-20.1.1.src",
-    integrity = "sha256-e7JAkLXRi6x7xv3MTAA7kb+ylo7wjuEghH3s1LypWvQ=",
-    build_file = "//third_party/llvm-project/20.1.1/libcxxabi:BUILD.tpl",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/libcxxabi-20.1.5.src.tar.xz"],
+    strip_prefix = "libcxxabi-20.1.5.src",
+    sha256 = "cb9f20e6779a5ab7881b049469504a7da44aada6e9dc72c85dd68fc9c6430b57",
+    build_file = "//third_party/llvm-project/20.1.5/libcxxabi:BUILD.tpl",
 )
 
 http_archive(
     name = "libunwind",
-    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/libunwind-20.1.1.src.tar.xz"],
-    strip_prefix = "libunwind-20.1.1.src",
-    integrity = "sha256-70H6vnDVWAsdtNDjky8DDMpEibUJn7mJ2X2RIfzByKc=",
-    build_file = "//third_party/llvm-project/20.1.1/libunwind:BUILD.tpl",
+    urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/libunwind-20.1.5.src.tar.xz"],
+    strip_prefix = "libunwind-20.1.5.src",
+    sha256 = "f0555603222189d8d2ff2d02747c63a3bbeb291fa72ce042c1a6d26399150baf",
+    build_file = "//third_party/llvm-project/20.1.5/libunwind:BUILD.tpl",
 )
 
 http_pkg_archive = use_repo_rule("//:http_pkg_archive.bzl", "http_pkg_archive")

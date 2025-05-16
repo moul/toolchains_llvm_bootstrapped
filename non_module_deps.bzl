@@ -4,14 +4,14 @@ def _non_module_deps_impl(mctx):
     http_archive(
         name = "llvm-raw",
         build_file_content = "# EMPTY",
-        sha256 = "4d5ebbd40ce1e984a650818a4bb5ae86fc70644dec2e6d54e78b4176db3332e0",
+        sha256 = "a069565cd1c6aee48ee0f36de300635b5781f355d7b3c96a28062d50d575fa3e",
         patch_args = ["-p1"],
         patches = [
             "//third_party/llvm-project:llvm-267e293510ad0e273443bc1b6c3655f6307e3992.patch",
             "//third_party/llvm-project:llvm-extra.patch",
         ],
-        strip_prefix = "llvm-project-20.1.1.src",
-        urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.1/llvm-project-20.1.1.src.tar.xz"],
+        strip_prefix = "llvm-project-20.1.5.src",
+        urls = ["https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/llvm-project-20.1.5.src.tar.xz"],
     )
 
     http_archive(
