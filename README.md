@@ -97,8 +97,6 @@ Cross compilation usually requires 2 main things:
 1. **A cross-compiler and cross-linker** capable of generating and linking binaries for the target platform.
 2. **Target-specific headers and libraries** such as the C runtime (CRT files), libc (glibc, musl, etc.), C++ standard library (libstdc++, libc++), compiler runtimes (libgcc, compiler-rt), and optional components like profilers or sanitizers.
 
-This toolchain only needs the former, that is, a cross compiler and a cross linker, and builds all of the latter from source, eliminating the need for target specifics.
-
 This toolchain simplifies the process by requiring only the cross-compiler and cross-linker.
 It builds all the target-specific components from source.
 
