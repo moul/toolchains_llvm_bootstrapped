@@ -154,3 +154,12 @@ A particular thank you to [@steeve](https://github.com/steeve), the founder of [
 Special thanks to the Bazel community for answering many of my interrogations on the Bazel slack and providing guidance when needed.
 
 Special mention for [@dzbarsky](https://github.com/dzbarsky), [@fmeum](https://github.com/fmeum), [@keith](https://github.com/keith), [@armandomontanez](https://github.com/armandomontanez) and the whole [bazelbuild/rules_cc](https://github.com/bazelbuild/rules_cc) team at Google for being supportive and reactive!
+
+# In memory of
+
+This project is dedicated to the memory of my beloved cat "Koutchi" aka "Garçon" who was everything to me.
+To my little star dust <3
+
+![IMG_1840 2](https://github.com/user-attachments/assets/333760d2-d2e1-4e69-9a20-6c3ead575b5e)
+
+
