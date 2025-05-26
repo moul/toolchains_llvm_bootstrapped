@@ -1,8 +1,8 @@
 
-load("//platforms:common.bzl", _arch_aliases = "ARCH_ALIASES", _supported_target = "SUPPORTED_TARGETS")
+load("//platforms:common.bzl", _arch_aliases = "ARCH_ALIASES", _supported_targets = "SUPPORTED_TARGETS")
 
 def declare_platforms():
-    for (target_os, target_cpu) in _supported_target:
+    for (target_os, target_cpu) in _supported_targets:
         native.platform(
             name = "{}_{}".format(target_os, target_cpu),
             constraint_values = [
