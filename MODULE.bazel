@@ -174,9 +174,3 @@ use_repo(zig, "zig_toolchains")
 
 register_toolchains("@rules_zig//zig/target:all", dev_dependency = True)
 register_toolchains("@zig_toolchains//:all", dev_dependency = True)
-
-# setting them last 
-register_toolchains(
-    "//toolchain/stage2:stage2_toolchain",
-    "//toolchain:xclang_toolchain",
-)

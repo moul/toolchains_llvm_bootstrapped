@@ -35,6 +35,34 @@ To build programs, this toolchain is composed of 2 bazel toolchains:
 
 > TODO: Write about stubs generation for the glibc.
 
+## Usage
+
+Add this to your `MODULE.bazel`:
+
+```starlark
+bazel_dep(name = "toolchains_llvm_bootstrapped", version = "0.1.5")
+
+register_toolchains(
+    "@toolchains_llvm_bootstrapped//toolchain/...",
+```
+
+This will register all toolchains declared by this module for all supported targets.
+
+You can also register toolchains selectively per target:
+```starlark
+register_toolchains(
+    "@toolchains_llvm_bootstrapped//toolchain:bootstrap",
+    "@toolchains_llvm_bootstrapped//toolchain:linux_aarch64",
+```
+
+Note that `//toolchain:bootstrap" is the toolchain that is used to 
+compile target-specific dependencies. It cannot be avoided.
+
+To list all available toolchains, you can run the following bazel query command:
+```sh
+bazel query 'kind(toolchain, //toolchain/...) except kind(cc_toolchain, //toolchain/...)'
+```
+
 ## Examples
 
 If you clone this repository, you can test this toolchain for all the registered platforms:
@@ -46,12 +74,14 @@ bazel query 'kind(platform, //platforms/...)'
 
 Build a simple C++ program to play with the toolchain:
 ```
-bazel build //tests:main --platforms=//platforms:linux_amd64
+cd examples/rules_cc
+bazel build :main --platforms=//platforms:linux_amd64
 ```
 
 Or just verify that it runs on your current platform:
 ```sh
-bazel run //tests:main
+cd examples/rules_cc
+bazel run :main
 ```
 
 ## Supported platforms
@@ -125,7 +155,6 @@ I have early validation of the most popular targets and os, and will progressive
 
 > TODO: Add remaining tasks for production readyness.
 
-- Split in several toolchains per target
 - Allow configuration with the same granularity as `toolchains_llvm`
   (custom LLVM release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
 - [IN PROGRESS] Support linking against libstd++ (`libstdcxx` branch).
