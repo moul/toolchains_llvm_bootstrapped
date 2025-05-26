@@ -16,3 +16,4 @@ build:bootstrap   --copt=-flto=thin
 build:bootstrap   --copt=-ffunction-sections
 build:bootstrap   --copt=-fdata-sections
 build:bootstrap   --dynamic_mode=off
+build:bootstrap   --extra_toolchains=//toolchain/...

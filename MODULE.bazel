@@ -1,11 +1,13 @@
 module(
     name = "toolchains_llvm_bootstrapped",
-    version = "0.0.1",
+    version = "0.0.0",
+    bazel_compatibility = [">=7.0.0"],
+    compatibility_level = 0,
 )
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.14.0")
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "bazel_features", version = "1.20.0")
+bazel_dep(name = "bazel_features", version = "1.24.0")
 bazel_dep(name = "platforms", version = "0.0.11")
 
 RULES_CC_COMMIT = "bbc0814aa22f1748c60722ad8972d16812eb206d" # HEAD

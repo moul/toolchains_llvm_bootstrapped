@@ -1,3 +1,4 @@
 bazel-*
-static-*
-bin/
+.bazelrc.user
+.idea/
+.ijwb/
