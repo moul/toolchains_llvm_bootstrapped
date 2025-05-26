@@ -1,7 +1,7 @@
 module(
     name = "toolchains_llvm_bootstrapped",
     version = "0.0.0",
-    bazel_compatibility = [">=7.0.0"],
+    bazel_compatibility = [">=7.4.0"],
     compatibility_level = 0,
 )
 
@@ -147,12 +147,17 @@ archive_override(
     integrity = "sha256-LRoUyHeuA0qGZ7eFJ7iIGz15KiEYPx4Z+l+uY0GUDHw=",
     strip_prefix = "libstdcxx-stubs-generator-{}".format(LIBSTDCXX_STUBS_GENERATOR_COMMIT),
 )
-non_module_deps = use_extension("//:non_module_deps.bzl", "non_module_deps", dev_dependency = True)
-use_repo(non_module_deps, "llvm-raw", "llvm_zlib", "llvm_zstd", "vulkan_headers")
 
 bazel_dep(name = "rules_python", version = "0.40.0", dev_dependency = True)
-llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
-llvm_configure(name = "llvm-project")
+
+llvm_raw = use_extension("//:llvm_raw.bzl", "llvm_raw", dev_dependency = True)
+use_repo(llvm_raw, "llvm-raw", "llvm_zlib", "llvm_zstd")
+
+llvm = use_extension("//:llvm.bzl", "llvm", dev_dependency = True)
+use_repo(llvm, "llvm-project")
+
+# llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
+# llvm_configure(name = "llvm-project")
 
 ## OVERRIDES PORTS FROM DEPENDENCIES 
 
