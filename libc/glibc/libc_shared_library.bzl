@@ -9,6 +9,12 @@ def make_glibc_shared_library(
 ):
     cc_library(
         name = lib_name,
+        copts = [
+            # We compile .s (!= .S) files with a lot of -D flags.
+            # This is easier than having to duplicate cc_flags with and without
+            # assembly preprocessor.
+            "-Wno-unused-command-line-argument",
+        ],
         srcs = srcs,
     )
 

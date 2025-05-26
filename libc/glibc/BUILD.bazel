@@ -8,7 +8,7 @@ load(":libc_shared_library.bzl", "make_glibc_shared_library")
 
 # Generate all support libraries unconditionally.
 #
-# The stubs generator creates empty .S files for libraries not provided by the
+# The stubs generator creates empty .s files for libraries not provided by the
 # target glibc version, which is simpler than selecting which libraries to
 # generate based on that target glibc version.
 LIBC_SO_VERSIONS = {
@@ -38,13 +38,9 @@ glibc_stubs_assembly_files(
 # Make one target per lib assembly file
 [
     select_file(
-        # Note the .S suffix.
-        # This is only to avoid warnings about unused flags because rules_cc
-        # treat most flags as compile_actions and most flags are not used
-        # for non preprocessed assembly actions.
-        name = "lib" + lib + ".S",
+        name = "lib" + lib + ".s",
         srcs = ":generate_glibc_stubs",
-        subpath = "glibc/build/" + lib + ".S",
+        subpath = "glibc/build/" + lib + ".s",
         visibility = ["//visibility:public"],
     ) for lib in LIBC_SO_VERSIONS.keys()
 ]
@@ -89,14 +85,14 @@ LIBS = [
     make_glibc_shared_library(
         lib_name = "lib" + lib,
         lib_version = version,
-        srcs = [":lib" + lib + ".S"],
+        srcs = [":lib" + lib + ".s"],
     ) for (lib, version) in LIBC_SO_VERSIONS.items() if lib != "c"
 ] + [
     make_glibc_shared_library(
         lib_name = "libc",
         lib_version = "6",
         srcs = [
-            ":libc.S",
+            ":libc.s",
             ":__stack_chk_guard.S"
         ],
         extra_link_flags = [
