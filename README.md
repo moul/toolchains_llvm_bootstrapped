@@ -43,7 +43,7 @@ Add this to your `MODULE.bazel`:
 bazel_dep(name = "toolchains_llvm_bootstrapped", version = "0.1.5")
 
 register_toolchains(
-    "@toolchains_llvm_bootstrapped//toolchain/...",
+    "@toolchains_llvm_bootstrapped//toolchain:all",
 ```
 
 This will register all toolchains declared by this module for all supported targets.
@@ -51,16 +51,12 @@ This will register all toolchains declared by this module for all supported targ
 You can also register toolchains selectively per target:
 ```starlark
 register_toolchains(
-    "@toolchains_llvm_bootstrapped//toolchain:bootstrap",
     "@toolchains_llvm_bootstrapped//toolchain:linux_aarch64",
 ```
 
-Note that `//toolchain:bootstrap" is the toolchain that is used to 
-compile target-specific dependencies. It cannot be avoided.
-
 To list all available toolchains, you can run the following bazel query command:
 ```sh
-bazel query 'kind(toolchain, //toolchain/...) except kind(cc_toolchain, //toolchain/...)'
+bazel query 'kind(toolchain, //toolchain:all) except kind(cc_toolchain, //toolchain:all)'
 ```
 
 ## Examples

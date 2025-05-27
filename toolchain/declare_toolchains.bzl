@@ -10,6 +10,9 @@ def declare_toolchains():
                 "@platforms//cpu:{}".format(target_cpu),
                 "@platforms//os:{}".format(target_os),
             ],
+            target_settings = [
+                "//toolchain:bootstrapped",
+            ],
             toolchain = Label("//toolchain:cc_toolchain"),
             toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
             # exec_compatible_with = ["@platforms//os:{exec_os}", "@platforms//cpu:{exec_arch}"],
@@ -22,6 +25,9 @@ def declare_toolchains():
                 target_compatible_with = [
                     "@platforms//cpu:{}".format(target_cpu),
                     "@platforms//os:{}".format(target_os),
+                ],
+                target_settings = [
+                    "//toolchain:bootstrapped",
                 ],
                 toolchain = Label("//toolchain:cc_toolchain"),
                 toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",

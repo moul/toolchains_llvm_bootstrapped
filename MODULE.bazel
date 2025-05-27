@@ -181,3 +181,8 @@ use_repo(zig, "zig_toolchains")
 
 register_toolchains("@rules_zig//zig/target:all", dev_dependency = True)
 register_toolchains("@zig_toolchains//:all", dev_dependency = True)
+
+# Register the bootstrap toolchain since it is a prerequisite to all other toolchains.
+register_toolchains(
+    "@toolchains_llvm_bootstrapped//toolchain/stage2:stage2_toolchain",
+)

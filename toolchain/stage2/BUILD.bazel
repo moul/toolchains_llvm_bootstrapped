@@ -1,26 +1,5 @@
 load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
 load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
-load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
-
-constraint_setting(
-    name = "bootstrap_stage",
-    visibility = ["//visibility:public"],
-)
-
-constraint_value(
-    name = "bootstrap_stage_2",
-    constraint_setting = ":bootstrap_stage",
-    visibility = ["//visibility:public"],
-)
-
-platform(
-    name = "bootstrap_stage_2_platform",
-    constraint_values = [
-        ":bootstrap_stage_2",
-    ],
-    parents = ["@local_config_platform//:host"],
-    visibility = ["//visibility:public"],
-)
 
 cc_args_list(
     name = "platform_specific_args",
@@ -69,8 +48,8 @@ toolchain(
     name = "stage2_toolchain",
     toolchain = ":stage2",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-    exec_compatible_with = HOST_CONSTRAINTS + [
-        "//toolchain/stage2:bootstrap_stage_2",
+    target_settings = [
+        "//toolchain:bootstrapping",
     ],
     visibility = ["//visibility:public"],
 )

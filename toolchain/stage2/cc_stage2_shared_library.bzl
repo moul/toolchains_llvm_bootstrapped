@@ -17,8 +17,8 @@ _builder.set("host_cxxopt", [])
 _builder.set("host_linkopt", [])
 
 _builder.set(
-    "host_platform",
-    Label("//toolchain/stage2:bootstrap_stage_2_platform"),
+    Label("//toolchain:bootstrap_setting"),
+    True,
 )
 
 cc_stage2_shared_library, _cc_stage2_shared_library_internal = _builder.build()
