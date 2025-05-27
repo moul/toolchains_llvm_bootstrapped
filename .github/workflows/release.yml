@@ -1,0 +1,38 @@
+name: Create Release
+
+on:
+  # Can be triggered from the tag.yaml workflow
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+  # In case of problems, let release engineers retry by manually dispatching
+  # the workflow from the GitHub UI
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+
+permissions:
+  id-token: write # Needed to attest provenance
+  attestations: write # Needed to attest provenance
+  contents: write # Needed to create release
+
+jobs:
+  release:
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.2
+    with:
+      bazel_test_command: bash tests/e2e.sh
+      prerelease: false
+      release_files: |
+        toolchains_llvm_bootstrapped-*.tar.gz
+      tag_name: ${{ inputs.tag_name || github.ref_name }}
+  publish:
+    needs: release
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag_name: ${{ inputs.tag_name || github.ref_name }}
+    secrets:
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}

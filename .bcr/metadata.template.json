@@ -1,0 +1,15 @@
+{
+  "homepage": "https://github.com/cerisier/toolchains_llvm_bootstrapped",
+  "maintainers": [
+    {
+      "name": "Corentin Kerisit",
+      "email": "corentin.kerisit@gmail.com",
+      "github": "cerisier"
+    }
+  ],
+  "repository": [
+    "github:cerisier/toolchains_llvm_bootstrapped"
+  ],
+  "versions": [],
+  "yanked_versions": {}
+}
