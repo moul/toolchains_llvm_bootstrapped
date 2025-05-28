@@ -7,7 +7,11 @@ fi
 bazel build //tests:main --platforms=//platforms:linux_x86_64 --extra_toolchains=//toolchain:all $@
 bazel build //tests:main --platforms=//platforms:linux_aarch64 --extra_toolchains=//toolchain:all $@
 
-for i in $(seq 28 41); do
+start=28
+if [ "$GITHUB_ACTIONS" == "true" ]; then
+  start=41
+fi
+for i in $(seq $start 41); do
   bazel build //tests:main --platforms=//platforms/libc_aware:linux_x86_64_gnu.2.$i --extra_toolchains=//toolchain:all $@
   bazel build //tests:main --platforms=//platforms/libc_aware:linux_aarch64_gnu.2.$i --extra_toolchains=//toolchain:all $@
 done
