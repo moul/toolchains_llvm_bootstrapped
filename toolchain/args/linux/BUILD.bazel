@@ -156,10 +156,10 @@ cc_args(
         "{libc_headers_include_path}",
     ],
     format = {
-        "libc_headers_include_path": "@musl_libc//:headers_aarch64_include_directory",
+        "libc_headers_include_path": "@musl_libc//:musl_libc_headers_include_directory",
     },
     data = [
-        "@musl_libc//:headers_aarch64_include_directory",
+        "@musl_libc//:musl_libc_headers_include_directory",
     ],
 )
 

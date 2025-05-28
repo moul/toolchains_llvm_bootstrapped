@@ -189,6 +189,15 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "musl_libc_headers_include_directory",
+    actual = select({
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_x86_64": ":headers_x86_64_include_directory",
+        "@toolchains_llvm_bootstrapped//platforms/config:linux_aarch64": ":headers_aarch64_include_directory",
+    }),
+    visibility = ["//visibility:public"],
+)
+
 exports_files([
     "crt/crt1.c",
     "crt/rcrt1.c",
