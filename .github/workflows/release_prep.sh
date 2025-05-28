@@ -10,8 +10,10 @@ PREFIX="toolchains_llvm_bootstrapped-$TAG"
 ARCHIVE="toolchains_llvm_bootstrapped-$TAG.tar.gz"
 ARCHIVE_TMP=$(mktemp)
 
+sed -i.bak "s/0.0.0/${TAG}/" MODULE.bazel && git add MODULE.bazel && git commit -m "Update version" >/dev/null
+
 # NB: configuration for 'git archive' is in /.gitattributes
-git archive --format=tar --prefix=${PREFIX}/ ${TAG} >$ARCHIVE_TMP
+git archive --format=tar --prefix=${PREFIX}/ HEAD >$ARCHIVE_TMP
 
 gzip <$ARCHIVE_TMP >$ARCHIVE
 SHA=$(shasum -a 256 $ARCHIVE | awk '{print $1}')
