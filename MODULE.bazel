@@ -154,6 +154,9 @@ llvm_raw = use_extension("//:llvm_raw.bzl", "llvm_raw", dev_dependency = True)
 use_repo(llvm_raw, "llvm-raw", "llvm_zlib", "llvm_zstd")
 
 llvm = use_extension("//:llvm.bzl", "llvm", dev_dependency = True)
+llvm.configure(
+    targets = ["AArch64", "X86"],
+)
 use_repo(llvm, "llvm-project")
 
 # llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
