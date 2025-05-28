@@ -41,7 +41,7 @@ http_archive(
 http_archive(
     name = "llvm-toolchain-minimal-{llvm_version}-linux-amd64".format(llvm_version = LLVM_VERSION),
     urls = ["https://github.com/cerisier/toolchains_llvm_bootstrapped/releases/download/llvm-{llvm_version}/llvm-toolchain-minimal-{llvm_version}-linux-amd64-musl.tar.zst".format(llvm_version = LLVM_VERSION)],
-    sha256 = "2cae415ee7c9654ccaba9d0e97c9db0bb2bfe90bf7317bc7920398ae42c47123",
+    sha256 = "bbba8aad0a92812978b4f57469d4a778c6887a3d2ab9bd70064da5b2d4ee98fd",
     build_file = "//toolchain/llvm:BUILD.llvm_release.tpl",
 )
 http_archive(
