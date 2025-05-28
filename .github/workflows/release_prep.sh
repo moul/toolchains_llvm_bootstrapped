@@ -10,6 +10,9 @@ PREFIX="toolchains_llvm_bootstrapped-$TAG"
 ARCHIVE="toolchains_llvm_bootstrapped-$TAG.tar.gz"
 ARCHIVE_TMP=$(mktemp)
 
+# Dummy on purpose
+git config user.email "you@example.com"
+git config user.name "Your Name"
 sed -i.bak "s/0.0.0/${TAG}/" MODULE.bazel && git add MODULE.bazel && git commit -m "Update version" >/dev/null
 
 # NB: configuration for 'git archive' is in /.gitattributes
