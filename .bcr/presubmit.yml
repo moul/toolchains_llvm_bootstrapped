@@ -2,7 +2,7 @@ bcr_test_module:
   module_path: examples/rules_cc
   matrix:
     bazel: [7.x, 8.x]
-    platform: [ubuntu2004, macos, macos_arm64]
+    platform: [debian11, ubuntu2004, macos_arm64]
   tasks:
     run_test_module:
       name: Run test module
