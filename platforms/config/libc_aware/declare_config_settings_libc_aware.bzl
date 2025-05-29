@@ -13,6 +13,7 @@ def declare_config_settings_libc_aware():
                 "@platforms//os:{}".format(target_os),
                 "//constraints/libc:unconstrained",
             ],
+            visibility = ["//visibility:public"],
         )
 
         for libc in _libc_versions:
@@ -23,6 +24,7 @@ def declare_config_settings_libc_aware():
                     "@platforms//os:{}".format(target_os),
                     "//constraints/libc:{}".format(libc),
                 ],
+                visibility = ["//visibility:public"],
             )
 
         selects.config_setting_group(
@@ -32,6 +34,7 @@ def declare_config_settings_libc_aware():
                 "@platforms//os:{}".format(target_os),
                 ":gnu",
             ],
+            visibility = ["//visibility:public"],
         )
 
     selects.config_setting_group(
@@ -39,6 +42,7 @@ def declare_config_settings_libc_aware():
         match_any = [
             "//constraints/libc:{}".format(libc) for libc in _glibc_versions
         ],
+        visibility = ["//visibility:public"],
     )
 
     selects.config_setting_group(
@@ -46,4 +50,5 @@ def declare_config_settings_libc_aware():
         match_any = [
             "//constraints/libc:musl",
         ],
+        visibility = ["//visibility:public"],
     )

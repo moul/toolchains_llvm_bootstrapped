@@ -9,4 +9,5 @@ def declare_config_settings():
                 "@platforms//cpu:{}".format(target_cpu),
                 "@platforms//os:{}".format(target_os),
             ],
+            visibility = ["//visibility:public"],
         )
