@@ -1,10 +1,11 @@
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@bazel_skylib//rules:select_file.bzl", "select_file")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
-load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
 load("//toolchain:selects.bzl", "platform_extra_binary")
+load(":glibc_linker_script.bzl", "make_glibc_linker_script")
 load(":glibc_stubs_assembly_files.bzl", "glibc_stubs_assembly_files")
+load(":glibc_shared_library.bzl", "make_glibc_shared_library")
 load(":libc_aware_target_triple.bzl", "libc_aware_target_triple")
-load(":libc_shared_library.bzl", "make_glibc_shared_library")
 
 # Generate all support libraries unconditionally.
 #
@@ -83,13 +84,15 @@ write_file(
 # Make one cc_shared_library target per lib, using the assembly file
 LIBS = [
     make_glibc_shared_library(
-        lib_name = "lib" + lib,
+        name = "lib%s_shared_library" % lib,
+        lib_name = lib,
         lib_version = version,
         srcs = [":lib" + lib + ".s"],
     ) for (lib, version) in LIBC_SO_VERSIONS.items() if lib != "c"
 ] + [
     make_glibc_shared_library(
-        lib_name = "libc",
+        name = "libc_shared_library",
+        lib_name = "c",
         lib_version = "6",
         srcs = [
             ":libc.s",
@@ -104,27 +107,18 @@ LIBS = [
     ),
 ]
 
-sh_binary(
-    name = "create_glibc_search_directory",
-    srcs = ["copy_glibc.sh"],
-)
+# The below creates linker scripts with the names that the linker wants
+# (libc.so, libdl.so) which redirect to libc.so.6, libdl.so.2, etc.
+LINKER_SCRIPTS = [
+    make_glibc_linker_script(
+        name = "lib%s_linker_script" % lib,
+        lib_name = lib,
+        lib_version = version,
+    ) for (lib, version) in LIBC_SO_VERSIONS.items()
+]
 
-# Create a directory that will act as a search path for the libraries
-# Some invocations have -lc copts so we need to support those in a hermetic
-# context. I had the choice between creating a directory layout or making a
-# compiler wrapper that would ignore specific -l flags.
-#
-# > I chose the layout because it will also serve the purpose of generating
-# > sysroots for those who want this instead.
-run_binary(
+copy_to_directory(
     name = "search_directory",
-    tool = ":create_glibc_search_directory",
-    srcs = LIBS,
-    args = ["$(location :{})".format(lib) for lib in LIBS],
-    env = {
-        "OUTPUT_DIR": "$(RULEDIR)/libs",
-    }, 
-    out_dirs = ["libs"],
+    srcs = LIBS + LINKER_SCRIPTS,
     visibility = ["//visibility:public"],
 )
-
