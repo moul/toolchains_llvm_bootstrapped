@@ -12,8 +12,8 @@ trampoline_setup
 
 
 # FLAGS NOT APPLE                       
--fPIC                                       # not in our case
--fPIE                                       # not in our case
+-fPIC                                       # implied
+-fPIE                                       # implied
 -fno-builtin                                # always
 -std=c11                                    # always
 -fvisibility=hidden                         # always

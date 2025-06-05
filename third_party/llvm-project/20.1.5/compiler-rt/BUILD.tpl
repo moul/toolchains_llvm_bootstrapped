@@ -2,6 +2,7 @@ load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_library.bzl", "c
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load("@toolchains_llvm_bootstrapped//third_party/llvm-project/20.1.5/compiler-rt:targets.bzl", "atomic_helper_cc_library")
 load("@toolchains_llvm_bootstrapped//third_party/llvm-project/20.1.5/compiler-rt:darwin_excludes.bzl", "filter_excludes")
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 BUILTINS_GENERIC_SRCS = [
@@ -314,7 +315,31 @@ cc_stage2_library(
         "-std=c11",
         "-fvisibility=hidden",
         # "-Wbuiltin-declaration-mismatch",
-    ],
+    ] + select({
+        "@toolchains_llvm_bootstrapped//config:stage2_optimization_mode_optimized": [
+            "-fomit-frame-pointer",
+        ],
+        "//conditions:default": [],
+    }),
+    local_defines = selects.with_or({
+        (
+            # The following architectures support float16:
+            # - aarch64_be
+            # - arm
+            # - armeb
+            # - hexagon
+            # - riscv32
+            # - riscv64
+            # - spirv
+            # - thumb
+            # - thumbeb
+            "@platforms//cpu:aarch64",
+            "@platforms//cpu:x86_64",
+        ): [
+            "COMPILER_RT_HAS_FLOAT16",
+        ],
+        "//conditions:default": [],
+    }),
     textual_hdrs = [
         "lib/builtins/fp_add_impl.inc",
         "lib/builtins/fp_compare_impl.inc",
