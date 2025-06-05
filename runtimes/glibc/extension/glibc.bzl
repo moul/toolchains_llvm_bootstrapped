@@ -1,7 +1,6 @@
 
 load("@bazel_features//:features.bzl", "bazel_features")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//constraints/libc:libc_versions.bzl", "GLIBC_VERSIONS")
 load("//platforms:common.bzl", "LIBC_SUPPORTED_TARGETS")
 
@@ -20,6 +19,23 @@ GLIBC_RELEASE_COMMITS = {
     "2.39": "68f3f1a1d08f7f3e0fb74391461699717efbb4bc", # release/2.39/master
     "2.40": "8d3dd23e3de8b4c6e4b94f8bbfab971c3b8a55be", # release/2.40/master
     "2.41": "5cf17ebc659c875aff3c49d2a59ce15f46167389", # release/2.41/master
+}
+
+GLIBC_RELEASE_INTEGRITY = {
+    "2.28": "f4cf37f12e0c3a81485ea8743dc41dbcec31ae326b22d6265e724c7ee753529e",
+    "2.29": "39cb3f84e92fe829f0b5d96d08437d18e90d17a23021119a7235e17d6bb25245",
+    "2.30": "617511b27f473280597a1cc2828101a29b9f4c682ee99422b8c246c2f84f46e2",
+    "2.31": "80329e5c6624ebeaa9c0d80f73dda8c28491114206420c44a5718f56302c44ec",
+    "2.32": "51900a45edab4cc21059846fb875f3583948dc9449bad7dac997687cb998e8b2",
+    "2.33": "9c8b9bea370bd6f03d154b6003542fa5b1d0b7124953ce5709b3859c3dade076",
+    "2.34": "1a15c817f8d21ab0bc843f04bea3e4e33b91b640d7ce879d23b8d915de1ed03e",
+    "2.35": "76e4f569b0058f46d9f2a83eba40342efda4414f2ba5337c1b947e930dcacc51",
+    "2.36": "3c77f25a49c823ce0777191fafaf1ae65c0bd0d88e9f0080e592368c557af779",
+    "2.37": "5b7e52f5679744b6b692b2eabe54bbb13283f9baec0e9e08f8c825a984989c55",
+    "2.38": "b1aff01416addccf7970b69275ee9d66d094ef6b770bdc49dcb3f1737cb563a1",
+    "2.39": "b3d0acbe514fec5352bc195a91513be9de26740b086700135e7528356f8a38cc",
+    "2.40": "80d4e3a0846423a536a14da79d7b527a84b0f73df3f1d5beadf63c8d16fc2429",
+    "2.41": "ae2ef9d50a04e5f4e7eece46455a21bf4e4e69518ed31496fdb4c0895f7e18fd",
 }
 
 def _glibc_trampoline_repository_impl(repository_ctx):
@@ -49,10 +65,11 @@ def _glibc_impl(module_ctx):
         for (target_os, target_arch) in LIBC_SUPPORTED_TARGETS:
             target = "{}-{}-gnu".format(target_arch, target_os)
             #TODO(cerisier): Share the repository between targets
-            git_repository(
+            http_archive(
                 name = "glibc_%s.%s" % (target, version),
-                remote = "https://sourceware.org/git/glibc.git",
-                commit = GLIBC_RELEASE_COMMITS.get(version),
+                urls = ["https://github.com/bminor/glibc/archive/{}.tar.gz".format(GLIBC_RELEASE_COMMITS.get(version))],
+                strip_prefix = "glibc-{}".format(GLIBC_RELEASE_COMMITS.get(version)),
+                sha256 = GLIBC_RELEASE_INTEGRITY.get(version),
                 build_file = "//third_party/libc/glibc:BUILD.tpl",
                 patches = [
                     # This file is generated when compiling the glibc.
