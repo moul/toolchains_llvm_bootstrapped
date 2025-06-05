@@ -143,6 +143,14 @@ BUILTINS_GENERIC_SRCS = [
     "lib/builtins/clear_cache.c",
 ]
 
+BF16_SOURCES = [
+    "lib/builtins/extendbfsf2.c",
+    "lib/builtins/truncdfbf2.c",
+    "lib/builtins/truncxfbf2.c",
+    "lib/builtins/truncsfbf2.c",
+    "lib/builtins/trunctfbf2.c",
+]
+
 # Triple float sources
 BUILTINS_GENERIC_TF_SRCS = [
     "lib/builtins/addtf3.c",
@@ -195,6 +203,11 @@ filegroup(
         ],
         "//conditions:default": [],
     }),
+)
+
+filegroup(
+    name = "builtins_bf16_sources",
+    srcs = filter_excludes(BF16_SOURCES),
 )
 
 filegroup(
@@ -310,6 +323,18 @@ cc_stage2_library(
             "lib/builtins/cpu_model/aarch64.h",
         ],
         "//conditions:default": [],
+    }) + selects.with_or({
+        (
+            # The following additional architectures support float16:
+            # - aarch64_be
+            # - riscv32
+            # - riscv64
+            "@platforms//cpu:aarch64",
+            "@platforms//cpu:x86_64",
+        ): [
+            ":builtins_bf16_sources",
+        ],
+        "//conditions:default": [],
     }),
     copts = [
         "-fno-builtin",
@@ -324,7 +349,7 @@ cc_stage2_library(
     }),
     local_defines = selects.with_or({
         (
-            # The following architectures support float16:
+            # The following additional architectures support float16:
             # - aarch64_be
             # - arm
             # - armeb
