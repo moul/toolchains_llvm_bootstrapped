@@ -15,22 +15,46 @@ libc_musl_srcs_filegroup(
     visibility = ["//visibility:public"],
 )
 
-COMMON_C_FLAGS = [
+CFLAGS_C99FSE = [
     "-std=c99",
+    "-nostdinc",
     "-ffreestanding",
     "-fexcess-precision=standard",
     "-frounding-math",
-    "-ffp-contract=off",
     "-fno-strict-aliasing",
     "-Wa,--noexecstack",
-    "-D_XOPEN_SOURCE=700",
-    "-Qunused-arguments",
+]
+
+CFLAGS_AUTO = [
+    # "-O2", # auto
+    "-fno-align-functions",
+    # "-pipe",
+] + select({
+    "@toolchains_llvm_bootstrapped//config:stage2_optimization_mode_optimized": [
+        "-fomit-frame-pointer",
+    ],
+    "//conditions:default": [],
+}) + [
+    "-fno-unwind-tables",
+    "-fno-asynchronous-unwind-tables",
+    # "-ffunction-sections", # default
+    # "-fdata-sections", # default
     "-w",
+    "-Qunused-arguments",
+]
+
+CFLAGS_ALL = CFLAGS_C99FSE + [
+    "-D_XOPEN_SOURCE=700",
+] + CFLAGS_AUTO
+
+
+CFLAGS_NOSSP = [
+    "-fno-stack-protector",
 ]
 
 cc_stage2_library(
     name = "musl_libc",
-    copts = COMMON_C_FLAGS + ["-nostdlib", "-nostdinc"],
+    copts = CFLAGS_ALL + ["-nostdlib"],
     srcs = [
         ":musl_arch_compile_srcs",
         "@musl_libc//:compile_hdrs",
@@ -54,6 +78,7 @@ cc_stage2_static_library(
 cc_stage2_library(
     name = "musl_crt1.static",
     srcs = ["@musl_libc//:crt/crt1.c"],
+    copts = CFLAGS_ALL + ["-DCRT"] + CFLAGS_NOSSP,
     implementation_deps = [
         "@musl_libc//:musl_internal_headers",
         "@musl_libc//:musl_libc_headers",
@@ -64,6 +89,7 @@ cc_stage2_library(
 cc_stage2_library(
     name = "musl_rcrt1.static",
     srcs = ["@musl_libc//:crt/rcrt1.c"],
+    copts = CFLAGS_ALL + ["-DCRT"] + CFLAGS_NOSSP + ["-fPIC"],
     implementation_deps = [
         "@musl_libc//:musl_internal_headers",
         "@musl_libc//:musl_libc_headers",
@@ -74,6 +100,7 @@ cc_stage2_library(
 cc_stage2_library(
     name = "musl_Scrt1.static",
     srcs = ["@musl_libc//:crt/Scrt1.c"],
+    copts = CFLAGS_ALL + ["-DCRT"] + CFLAGS_NOSSP + ["-fPIC"],
     textual_hdrs = [
         "@musl_libc//:crt/crt1.c",
     ],
