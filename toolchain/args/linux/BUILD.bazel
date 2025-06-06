@@ -106,7 +106,9 @@ cc_args(
     ],
     args = [
         "-L.", # needed to -l:bazel-out/...
+        "-Wl,--whole-archive",
         "-l:{Scrt1}",
+        "-Wl,--no-whole-archive",
     ],
     data = [
         "//runtimes/glibc:glibc_Scrt1.static",
@@ -200,7 +202,9 @@ cc_args(
     ],
     args = [
         "-L.", # needed to -l:bazel-out/...
+        "-Wl,--whole-archive",
         "-l:{Scrt1}",
+        "-Wl,--no-whole-archive",
     ],
     data = [
         "//runtimes/musl:musl_Scrt1.static",
