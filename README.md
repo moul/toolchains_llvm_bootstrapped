@@ -1,6 +1,6 @@
 # LLVM cross compilation toolchain for Bazel
 
-> ⚠️ **Warning:** This project is still in development and may break.
+> ⚠️ **Warning:** This project is still experimental and may break.
 
 ## Description
 
@@ -44,6 +44,7 @@ bazel_dep(name = "toolchains_llvm_bootstrapped", version = "0.1.5")
 
 register_toolchains(
     "@toolchains_llvm_bootstrapped//toolchain:all",
+)
 ```
 
 This will register all toolchains declared by this module for all supported targets.
@@ -52,6 +53,7 @@ You can also register toolchains selectively per target:
 ```starlark
 register_toolchains(
     "@toolchains_llvm_bootstrapped//toolchain:linux_aarch64",
+)
 ```
 
 To list all available toolchains, you can run the following bazel query command:
@@ -94,6 +96,7 @@ bazel run :main
 ### musl
 
 Compiling and linking against musl on linux is supported, but only statically.
+For now, this toolchain uses the latest available musl version.
 
 To target musl, use:
 `--platforms //platforms/libc_aware:linux_aarch64_musl`
@@ -102,15 +105,15 @@ To target musl, use:
 
 ### GNU C Library ("glibc") versions
 
-Compiling and linking against an arbitrary version of the glibc is supported.
+Compiling and linking dynamically against an arbitrary version of the glibc is supported.
 By default, the earliest glibc version that supports your target is used (2.28 in most case).
 
 To target a specific version, use:
 `--platforms //platforms/libc_aware:linux_x86_64_gnu.2.28`
 
 Behind the scenes, your code is compiled using the appropriate headers for the
-target version, and linked against a stub glibc that includes only the symbols
-available in that version.
+target version, and dynamically linked against a stub glibc that includes only
+the symbols available in that version.
 
 This guarantees that your program will run on any system with that exact glibc
 version or newer, since it never relies on symbols introduced in later versions.
@@ -148,8 +151,6 @@ I have early validation of the most popular targets and os, and will progressive
 - https://github.com/dzbarsky/static-clang which provides stripped subset of llvm binaries for lighter dependencies, as well as a starting point for missing llvm targets build file authoring (compiler-rt, etc.).
 
 ## Roadmap
-
-> TODO: Add remaining tasks for production readyness.
 
 - Allow configuration with the same granularity as `toolchains_llvm`
   (custom LLVM release, user-provided sysroot, static/dynamic linking option for the c++ standard library, libunwind etc.).
