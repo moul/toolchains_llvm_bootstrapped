@@ -79,8 +79,6 @@ cc_args(
         #TODO: Put those at the right place, they are applied too early
         "//conditions:default": [
             "-Wl,-no-as-needed",
-            "-Wl,--build-id=md5",
-            "-Wl,--hash-style=gnu",
             "-Wl,-z,relro,-z,now",
         ],
     }),
