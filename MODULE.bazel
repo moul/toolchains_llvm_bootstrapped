@@ -11,7 +11,7 @@ bazel_dep(name = "bazel_features", version = "1.24.0")
 bazel_dep(name = "platforms", version = "0.0.11")
 
 RULES_CC_COMMIT = "bbc0814aa22f1748c60722ad8972d16812eb206d" # HEAD
-bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "rules_cc", version = "0.1.5")
 archive_override(
     module_name = "rules_cc",
     urls = ["https://github.com/bazelbuild/rules_cc/archive/%s.tar.gz" % RULES_CC_COMMIT],
