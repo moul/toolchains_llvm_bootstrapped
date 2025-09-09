@@ -108,14 +108,14 @@ cc_args(
     args = [
         "-L.", # needed to -l:bazel-out/...
         "-Wl,--whole-archive",
-        "-l:{Scrt1}",
+        "{Scrt1.a}",
         "-Wl,--no-whole-archive",
     ],
     data = [
         "//runtimes/glibc:glibc_Scrt1.static",
     ],
     format = {
-        "Scrt1": "//runtimes/glibc:glibc_Scrt1.static",
+        "Scrt1.a": "//runtimes/glibc:glibc_Scrt1.static",
     },
 )
 
@@ -131,7 +131,7 @@ cc_args(
         "-L{libunwind_library_search_path}",
         "-L.", # needed to -l:bazel-out/...
 
-        "-l:{clang_rt.builtins.a}",
+        "{clang_rt.builtins.a}",
 
         # In prevention of when all of those can be shared libraries.
         "-Wl,--push-state",
@@ -151,7 +151,7 @@ cc_args(
         "-lc",
         # In real life, libc_nonshared is added the libc.so linker script right 
         # after the libc.so.6 library.
-        "-l:{libc_nonshared.a}",
+        "{libc_nonshared.a}",
 
         "-ldl",
         "-lrt",
@@ -204,14 +204,14 @@ cc_args(
     args = [
         "-L.", # needed to -l:bazel-out/...
         "-Wl,--whole-archive",
-        "-l:{Scrt1}",
+        "{Scrt1.a}",
         "-Wl,--no-whole-archive",
     ],
     data = [
         "//runtimes/musl:musl_Scrt1.static",
     ],
     format = {
-        "Scrt1": "//runtimes/musl:musl_Scrt1.static",
+        "Scrt1.a": "//runtimes/musl:musl_Scrt1.static",
     },
 )
 
@@ -228,7 +228,7 @@ cc_args(
         "-L{libunwind_library_search_path}",
         "-L.", # needed to -l:bazel-out/...
 
-        "-l:{clang_rt.builtins.a}",
+        "{clang_rt.builtins.a}",
 
         # In prevention of when all of those can be shared libraries.
         "-Wl,--push-state",
