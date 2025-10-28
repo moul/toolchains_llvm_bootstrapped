@@ -123,24 +123,23 @@ kernel_headers.index(file = "//kernel/extension:kernel_headers_index.json")
 use_repo(kernel_headers, "kernel_headers")
 
 ## DEV DEPENDENCIES
-
-GLIBC_STUBS_GENERATOR_COMMIT = "b8ef1c5f070b8297505a61d32ee9d6ca773d02b3"
+GLIBC_STUBS_GENERATOR_COMMIT = "33276300351d5a3cbedd308f4d21669b8e8ef83d"
 
 bazel_dep(name = "glibc-stubs-generator", version = "2.0.1", dev_dependency = True)
 archive_override(
     module_name = "glibc-stubs-generator",
     urls = ["https://github.com/cerisier/glibc-stubs-generator/archive/{}.tar.gz".format(GLIBC_STUBS_GENERATOR_COMMIT)],
-    integrity = "sha256-ZctTSdI8zXZrC0f78a7g9WNt8Xi+sIAnBZBNrIf5avk=",
+    integrity = "sha256-q7bwGW3nRigiGuXj/2kIZMi/LFCHZpVbMD/kRdllLCg=",
     strip_prefix = "glibc-stubs-generator-{}".format(GLIBC_STUBS_GENERATOR_COMMIT),
 )
 
-LIBSTDCXX_STUBS_GENERATOR_COMMIT = "0b271e429a4ab412de16946782257dbede9ca091"
+LIBSTDCXX_STUBS_GENERATOR_COMMIT = "ed896a140ef8466140c3bcfd066e710a80a41ebe"
 
 bazel_dep(name = "libstdcxx-stubs-generator", version = "0.0.1", dev_dependency = True)
 archive_override(
     module_name = "libstdcxx-stubs-generator",
     urls = ["https://github.com/cerisier/libstdcxx-stubs-generator/archive/{}.tar.gz".format(LIBSTDCXX_STUBS_GENERATOR_COMMIT)],
-    integrity = "sha256-LRoUyHeuA0qGZ7eFJ7iIGz15KiEYPx4Z+l+uY0GUDHw=",
+    integrity = "sha256-OAZfeifniTQmKit60qHpZanOLLIJVyYEiMlpN5Q7Fjw=",
     strip_prefix = "libstdcxx-stubs-generator-{}".format(LIBSTDCXX_STUBS_GENERATOR_COMMIT),
 )
 
@@ -162,13 +161,7 @@ use_repo(llvm, "llvm-project")
 
 RULES_ZIG_COMMIT = "b9739c615ce62b64ee595ac4bcd9ee7cc06b0422" # branch=zml
 
-bazel_dep(name = "rules_zig", version = "20250314.0-b9739c6", dev_dependency = True)
-archive_override(
-    module_name = "rules_zig",
-    urls = ["https://github.com/zml/rules_zig/archive/{}.tar.gz".format(RULES_ZIG_COMMIT)],
-    integrity = "sha256-p1rYD9gvYS3DgBjN6jo1pB86Kr4k2wojKjVpYRTZ3Us=",
-    strip_prefix = "rules_zig-{}".format(RULES_ZIG_COMMIT),
-)
+bazel_dep(name = "rules_zig", version = "0.12.2", dev_dependency = True)
 
 zig = use_extension("@rules_zig//zig:extensions.bzl", "zig", dev_dependency = True)
 zig.index(file = "//:zig_index.json")
