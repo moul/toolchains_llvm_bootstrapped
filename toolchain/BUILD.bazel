@@ -66,6 +66,7 @@ cc_args_list(
         "//toolchain/args:libcxx_headers_include_search_paths",
     ] + select({
         "//platforms/config/libc_aware:musl": [
+            "//toolchain/args/linux:kernel_headers_include_search_paths",
             "//toolchain/args/linux:musl_libc_headers_include_search_paths",
         ],
         "//platforms/config/libc_aware:gnu": [
