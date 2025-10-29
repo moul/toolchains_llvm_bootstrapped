@@ -6,13 +6,13 @@ load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
 
 directory(
     name = "builtin_headers_files",
-    srcs = glob(["lib/clang/20/include/**"]),
+    srcs = glob(["lib/clang/21/include/**"]),
     visibility = ["//visibility:public"],
 )
 
 subdirectory(
     name = "builtin_headers_include_directory",
-    path = "lib/clang/20/include",
+    path = "lib/clang/21/include",
     parent = ":builtin_headers_files",
     visibility = ["//visibility:public"],
 )

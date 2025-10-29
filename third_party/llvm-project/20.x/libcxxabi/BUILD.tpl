@@ -77,25 +77,35 @@ cc_library(
         "src/**/*.def",
     ]),
     srcs = [
-        "src/abort_message.cpp",
+        # LIBCXXABI_SOURCES
+        # C++ABI files
         "src/cxa_aux_runtime.cpp",
         "src/cxa_default_handlers.cpp",
         "src/cxa_demangle.cpp",
-        "src/cxa_exception.cpp", # if exception
         "src/cxa_exception_storage.cpp",
         "src/cxa_guard.cpp",
         "src/cxa_handlers.cpp",
-        # "src/cxa_noexception.cpp", # if no exceptions
-        "src/cxa_personality.cpp", # if exceptions
-        "src/cxa_thread_atexit.cpp", # not if no threads
         "src/cxa_vector.cpp",
         "src/cxa_virtual.cpp",
-        "src/fallback_malloc.cpp",
-        "src/private_typeinfo.cpp",
+        # C++ STL files
         "src/stdlib_exception.cpp",
-        "src/stdlib_new_delete.cpp",
         "src/stdlib_stdexcept.cpp",
         "src/stdlib_typeinfo.cpp",
+        # Internal files
+        "src/abort_message.cpp",
+        "src/fallback_malloc.cpp",
+        "src/private_typeinfo.cpp",
+    ] + [
+        # LIBCXXABI_ENABLE_NEW_DELETE_DEFINITIONS
+        "src/stdlib_new_delete.cpp",
+    ] + [
+        # LIBCXXABI_ENABLE_EXCEPTIONS
+        "src/cxa_exception.cpp",
+        "src/cxa_personality.cpp",
+        # src/cxa_noexception.cpp
+    ] + [
+        # LIBCXXABI_ENABLE_THREADS
+        "src/cxa_thread_atexit.cpp",
     ],
     implementation_deps = [
         # Order matter. Search path should have C++ headers before any lib C headers.

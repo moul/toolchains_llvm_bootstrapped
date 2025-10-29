@@ -1,4 +1,4 @@
-LLVM_VERSION = "20.1.8"
+LLVM_VERSION = "21.1.4"
 
 def platform_llvm_binary(binary):
     return select({
