@@ -1,5 +1,5 @@
-load("@aspect_bazel_lib//lib:copy_file.bzl", "copy_file")
-load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@bazel_lib//lib:copy_file.bzl", "copy_file")
+load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("//toolchain:selects.bzl", "platform_llvm_binary")
 
 copy_file(

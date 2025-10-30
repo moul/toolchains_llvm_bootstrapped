@@ -1,5 +1,5 @@
 
-load("@aspect_bazel_lib//lib:tar.bzl", "tar", "mtree_spec", "mtree_mutate")
+load("@bazel_lib//lib:tar.bzl", "tar", "mtree_spec", "mtree_mutate")
 load("@llvm-project//:vars.bzl", "LLVM_VERSION_MAJOR")
 
 def llvm_release(name):

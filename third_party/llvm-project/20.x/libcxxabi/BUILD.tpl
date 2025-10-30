@@ -1,7 +1,7 @@
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_shared_library.bzl", "cc_stage2_shared_library")
-load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 
 filegroup(
     name = "libcxxabi_headers_files",

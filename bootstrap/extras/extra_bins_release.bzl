@@ -1,4 +1,4 @@
-load("@aspect_bazel_lib//lib:tar.bzl", "tar")
+load("@bazel_lib//lib:tar.bzl", "tar")
 
 def extra_bins_release(name):
     BINS = [

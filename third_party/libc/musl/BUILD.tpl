@@ -1,4 +1,4 @@
-load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 
 MUSL_SUPPORTED_ARCHS = ["x86_64", "aarch64"]
 
