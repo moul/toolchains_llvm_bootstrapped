@@ -34,7 +34,7 @@ cc_tool_map(
 cc_tool_map(
     name = "macos_tools",
     tools = COMMON_TOOLS | {
-        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-libtool-darwin",
+        "@rules_cc//cc/toolchains/actions:ar_actions": ":archiver",
     },
     visibility = ["//visibility:private"],
 )
@@ -63,6 +63,14 @@ cc_tool(
         "bin/ld64.lld",
         "bin/lld",
     ]),
+)
+
+alias(
+    name = "archiver",
+    actual = select({
+        "@rules_cc//cc/toolchains/args/archiver_flags:use_libtool_on_macos_setting": ":llvm-libtool-darwin",
+        "//conditions:default": ":llvm-ar",
+    }),
 )
 
 cc_tool(
