@@ -1136,8 +1136,6 @@ genrule(
 #define _LIBCPP_HAS_THREAD_API_EXTERNAL 0
 #define _LIBCPP_HAS_THREAD_API_WIN32    0
 #define _LIBCPP_HAS_THREAD_API_C11      0 // FIXME: Is this guarding dead code?
-#define _LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS     
-#define _LIBCPP_HAS_VENDOR_AVAILABILITY_ANNOTATIONS 0
 // #define _LIBCPP_NO_VCRUNTIME
 // #define _LIBCPP_TYPEINFO_COMPARISON_IMPLEMENTATION @_LIBCPP_TYPEINFO_COMPARISON_IMPLEMENTATION@
 #define _LIBCPP_HAS_FILESYSTEM          1
@@ -1147,6 +1145,8 @@ genrule(
 #define _LIBCPP_HAS_WIDE_CHARACTERS     1
 #define _LIBCPP_HAS_STD_MODULES         0
 #define _LIBCPP_HAS_TIME_ZONE_DATABASE  1
+#define _LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS     
+#define _LIBCPP_HAS_VENDOR_AVAILABILITY_ANNOTATIONS 0
 #define _LIBCPP_INSTRUMENTED_WITH_ASAN  0
 
 #define _LIBCPP_PSTL_BACKEND_SERIAL
@@ -1157,7 +1157,6 @@ genrule(
 #define _LIBCPP_HARDENING_MODE_DEFAULT _LIBCPP_HARDENING_MODE_NONE
 
 // "_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION", # GLIBC < 2.16
-#define _LIBCPP_ENABLE_CXX17_REMOVED_UNEXPECTED_FUNCTIONS
 EOF""",
 )
 
@@ -1227,6 +1226,7 @@ cc_library(
         "NDEBUG",
         "LIBC_NAMESPACE=__llvm_libc_common_utils",
         "_LIBCPP_BUILDING_LIBRARY",
+        "_LIBCPP_REMOVE_TRANSITIVE_INCLUDES",
         "LIBCXX_BUILDING_LIBCXXABI",
         "_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER",
         "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS", # Only for satic c++abi"
@@ -1235,8 +1235,15 @@ cc_library(
     copts = [
         "-fvisibility=hidden",
         "-fvisibility-inlines-hidden",
-        "-faligned-allocation", # .zos = -fno-aligned-allocation
+        "-faligned-allocation",
         "-std=c++23",
+
+        # Compiler agnostic warnings to disable
+        "-Wno-unused-parameter",
+        "-Wno-long-long",
+        "-Wno-nullability-completeness",
+
+        # Clang specific warnings to disable
         "-Wno-user-defined-literals",
         "-Wno-covered-switch-default",
         "-Wno-suggest-override",
@@ -1367,16 +1374,16 @@ cc_library(
         "@platforms//os:linux": [
             "@kernel_headers//:kernel_headers",
         ],
-    }) + select({
+    }) + [
+        "@toolchains_llvm_bootstrapped//third_party/llvm-project:libc_headers",
+    ] + select({
         "@toolchains_llvm_bootstrapped//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "//conditions:default": [
             "@glibc//:gnu_libc_headers",
         ],
-    }) + [
-        "@toolchains_llvm_bootstrapped//third_party/llvm-project:libc_headers",
-    ],
+    }),
 )
 
 cc_stage2_static_library(

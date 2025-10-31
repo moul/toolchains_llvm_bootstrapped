@@ -57,6 +57,8 @@ LLVM_RELEASE_ASSETS_SHA256 = {
         strip_prefix = "{name}-{llvm_version}.src".format(llvm_version = LLVM_VERSION, name = name),
         sha256 = sha256,
         build_file = "//third_party/llvm-project/20.x/{name}:BUILD.tpl".format(name = name),
+        patches = ["//third_party/llvm-project/20.x/libcxx:lgamma_r.patch"] if name == "libcxx" else [],
+        patch_args = ["-p1"],
     ) for (name, sha256) in LLVM_RELEASE_ASSETS_SHA256.items()
 ]
 

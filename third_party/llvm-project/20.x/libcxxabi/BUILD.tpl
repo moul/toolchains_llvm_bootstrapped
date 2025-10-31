@@ -48,6 +48,7 @@ cc_library(
     name = "libcxxabi",
     defines = [
         "NDEBUG",
+        "_LIBCPP_BUILDING_LIBRARY",
         "LIBCXX_BUILDING_LIBCXXABI",
         # DHAVE___CXA_THREAD_ATEXIT_IMPL (gnu but not linux and glibc >= 2.18)
         # "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS", # Only for satic c++abi"
@@ -115,16 +116,16 @@ cc_library(
         "@platforms//os:linux": [
             "@kernel_headers//:kernel_headers",
         ],
-    }) + select({
+    }) + [
+        "@toolchains_llvm_bootstrapped//third_party/llvm-project:libc_headers",
+    ] + select({
         "@toolchains_llvm_bootstrapped//constraints/libc:musl": [
             "@musl_libc//:musl_libc_headers",
         ],
         "//conditions:default": [
             "@glibc//:gnu_libc_headers",
         ],
-    }) + [
-        "@toolchains_llvm_bootstrapped//third_party/llvm-project:libc_headers",
-    ],
+    }),
 )
 
 cc_stage2_static_library(
