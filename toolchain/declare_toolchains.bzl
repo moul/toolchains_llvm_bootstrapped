@@ -1,11 +1,55 @@
+load("@rules_cc//cc/toolchains:toolchain.bzl", "cc_toolchain")
+load("//platforms:common.bzl", _supported_targets = "SUPPORTED_TARGETS", _supported_execs = "SUPPORTED_EXECS")
+load("//toolchain:selects.bzl", "platform_cc_tool_map")
 
-load("//platforms:common.bzl", _arch_aliases = "ARCH_ALIASES", _supported_targets = "SUPPORTED_TARGETS")
+def declare_all_toolchains():
+    for (exec_os, exec_cpu) in _supported_execs:
+        _declare_toolchains(exec_os, exec_cpu)
 
-#TODO(cerisier): Support extra exec_compatible_with constraints
-def declare_toolchains():
+def _declare_toolchains(exec_os, exec_cpu):
+    cc_toolchain_name = "{}_{}_cc_toolchain".format(exec_os, exec_cpu)
+
+    # Even though `tool_map` has an exec transition, Bazel doesn't properly handle
+    # binding a single `cc_toolchain` to multiple toolchains with different `exec_compatible_with`.
+    # See https://github.com/bazelbuild/rules_cc/issues/299#issuecomment-2660340534
+    cc_toolchain(
+        name = cc_toolchain_name,
+        args = [":toolchain_args"],
+        known_features = [
+            "@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features",
+            "//toolchain/features:all_non_legacy_builtin_features",
+            "//toolchain/features/legacy:all_legacy_builtin_features",
+        ] + select({
+            # Should be last. This is a workaround to add those args last.
+            # See comment of this target.
+            "@platforms//os:linux": [
+                "//toolchain/args/linux:crtend_feature",
+            ],
+            "//conditions:default": [],
+        }),
+        enabled_features = [
+            "@rules_cc//cc/toolchains/args:experimental_replace_legacy_action_config_features",
+            # Do not enable this manually. Those features are enabled internally by --compilation_mode flags family.
+            "//toolchain/features/legacy:all_legacy_builtin_features",
+        ] + select({
+            # Should be last. This is a workaround to add those args last.
+            # See comment of this target.
+            "@platforms//os:linux": [
+                "//toolchain/args/linux:crtend_feature",
+            ],
+            "//conditions:default": [],
+        }),
+        tool_map = platform_cc_tool_map(exec_os, exec_cpu),
+        compiler = "clang",
+    )
+
     for (target_os, target_cpu) in _supported_targets:
         native.toolchain(
-            name = "{}_{}".format(target_os, target_cpu),
+            name = "{}_{}_to_{}_{}".format(exec_os, exec_cpu, target_os, target_cpu),
+            exec_compatible_with = [
+                "@platforms//cpu:{}".format(exec_cpu),
+                "@platforms//os:{}".format(exec_os),
+            ],
             target_compatible_with = [
                 "@platforms//cpu:{}".format(target_cpu),
                 "@platforms//os:{}".format(target_os),
@@ -13,24 +57,7 @@ def declare_toolchains():
             target_settings = [
                 "//toolchain:bootstrapped",
             ],
-            toolchain = Label("//toolchain:cc_toolchain"),
+            toolchain = cc_toolchain_name,
             toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-            # exec_compatible_with = ["@platforms//os:{exec_os}", "@platforms//cpu:{exec_arch}"],
             visibility = ["//visibility:public"],
         )
-
-        for alias in _arch_aliases.get(target_cpu, []):
-            native.toolchain(
-                name = "{}_{}".format(target_os, alias),
-                target_compatible_with = [
-                    "@platforms//cpu:{}".format(target_cpu),
-                    "@platforms//os:{}".format(target_os),
-                ],
-                target_settings = [
-                    "//toolchain:bootstrapped",
-                ],
-                toolchain = Label("//toolchain:cc_toolchain"),
-                toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
-                # exec_compatible_with = ["@platforms//os:{exec_os}", "@platforms//cpu:{exec_arch}"],
-                visibility = ["//visibility:public"],
-            )
