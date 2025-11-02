@@ -1,4 +1,4 @@
-load("@bazel_lib//lib:tar.bzl", "tar")
+load("@tar.bzl", "tar")
 
 def extra_bins_release(name):
     BINS = [
