@@ -74,13 +74,14 @@ use_repo(musl, "musl_libc")
 http_pkg_archive = use_repo_rule("//:http_pkg_archive.bzl", "http_pkg_archive")
 http_pkg_archive(
     name = "macosx15.4.sdk",
-    urls = ["https://swcdn.apple.com/content/downloads/10/32/082-12052-A_AHPGDY76PT/1a419zaf3vh8o9t3c0usblyr8eystpnsh5/CLTools_macOSNMOS_SDK.pkg"],
+    # urls = ["https://swcdn.apple.com/content/downloads/10/32/082-12052-A_AHPGDY76PT/1a419zaf3vh8o9t3c0usblyr8eystpnsh5/CLTools_macOSNMOS_SDK.pkg"],
+    urls = ["https://swcdn.apple.com/content/downloads/52/01/082-41241-A_0747ZN8FHV/dectd075r63pppkkzsb75qk61s0lfee22j/CLTools_macOSNMOS_SDK.pkg"],
     strip_files = [
-        "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/System/Library/Frameworks/Ruby.framework/Versions/Current/Headers/ruby",
+        "Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/Ruby.framework/Versions/Current/Headers/ruby",
     ],
-    sha256 = "f8b0600aa4ad9b0b0b150fb62691dc561f47bc33ebc40546439f1460a0680913",
+    sha256 = "ba3453d62b3d2babf67f3a4a44e8073d6555c85f114856f4390a1f53bd76e24a",
     build_file = "//third_party/macosx.sdk:BUILD.MacOSX15.4.sdk.tpl",
-    strip_prefix = "Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+    strip_prefix = "Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk",
 )
 
 glibc = use_extension("//runtimes/glibc/extension:glibc.bzl", "glibc")
