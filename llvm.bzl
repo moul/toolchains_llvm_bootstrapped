@@ -12,8 +12,8 @@ def _llvm_impl(mctx):
     )
     return mctx.extension_metadata(
         reproducible = True,
-        root_module_direct_deps = [],
-        root_module_direct_dev_deps = "all",
+        root_module_direct_deps = "all",
+        root_module_direct_dev_deps = [],
     )
 
 llvm = module_extension(
