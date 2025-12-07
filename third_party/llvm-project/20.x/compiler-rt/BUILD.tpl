@@ -1,5 +1,7 @@
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
+load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_object.bzl", "cc_stage2_object")
+load("@toolchains_llvm_bootstrapped//toolchain/args:llvm_target_triple.bzl", "LLVM_TARGET_TRIPLE")
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_unsanitized_library.bzl", "cc_unsanitized_library")
 load("@toolchains_llvm_bootstrapped//third_party/llvm-project/20.x/compiler-rt:targets.bzl", "atomic_helper_cc_library")
 load("@toolchains_llvm_bootstrapped//third_party/llvm-project/20.x/compiler-rt:darwin_excludes.bzl", "filter_excludes")
@@ -461,6 +463,38 @@ cc_stage2_library(
     visibility = ["//visibility:public"],
 )
 
+cc_stage2_object(
+    name = "crtbegin_object",
+    srcs = [
+        ":clang_rt.crtbegin",
+    ],
+    copts = [
+        "-target",
+    ] + LLVM_TARGET_TRIPLE,
+    #TODO(cerisier): Rename to clang_rt.crtbegin.o and expose this with -L.
+    #
+    # This is because clang driver looks for this instead of crtbegin<ST>.o
+    # when --rtlib=compiler-rt is used.
+    out = "crtbegin.o",
+    visibility = ["//visibility:public"],
+)
+
+copy_file(
+    name = "crtbeginS_object",
+    src = ":crtbegin_object",
+    out = "crtbeginS.o",
+    allow_symlink = True,
+    visibility = ["//visibility:public"],
+)
+
+copy_file(
+    name = "crtbeginT_object",
+    src = ":crtbegin_object",
+    out = "crtbeginT.o",
+    allow_symlink = True,
+    visibility = ["//visibility:public"],
+)
+
 cc_stage2_static_library(
     name = "clang_rt.crtbegin.static",
     deps = [
@@ -476,6 +510,30 @@ cc_stage2_library(
     ],
     copts = CRT_CFLAGS,
     local_defines = CRT_DEFINES,
+    visibility = ["//visibility:public"],
+)
+
+cc_stage2_object(
+    name = "crtend_object",
+    srcs = [
+        ":clang_rt.crtend",
+    ],
+    copts = [
+        "-target",
+    ] + LLVM_TARGET_TRIPLE,
+    #TODO(cerisier): Rename to clang_rt.crtend.o and expose this with -L.
+    #
+    # This is because clang driver looks for this instead of crtend<ST>.o
+    # when --rtlib=compiler-rt is used.
+    out = "crtend.o",
+    visibility = ["//visibility:public"],
+)
+
+copy_file(
+    name = "crtendS_object",
+    src = ":crtend_object",
+    out = "crtendS.o",
+    allow_symlink = True,
     visibility = ["//visibility:public"],
 )
 

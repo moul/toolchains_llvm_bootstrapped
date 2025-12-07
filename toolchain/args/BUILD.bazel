@@ -1,5 +1,6 @@
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
+load("//toolchain/args:llvm_target_triple.bzl", "LLVM_TARGET_TRIPLE")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -22,19 +23,7 @@ cc_args(
     ],
     args = [
         "-target",
-    ] + select({
-        #TODO: Generate this automatically
-        "//platforms/config/libc_aware:linux_x86_64": ["x86_64-linux-gnu"],
-        "//platforms/config/libc_aware:linux_aarch64": ["aarch64-linux-gnu"],
-        "//platforms/config/libc_aware:linux_x86_64_gnu": ["x86_64-linux-gnu"],
-        "//platforms/config/libc_aware:linux_aarch64_gnu": ["aarch64-linux-gnu"],
-        "//platforms/config/libc_aware:linux_x86_64_musl": ["x86_64-linux-musl"],
-        "//platforms/config/libc_aware:linux_aarch64_musl": ["aarch64-linux-musl"],
-        "//platforms/config:macos_x86_64": ["x86_64-apple-darwin"],
-        "//platforms/config:macos_aarch64": ["aarch64-apple-darwin"],
-        "//platforms/config:none_wasm32": ["wasm32-unknown-unknown"],
-        "//platforms/config:none_wasm64": ["wasm64-unknown-unknown"],
-    }, no_match_error = "Unsupported platform"),
+    ] + LLVM_TARGET_TRIPLE,
 )
 
 cc_args(
@@ -59,12 +48,30 @@ cc_args(
 )
 
 cc_args(
+    name = "crt_search_directory",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    # clang::driver::Toolchain::GetFilePath("crtn.o") looks for those using
+    # prefix directories (-B).
+    args = [
+        "-B{crt_objects_directory}",
+    ],
+    format = {
+        "crt_objects_directory": "//runtimes:crt_objects_directory",
+    },
+    data = [
+        "//runtimes:crt_objects_directory",
+    ],
+)
+
+cc_args(
     name = "static_link_executable",
     actions = [
         "@rules_cc//cc/toolchains/actions:cpp_link_executable",
     ],
     args = [
-        "-static",
+        "-static-pie",
     ],
 )
 

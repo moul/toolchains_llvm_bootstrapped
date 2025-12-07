@@ -1,7 +1,10 @@
 load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@toolchains_llvm_bootstrapped//third_party/libc/glibc:helpers.bzl", "glibc_includes")
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_library.bzl", "cc_stage2_library")
 load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_static_library.bzl", "cc_stage2_static_library")
+load("@toolchains_llvm_bootstrapped//toolchain/stage2:cc_stage2_object.bzl", "cc_stage2_object")
+load("@toolchains_llvm_bootstrapped//toolchain/args:llvm_target_triple.bzl", "LLVM_TARGET_TRIPLE")
 
 alias(
     name = "gnu_libc_headers",
@@ -147,9 +150,23 @@ cc_stage2_library(
     visibility = ["//visibility:public"],
 )
 
-cc_stage2_static_library(
-    name = "glibc_Scrt1.static",
-    deps = [":glibc_Scrt1"],
+cc_stage2_object(
+    name = "glibc_Scrt1.object",
+    srcs = [":glibc_start", ":glibc_init", ":glibc_abi_note"],
+    copts = [
+        "-target",
+    ] + LLVM_TARGET_TRIPLE,
+    out = "Scrt1.o",
+    visibility = ["//visibility:public"],
+)
+
+#TODO(cerisier): start.o should be compiled without -DSHARED here.
+#TODO(cerisier): Also find out why this is compiled with -DPIC by the glibc
+# even tho it's for -no-pie...
+copy_file(
+    name = "glibc_crt1.object",
+    src = "Scrt1.o",
+    out = "crt1.o",
     visibility = ["//visibility:public"],
 )
 

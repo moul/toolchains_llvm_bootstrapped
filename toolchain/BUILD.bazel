@@ -1,4 +1,3 @@
-load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_setting")
 load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
@@ -53,22 +52,47 @@ cc_args_list(
             "//toolchain/args/macos:macos_default_link_flags",
         ],
         "//conditions:default": [],
-    }, no_match_error = "Unsupported platform for default_link_flags"),
+    }),
+)
+
+cc_args_list(
+    name = "default_startfiles",
+    args = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:linux": [
+            "//toolchain/args:crt_search_directory",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+# For correctness.
+#
+# For later: this makes the clang driver use compiler-rt compliant filenames
+# and paths when resolving compiler runtime libraries from the resource-dir.
+#
+# TODO(cerisier): Generate a custom resource-dir.
+cc_args(
+    name = "rtlib",
+    actions = [
+        "@rules_cc//cc/toolchains/actions:link_actions",
+    ],
+    args = [
+        "-rtlib=compiler-rt",
+    ],
 )
 
 cc_args_list(
     name = "default_libs",
-    args = selects.with_or({
+    args = select({
         "@platforms//os:macos": [
             "//toolchain/args/macos:macos_default_libs",
         ],
         "@platforms//os:linux": [
-            "//toolchain/args/linux:crt1",
-            "//toolchain/args/linux:crtbegin",
             "//toolchain/args/linux:linux_default_libs",
         ],
         "//conditions:default": [],
-    }, no_match_error = "Unsupported platform for default_libs"),
+    }),
 )
 
 cc_args_list(
@@ -128,7 +152,7 @@ cc_args_list(
         "@platforms//os:linux": [":linux_toolchain_args"],
         "@platforms//os:none": [],
         "//conditions:default": [],
-    }, no_match_error = "Unsupported platform for xclang"),
+    }),
 )
 
 cc_args_list(
@@ -147,7 +171,9 @@ cc_args_list(
 
         # Common default link flags.
         "//toolchain/args:use_lld",
+        ":rtlib",
         ":default_link_flags",
+        ":default_startfiles",
         ":default_libs",
     ],
     visibility = ["//toolchain:__subpackages__"],
