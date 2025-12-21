@@ -37,12 +37,17 @@ cc_args(
 )
 
 cc_args(
+    # We provide the libc++ and libunwind ourselves through static_runtime_libs
+    # and dynamic_runtime_libs.
     name = "hermetic_link_flags",
     actions = [
         "@rules_cc//cc/toolchains/actions:link_actions",
     ],
     args = [
-        "-nodefaultlibs",
+        # will prevent clang to choose which libunwind to link against
+        "--unwindlib=none",
+        # will prevent clang to choose which libc++ to link against
+        "-nostdlib++",
     ],
 )
 
@@ -114,18 +119,10 @@ cc_args(
         "-Wl,--push-state",
         "-Wl,--as-needed",
 
-        # In newer versions of glibc various libs such as libm, librt are
-        # normally included in libc and not available as separate libraries.
-        #
-        # But in the way we handle generating libc stubs, we chose to generate
-        # empty libs for those that have been removed so that we do not have to
-        # handle varying inclusions.
-        "-lm",
+        # Since libunwind is linked statically, we need to link pthread as well.
         "-lpthread",
-        "-lc",
+        # Since libunwind is linked statically, we need to link dl as well.
         "-ldl",
-        "-lrt",
-        "-lutil",
 
         "-Wl,--pop-state",
     ],
@@ -170,18 +167,10 @@ cc_args(
         "-Wl,--push-state",
         "-Wl,--as-needed",
 
-        # In newer versions of musl_libc various libs such as libm, librt are
-        # normally included in libc and not available as separate libraries.
-        #
-        # But in the way we handle generating libc stubs, we chose to generate
-        # empty libs for those that have been removed so that we do not have to
-        # handle varying inclusions.
-        "-lm",
+        # Since libunwind is linked statically, we need to link pthread as well.
         "-lpthread",
-        "-lc",
+        # Since libunwind is linked statically, we need to link dl as well.
         "-ldl",
-        "-lrt",
-        "-lutil",
 
         "-Wl,--pop-state",
     ],
