@@ -1,6 +1,6 @@
 load("//platforms:common.bzl", "SUPPORTED_TARGETS")
 load("//toolchain:cc_toolchain.bzl", "cc_toolchain")
-load(":stage1_binary.bzl", "stage1_binary", "stage1_directory")
+load(":bootstrap_binary.bzl", "bootstrap_binary", "bootstrap_directory")
 load("@llvm-project//:vars.bzl", "LLVM_VERSION_MAJOR")
 load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
 load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
@@ -39,13 +39,13 @@ def declare_tool_map(exec_os, exec_cpu):
         },
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/clang",
         platform = prefix + "_platform",
         actual = "@llvm-project//clang:clang.stripped",
     )
 
-    stage1_directory(
+    bootstrap_directory(
         name = prefix + "/clang_builtin_headers_include_directory",
         srcs = "@llvm-project//clang:builtin_headers_files",
         # TODO(zbarsky): Probably shouldn't force platform here.
@@ -63,7 +63,7 @@ def declare_tool_map(exec_os, exec_cpu):
         capabilities = ["@rules_cc//cc/toolchains/capabilities:supports_pic"],
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/clang++",
         platform = prefix + "_platform",
         actual = "@llvm-project//clang:clang.stripped",
@@ -81,25 +81,25 @@ def declare_tool_map(exec_os, exec_cpu):
         capabilities = ["@rules_cc//cc/toolchains/capabilities:supports_pic"],
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/ld.lld",
         platform = prefix + "_platform",
         actual = "@llvm-project//lld:lld.stripped",
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/ld64.lld",
         platform = prefix + "_platform",
         actual = "@llvm-project//lld:lld.stripped",
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/lld",
         platform = prefix + "_platform",
         actual = "@llvm-project//lld:lld.stripped",
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/wasm-ld",
         platform = prefix + "_platform",
         actual = "@llvm-project//lld:lld.stripped",
@@ -116,7 +116,7 @@ def declare_tool_map(exec_os, exec_cpu):
         ],
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/llvm-ar",
         platform = prefix + "_platform",
         actual = "@llvm-project//llvm:llvm-ar.stripped",
@@ -127,7 +127,7 @@ def declare_tool_map(exec_os, exec_cpu):
         src = prefix + "/bin/llvm-ar",
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/llvm-libtool-darwin",
         platform = prefix + "_platform",
         actual = "@llvm-project//llvm:llvm-libtool-darwin.stripped",
@@ -138,13 +138,13 @@ def declare_tool_map(exec_os, exec_cpu):
         src = prefix + "/bin/llvm-libtool-darwin",
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/llvm-objcopy",
         platform = prefix + "_platform",
         actual = "@llvm-project//llvm:llvm-objcopy.stripped",
     )
 
-    stage1_binary(
+    bootstrap_binary(
         name = prefix + "/bin/llvm-strip",
         platform = prefix + "_platform",
         actual = "@llvm-project//llvm:llvm-objcopy.stripped",
@@ -173,7 +173,7 @@ def declare_toolchains():
     for (exec_os, exec_cpu) in _supported_execs:
         declare_tool_map(exec_os, exec_cpu)
 
-        cc_toolchain_name = "{}_{}_cc_toolchain".format(exec_os, exec_cpu)
+        cc_toolchain_name = "bootstrap_{}_{}_cc_toolchain".format(exec_os, exec_cpu)
 
         # Even though `tool_map` has an exec transition, Bazel doesn't properly handle
         # binding a single `cc_toolchain` to multiple toolchains with different `exec_compatible_with`.
@@ -188,7 +188,7 @@ def declare_toolchains():
 
         for (target_os, target_cpu) in SUPPORTED_TARGETS:
             native.toolchain(
-                name = "{}_{}_to_{}_{}".format(exec_os, exec_cpu, target_os, target_cpu),
+                name = "bootstrap_{}_{}_to_{}_{}".format(exec_os, exec_cpu, target_os, target_cpu),
                 exec_compatible_with = [
                     "@platforms//cpu:{}".format(exec_cpu),
                     "@platforms//os:{}".format(exec_os),
@@ -198,8 +198,7 @@ def declare_toolchains():
                     "@platforms//os:{}".format(target_os),
                 ],
                 target_settings = [
-                    "//toolchain:bootstrapped",
-                    "//toolchain:stage1_bootstrapped",
+                    "//toolchain:bootstrapped_toolchain",
                 ],
                 toolchain = cc_toolchain_name,
                 toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
