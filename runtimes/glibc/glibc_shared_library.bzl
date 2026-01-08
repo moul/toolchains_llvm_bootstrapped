@@ -1,5 +1,5 @@
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
-load("//toolchain/runtimes:cc_stage0_shared_library.bzl", "cc_stage0_shared_library")
+load("//toolchain/runtimes:cc_runtime_shared_library.bzl", "cc_runtime_stage0_shared_library")
 
 def make_glibc_shared_library(
     name,
@@ -24,7 +24,8 @@ def make_glibc_shared_library(
         version = "."+lib_version if len(lib_version) > 0 else ""
     )
 
-    cc_stage0_shared_library(
+    # Stage0 because libc doesn't depend on anything at all
+    cc_runtime_stage0_shared_library(
         name = name,
         deps = ["lib%s" % lib_name],
         additional_linker_inputs = [

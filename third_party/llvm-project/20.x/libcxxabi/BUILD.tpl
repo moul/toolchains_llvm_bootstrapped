@@ -1,8 +1,9 @@
 load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
-load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_stage0_library.bzl", "cc_stage0_library")
-load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_stage0_static_library.bzl", "cc_stage0_static_library")
-load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_stage0_shared_library.bzl", "cc_stage0_shared_library")
+load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_runtime_library.bzl", "cc_runtime_stage0_library")
+load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_runtime_static_library.bzl", "cc_runtime_stage0_static_library")
+load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_runtime_shared_library.bzl", "cc_runtime_stage0_shared_library")
 
 filegroup(
     name = "libcxxabi_headers_files",
@@ -45,6 +46,14 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+selects.config_setting_group(
+    name = "windows_static",
+    match_all = [
+        "@platforms//os:windows",
+        "@toolchains_llvm_bootstrapped//runtimes:linkmode_static",
+    ],
+)
+
 cc_library(
     name = "libcxxabi",
     defines = [
@@ -52,18 +61,17 @@ cc_library(
         "_LIBCPP_BUILDING_LIBRARY",
         "LIBCXX_BUILDING_LIBCXXABI",
         # DHAVE___CXA_THREAD_ATEXIT_IMPL (gnu but not linux and glibc >= 2.18)
-        # "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS", # Only for satic c++abi"
-    ],
+    ] + select({
+        ":windows_static": [
+            "_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS",
+        ],
+        "//conditions:default": [],
+    }),
     copts = [
-        "-fvisibility=hidden",
-        "-fvisibility-inlines-hidden",
-        "-fPIC", #TODO: Support PIC
-        "-fstrict-aliasing",
         "-std=c++23",
-        "-Wno-user-defined-literals",
-        "-Wno-covered-switch-default",
-        "-Wno-suggest-override",
-        "-funwind-tables", # if exceptions
+        "-fstrict-aliasing",
+        "-funwind-tables",   # if exceptions
+        # "-fno-exceptions", # if no exceptions
     ] + select({
         "@platforms//os:windows": [
             "-Wno-pragma-pack",
@@ -145,7 +153,7 @@ cc_library(
     }),
 )
 
-cc_stage0_static_library(
+cc_runtime_stage0_static_library(
     name = "libcxxabi.static",
     deps = [
         ":libcxxabi",
@@ -153,11 +161,14 @@ cc_stage0_static_library(
     visibility = ["//visibility:public"],
 )
 
-cc_stage0_shared_library(
+cc_runtime_stage0_shared_library(
     name = "libcxxabi.shared",
     deps = [
         ":libcxxabi",
     ],
-    # shared_lib_name = "libc++abi.1.0",
+    user_link_flags = [
+        "-Wl,-soname,libc++abi.so.1",
+    ],
+    shared_lib_name = "libc++abi.so.1",
     visibility = ["//visibility:public"],
 )
