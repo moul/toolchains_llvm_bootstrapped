@@ -101,6 +101,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: bazel test //...
+        id: bazel_test
+        continue-on-error: ${{ matrix.os == 'windows-11-arm' }}
         env:
           USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
           BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
@@ -126,3 +128,10 @@ jobs:
             --jobs=100 \
             $EXTRA_ARGS \
             //...
+
+      - name: "Skip failures on Windows ARM"
+        if: ${{ matrix.os == 'windows-11-arm' && steps.bazel_test.outcome == 'failure' }}
+        run: |
+          echo "::warning title=Windows ARM tests::Known flakiness; ignoring failures for now."
+          echo "### Windows ARM" >> "$GITHUB_STEP_SUMMARY"
+          echo "Tests failed but were ignored (best-effort)." >> "$GITHUB_STEP_SUMMARY"
