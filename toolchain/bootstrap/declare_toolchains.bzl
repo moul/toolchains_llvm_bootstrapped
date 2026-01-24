@@ -1,4 +1,3 @@
-load("@rules_cc//cc/toolchains:actions.bzl", "cc_action_type_set")
 load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
 load("@rules_cc//cc/toolchains:tool_map.bzl", "cc_tool_map")
 load("//platforms:common.bzl", "SUPPORTED_TARGETS")
@@ -24,6 +23,7 @@ def declare_tool_map(exec_os, exec_cpu):
         "@rules_cc//cc/toolchains/actions:link_actions": prefix + "/lld",
         "@rules_cc//cc/toolchains/actions:objcopy_embed_data": prefix + "/llvm-objcopy",
         "@rules_cc//cc/toolchains/actions:strip": prefix + "/llvm-strip",
+        "@rules_cc//cc/toolchains/actions:validate_static_library": prefix + "/static-library-validator",
     }
 
     cc_tool_map(
@@ -96,11 +96,25 @@ def declare_tool_map(exec_os, exec_cpu):
         src = prefix + "/bin/header-parser",
         data = [
             prefix + "/clang_builtin_headers_include_directory",
-            # TODO(zbarsky): Not really correct for from-source build...
             "//tools:clang++",
         ],
     )
 
+    bootstrap_binary(
+        name = prefix + "/bin/static-library-validator",
+        platform = prefix + "_platform",
+        actual = "//tools/internal:static-library-validator",
+    )
+
+    cc_tool(
+        name = prefix + "/static-library-validator",
+        src = prefix + "/bin/static-library-validator",
+        data = [
+            prefix + "/clang_builtin_headers_include_directory",
+            "//tools:c++filt",
+            "//tools:llvm-nm",
+        ],
+    )
 
     bootstrap_binary(
         name = prefix + "/bin/ld.lld",
