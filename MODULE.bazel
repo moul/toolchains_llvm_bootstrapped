@@ -46,13 +46,13 @@ LLVM_TOOLCHAIN_MINIMAL_SHA256 = {
 ]
 
 TOOLCHAIN_EXTRAS_SHA256 = {
-    "darwin-arm64": "8dcd48d1033cbb6a7f6546a15210bb1bd00b6f1af88c048c609e9f3e55552983",
-    "linux-amd64-musl": "4df04fb7b6c9cc444fa19e02071439bee7364850bfd2b4b949bbb4bd63c639b4",
-    "linux-arm64-musl": "0afd56654ee29c8cf9ffbfa28dd052f0a89d81d8c6a96be5498c3eeda83b024d",
-    "windows-amd64-gnu": "c4783964d50233b43947d4f4387055d8ff6e58fff299b992aa51981641a66e78",
+    "darwin-arm64": "70d4847b6b062512b96fec8546adffd34a01786f3731722d2d6ee432b82ae2ae",
+    "linux-amd64-musl": "ba1f512c8c7582c81955a31531cb16e3eaa361ed379fba9c4279329d4040ae1c",
+    "linux-arm64-musl": "0275de455fbf0ea3b2c402bca1a90367822034d6f718a94bca0ebd9671fc6e1a",
+    "windows-amd64-gnu": "5655e757acec1a8e0b54f3e680400c8ee7256b9b2274845898e62d90b1ff68ad",
 }
 
-TOOLCHAIN_EXTRAS_VERSION = "20260204"
+TOOLCHAIN_EXTRAS_VERSION = "20260206"
 
 [
     http_archive(
@@ -126,12 +126,12 @@ archive_override(
     urls = ["https://github.com/cerisier/libstdcxx-stubs-generator/archive/{}.tar.gz".format(LIBSTDCXX_STUBS_GENERATOR_COMMIT)],
 )
 
-PKGUTIL_COMMIT = "e609614143d81833d392255f6d434089b7e83bc7"
+PKGUTIL_COMMIT = "328997cd5cf53fef8d54fb0303d011a426f6f840"
 
-bazel_dep(name = "xpkgutil", version = "1.0.13", dev_dependency = True)
+bazel_dep(name = "xpkgutil", version = "1.0.14", dev_dependency = True)
 archive_override(
     module_name = "xpkgutil",
-    integrity = "sha256-OQ7VtsPYS0msuzVFoSc3oIV/iviQf+cW7ATys4yy11w=",
+    integrity = "sha256-1WJk7V8Q2Y3g0mxKinJBVPwKFEK5WnZwEBK6yUl09KY=",
     strip_prefix = "pkgutil-{}".format(PKGUTIL_COMMIT),
     urls = ["https://github.com/cerisier/pkgutil/archive/{}.tar.gz".format(PKGUTIL_COMMIT)],
 )
