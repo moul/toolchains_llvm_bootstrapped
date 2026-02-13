@@ -17,6 +17,11 @@ cc_feature(
     overrides = "@rules_cc//cc/toolchains/features:static_link_cpp_runtimes",
 )
 
+cc_feature(
+    name = "prefer_pic_for_opt_binaries",
+    feature_name = "prefer_pic_for_opt_binaries",
+)
+
 cc_args(
     name = "opt_link_flags",
     actions = [
@@ -32,6 +37,9 @@ cc_args(
             "-Wl,--gc-sections",
         ],
     }) + select({
+        "//config:asan_enabled": [],
+        "//config:msan_enabled": [],
+        "//config:ubsan_enabled": [],
         "@platforms//cpu:wasm32": [],
         "@platforms//cpu:wasm64": [],
         "//conditions:default": ["-Wl,--icf=safe"],

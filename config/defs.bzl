@@ -1,9 +1,84 @@
-load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag")
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo", "bool_flag", "string_flag")
+load("@bazel_skylib//lib:selects.bzl", "selects")
 
 OPTIMIZATION_MODES = [
     "debug",
     "optimized",
 ]
+
+SANITIZERS = [
+    "ubsan",
+    "msan",
+    "asan",
+]
+
+def _is_exec_configuration(ctx):
+    # TODO(cerisier): Is there a better way to detect cfg=exec?
+    return ctx.genfiles_dir.path.find("-exec") != -1
+
+def _target_bool_flag_impl(ctx):
+    value = str(ctx.attr.setting[BuildSettingInfo].value).lower()
+    if _is_exec_configuration(ctx):
+        value = "false"
+    return [config_common.FeatureFlagInfo(value = value)]
+
+_target_bool_flag = rule(
+    implementation = _target_bool_flag_impl,
+    attrs = {
+        "setting": attr.label(mandatory = True),
+    },
+)
+
+def _host_bool_flag_impl(ctx):
+    value = str(ctx.attr.setting[BuildSettingInfo].value).lower()
+    if not _is_exec_configuration(ctx):
+        value = "false"
+    return [config_common.FeatureFlagInfo(value = value)]
+
+_host_bool_flag = rule(
+    implementation = _host_bool_flag_impl,
+    attrs = {
+        "setting": attr.label(mandatory = True),
+    },
+)
+
+def _declare_sanitizer_config_setting(sanitizer):
+    target_setting_name = "target_" + sanitizer
+    target_feature_name = sanitizer + "_target_config"
+    target_config_setting = target_setting_name + "_enabled"
+    _target_bool_flag(
+        name = target_feature_name,
+        # not target_setting_name
+        setting = sanitizer,
+    )
+    native.config_setting(
+        name = target_config_setting,
+        flag_values = {
+            target_feature_name: "true",
+        },
+    )
+
+    host_setting_name = "host_" + sanitizer
+    host_feature_name = sanitizer + "_host_config"
+    host_config_setting = host_setting_name + "_enabled"
+    _host_bool_flag(
+        name = host_feature_name,
+        setting = host_setting_name,
+    )
+    native.config_setting(
+        name = host_config_setting,
+        flag_values = {
+            host_feature_name: "true",
+        },
+    )
+
+    selects.config_setting_group(
+        name = sanitizer + "_enabled",
+        match_any = [
+            target_config_setting,
+            host_config_setting,
+        ],
+    )
 
 def config_settings():
     # This flag controls the optimization mode for the compilation of the target
@@ -16,7 +91,6 @@ def config_settings():
         name = "runtimes_optimization_mode",
         values = OPTIMIZATION_MODES,
         build_setting_default = "optimized",
-        visibility = ["//visibility:public"],
     )
 
     for optimization_mode in OPTIMIZATION_MODES:
@@ -25,7 +99,6 @@ def config_settings():
             flag_values = {
                 ":runtimes_optimization_mode": optimization_mode,
             },
-            visibility = ["//visibility:public"],
         )
 
     # This flag controls whether we compile and link with --sysroot=/dev/null
@@ -36,7 +109,6 @@ def config_settings():
     bool_flag(
         name = "empty_sysroot",
         build_setting_default = True,
-        visibility = ["//visibility:public"],
     )
 
     # This flag makes a dummy gcc_s library to link against.
@@ -60,19 +132,15 @@ def config_settings():
     bool_flag(
         name = "experimental_stub_libgcc_s",
         build_setting_default = False,
-        visibility = ["//visibility:public"],
     )
 
-    # TODO(zbarsky): Some sanitizers are mutually exclusive, some can be stacked.
-    # Think about the right interface here.
-    bool_flag(
-        name = "ubsan",
-        build_setting_default = False,
-        visibility = ["//visibility:public"],
-    )
-
-    native.config_setting(
-        name = "ubsan_enabled",
-        flag_values = {":ubsan": "1"},
-        visibility = ["//:__subpackages__"],
-    )
+    for sanitizer in SANITIZERS:
+        bool_flag(
+            name = sanitizer,
+            build_setting_default = False,
+        )
+        bool_flag(
+            name = "host_{}".format(sanitizer),
+            build_setting_default = False,
+        )
+        _declare_sanitizer_config_setting(sanitizer)
