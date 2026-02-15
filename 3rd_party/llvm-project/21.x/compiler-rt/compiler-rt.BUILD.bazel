@@ -6,6 +6,7 @@ load("@toolchains_llvm_bootstrapped//toolchain/args:llvm_target_triple.bzl", "LL
 load("@toolchains_llvm_bootstrapped//toolchain/runtimes:cc_unsanitized_library.bzl", "cc_unsanitized_library")
 load("@toolchains_llvm_bootstrapped//3rd_party/llvm-project/21.x/compiler-rt:targets.bzl", "atomic_helper_cc_library")
 load("@toolchains_llvm_bootstrapped//3rd_party/llvm-project/21.x/compiler-rt:filter_builtin_sources.bzl", "filter_builtin_sources")
+load("@toolchains_llvm_bootstrapped//:sh_script.bzl", "sh_script")
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
@@ -1427,6 +1428,97 @@ cc_runtime_stage0_static_library(
     name = "msan_cxx.static",
     deps = [
         ":msan_cxx",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+###
+### compiler-rt/lib/dfsan/CMakeLists.txt.
+###
+
+DFSAN_RTL_SOURCES = [
+    "dfsan.cpp",
+    "dfsan_allocator.cpp",
+    "dfsan_chained_origin_depot.cpp",
+    "dfsan_custom.cpp",
+    "dfsan_interceptors.cpp",
+    "dfsan_new_delete.cpp",
+    "dfsan_thread.cpp",
+]
+
+filegroup(
+    name = "dfsan_rtl_sources",
+    srcs = ["lib/dfsan/" + f for f in DFSAN_RTL_SOURCES],
+)
+
+DFSAN_RTL_HEADERS = [
+    "dfsan.h",
+    "dfsan_allocator.h",
+    "dfsan_chained_origin_depot.h",
+    "dfsan_flags.inc",
+    "dfsan_flags.h",
+    "dfsan_origin.h",
+    "dfsan_platform.h",
+    "dfsan_thread.h",
+]
+
+filegroup(
+    name = "dfsan_rtl_headers",
+    srcs = ["lib/dfsan/" + f for f in DFSAN_RTL_HEADERS],
+)
+
+DFSAN_RTL_CFLAGS = SANITIZER_COMMON_CFLAGS + [
+    "-fno-rtti",
+    "-fPIE",
+    # Prevent clang from generating libc calls.
+    "-ffreestanding",
+    # Too many existing bugs, needs cleanup.
+    "-Wno-format",
+]
+
+cc_library(
+    name = "dfsan",
+    copts = DFSAN_RTL_CFLAGS,
+    srcs = [
+        ":dfsan_rtl_sources",
+        ":dfsan_rtl_headers",
+    ],
+    textual_hdrs = [
+        "lib/dfsan/dfsan_flags.inc",
+    ],
+    includes = ["lib"],
+    implementation_deps = [
+        ":libcxx_headers",
+        ":sanitizer_impl_headers",
+        ":interception_impl_headers",
+    ],
+)
+
+cc_runtime_stage0_static_library(
+    name = "dfsan.static",
+    deps = [
+        ":dfsan",
+        ":interception",
+        ":sanitizer_common",
+        ":sanitizer_common_libc",
+        ":sanitizer_common_symbolizer",
+        ":sanitizer_common_symbolizer_internal",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+sh_script(
+    name = "dfsan_abilist",
+    srcs = [
+        "lib/dfsan/done_abilist.txt",
+        "lib/dfsan/libc_ubuntu1404_abilist.txt",
+    ],
+    outs = ["share/dfsan_abilist.txt"],
+    cmd = "cat $1 $2 > $3",
+    args = [
+        "$(location lib/dfsan/done_abilist.txt)",
+        "$(location lib/dfsan/libc_ubuntu1404_abilist.txt)",
+        "$(location share/dfsan_abilist.txt)",
     ],
     visibility = ["//visibility:public"],
 )
