@@ -2,7 +2,6 @@ load("@bazel_lib//lib:copy_file.bzl", "copy_file")
 load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 load("@bazel_skylib//rules/directory:directory.bzl", "directory")
 load("@bazel_skylib//rules/directory:subdirectory.bzl", "subdirectory")
-load("@llvm//runtimes:copy_to_resource_directory.bzl", "copy_to_resource_directory")
 load("@llvm//runtimes:module_map.bzl", "include_path", "module_map")
 load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 load("@rules_cc//cc/toolchains:tool.bzl", "cc_tool")
@@ -12,7 +11,7 @@ load("//toolchain:selects.bzl", "platform_extra_binary")
 
 def declare_llvm_targets(*, suffix = ""):
     headers_directory(
-        name = "builtin_headers",
+        name = "builtin_resource_dir",
         # Grab whichever version-specific dir is there.
         path = native.glob(["lib/clang/*"], exclude_directories = 0)[0],
         visibility = ["//visibility:public"],
@@ -37,10 +36,10 @@ def declare_llvm_targets(*, suffix = ""):
         name = "header_parser",
         src = ":header-parser",
         data = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
             ":prebuilt-clang++",
         ],
-        allowlist_include_directories = [":builtin_headers"],
+        allowlist_include_directories = [":builtin_resource_dir"],
     )
 
     cc_args(
@@ -49,7 +48,7 @@ def declare_llvm_targets(*, suffix = ""):
             "@rules_cc//cc/toolchains/actions:compile_actions",
         ],
         allowlist_include_directories = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
         ],
         args = [
             # Use -isystem instead of -resource-dir to avoid conflicts with the
@@ -61,10 +60,10 @@ def declare_llvm_targets(*, suffix = ""):
             "{resource_dir}/include",
         ],
         data = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
         ],
         format = {
-            "resource_dir": ":builtin_headers",
+            "resource_dir": ":builtin_resource_dir",
         },
         visibility = ["//visibility:public"],
     )
@@ -130,20 +129,20 @@ def declare_llvm_targets(*, suffix = ""):
         name = "clang",
         src = "bin/clang" + suffix,
         data = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
         ],
         capabilities = ["@rules_cc//cc/toolchains/capabilities:supports_pic"],
-        allowlist_include_directories = [":builtin_headers"],
+        allowlist_include_directories = [":builtin_resource_dir"],
     )
 
     cc_tool(
         name = "clang++",
         src = "bin/clang++" + suffix,
         data = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
         ],
         capabilities = ["@rules_cc//cc/toolchains/capabilities:supports_pic"],
-        allowlist_include_directories = [":builtin_headers"],
+        allowlist_include_directories = [":builtin_resource_dir"],
     )
 
     cc_tool(
@@ -185,7 +184,7 @@ def declare_llvm_targets(*, suffix = ""):
     include_path(
         name = "macos_target_headers",
         srcs = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
             "@macos_sdk//sysroot",
         ],
     )
@@ -194,7 +193,7 @@ def declare_llvm_targets(*, suffix = ""):
     include_path(
         name = "linux_target_headers",
         srcs = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
             "@llvm//runtimes/libcxx:libcxx_headers_include_search_directory",
             "@llvm//runtimes/libcxx:libcxxabi_headers_include_search_directory",
             "@kernel_headers//:kernel_headers_directory",
@@ -213,7 +212,7 @@ def declare_llvm_targets(*, suffix = ""):
     include_path(
         name = "windows_target_headers",
         srcs = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
             "@llvm//runtimes/libcxx:libcxx_headers_include_search_directory",
             "@llvm//runtimes/libcxx:libcxxabi_headers_include_search_directory",
             "@mingw//:mingw_generated_headers_crt_directory",
@@ -226,7 +225,7 @@ def declare_llvm_targets(*, suffix = ""):
     include_path(
         name = "wasm_target_headers",
         srcs = [
-            ":builtin_headers",
+            ":builtin_resource_dir",
             # TODO(zbarsky): We'll want to add wasi libc headers here.
         ],
     )
