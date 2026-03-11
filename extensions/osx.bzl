@@ -13,10 +13,13 @@ _DEFAULT_FRAMEWORKS = [
 
 def _osx_extension_impl(mctx):
     frameworks = []
+    experimental_include_all_sdk_libs = False
 
     for module in mctx.modules:
         for frameworks_tag in module.tags.frameworks:
             frameworks.extend(frameworks_tag.names)
+        if len(module.tags.experimental_include_all_sdk_libs) > 0:
+            experimental_include_all_sdk_libs = True
 
     if not frameworks:
         frameworks = _DEFAULT_FRAMEWORKS
@@ -27,17 +30,23 @@ def _osx_extension_impl(mctx):
 
     includes = [
         "usr/include/*",
-        "usr/lib/libc.tbd",
         "usr/lib/libc++*",
-        "usr/lib/libcharset*",
-        "usr/lib/libdl*",
-        "usr/lib/libiconv*",
-        "usr/lib/libm.tbd",
-        "usr/lib/libobjc*",
-        "usr/lib/libresolv*",
-        "usr/lib/libpthread.tbd",
-        "usr/lib/libSystem*",
     ]
+
+    if experimental_include_all_sdk_libs:
+        includes.append("usr/lib/*.tbd")
+    else:
+        includes.extend([
+            "usr/lib/libc.tbd",
+            "usr/lib/libcharset*",
+            "usr/lib/libdl*",
+            "usr/lib/libiconv*",
+            "usr/lib/libm.tbd",
+            "usr/lib/libobjc*",
+            "usr/lib/libresolv*",
+            "usr/lib/libpthread.tbd",
+            "usr/lib/libSystem*",
+        ])
 
     for framework in frameworks:
         includes.append("System/Library/Frameworks/%s.framework/*" % framework)
@@ -70,6 +79,35 @@ def _osx_extension_impl(mctx):
         "usr/include/pexpert/*",
         "usr/include/Spatial/*",
         "usr/include/tidy/*",
+
+        # Probably not needed, saves space
+        "usr/lib/log/*",
+        "usr/lib/rdma/*",
+        "usr/lib/system/*",
+        "usr/lib/usd/*",
+        "usr/lib/i18n/*",
+        "usr/lib/libicucore*",
+
+        # These are symlinks to frameworks directory, which might not be included
+        "usr/lib/lib*blas*",
+        "usr/lib/libclapack.tbd",
+        "usr/lib/libcom_err.tbd",
+        "usr/lib/libdes425.tbd",
+        "usr/lib/libextension.tbd",
+        "usr/lib/libf77lapack.tbd",
+        "usr/lib/libgssapi_krb5.tbd",
+        "usr/lib/libipconfig.tbd",
+        "usr/lib/libk5crypto.tbd",
+        "usr/lib/libkrb4.tbd",
+        "usr/lib/libkrb5.tbd",
+        "usr/lib/libkrb524.tbd",
+        "usr/lib/libkrb5support.tbd",
+        "usr/lib/liblapack.tbd",
+        "usr/lib/liblber.tbd",
+        "usr/lib/libldap*",
+        "usr/lib/libnet*",
+        "usr/lib/libtcl*",
+        "usr/lib/libtk*",
     ]
 
     if "IOKit" not in frameworks:
@@ -109,10 +147,15 @@ _frameworks_tag = tag_class(
     },
 )
 
+_experimental_include_all_sdk_libs_tag = tag_class(
+    doc = "Include most usr/lib/*.tbd from the macOS SDK sysroot instead of only the minimal default set. Some libraries that are symlinks to frameworks are still excluded.",
+)
+
 osx = module_extension(
     implementation = _osx_extension_impl,
     doc = "Generates an OSX sysroot with the requested set of frameworks (or a reasonable default)",
     tag_classes = {
         "frameworks": _frameworks_tag,
+        "experimental_include_all_sdk_libs": _experimental_include_all_sdk_libs_tag,
     },
 )
