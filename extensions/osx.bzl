@@ -15,15 +15,15 @@ def _osx_extension_impl(mctx):
     frameworks = []
 
     for module in mctx.modules:
-        for framework_tag in module.tags.framework:
-            frameworks.append(framework_tag.name)
+        for frameworks_tag in module.tags.frameworks:
+            frameworks.extend(frameworks_tag.names)
 
     if not frameworks:
         frameworks = _DEFAULT_FRAMEWORKS
 
     # Sandboxing the entire macOS SDK dramatically slows down the build process.
     # Offering a minimal sysroot allows for building basic cross platform applications.
-    # Users can extend the sysroot via `osx.framework` module extension tags.
+    # Users can extend the sysroot via `osx.frameworks` module extension tag.
 
     includes = [
         "usr/include/*",
@@ -103,9 +103,9 @@ def _osx_extension_impl(mctx):
 
     return mctx.extension_metadata(**metadata_kwargs)
 
-_framework_tag = tag_class(
+_frameworks_tag = tag_class(
     attrs = {
-        "name": attr.string(mandatory = True),
+        "names": attr.string_list(mandatory = True),
     },
 )
 
@@ -113,6 +113,6 @@ osx = module_extension(
     implementation = _osx_extension_impl,
     doc = "Generates an OSX sysroot with the requested set of frameworks (or a reasonable default)",
     tag_classes = {
-        "framework": _framework_tag,
+        "frameworks": _frameworks_tag,
     },
 )
