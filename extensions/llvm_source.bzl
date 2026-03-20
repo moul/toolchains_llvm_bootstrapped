@@ -136,6 +136,8 @@ def _create_llvm_raw_repo(mctx, version_config):
         http_bsdtar_archive(
             name = "llvm-raw",
             build_file_content = "# EMPTY",
+            excludes = _llvm_source_archive_excludes(),
+            bsdtar_extra_args = _LLVM_SOURCE_BSDTAR_EXTRA_ARGS,
             **structs.to_dict(version_config.source_archive)
         )
 
@@ -159,8 +161,6 @@ def _source_archive_for_version(llvm_version, source_info, patches):
         strip_prefix = source_info.get("strip_prefix", "llvm-project-{}.src".format(llvm_version)),
         urls = [source_info["url"]],
         sha256 = source_info["sha256"],
-        excludes = _llvm_source_archive_excludes(),
-        bsdtar_extra_args = _LLVM_SOURCE_BSDTAR_EXTRA_ARGS,
         patch_args = ["-p1"],
         patches = patches,
     )
