@@ -1,3 +1,4 @@
+# A good starting point for this is https://codeberg.org/ziglang/zig/src/branch/master/src/libs/glibc.zig add_include_dirs function
 def glibc_includes(cpu):
     x86_64_variant = [
         "sysdeps/unix/sysv/linux/x86_64/64".format(cpu),
@@ -9,22 +10,28 @@ def glibc_includes(cpu):
         "sysdeps/x86",
     ] if cpu == "x86_64" else []
 
+    riscv64_variant = [
+        "sysdeps/unix/sysv/linux/riscv/rv64",
+    ] if cpu == "riscv64" else []
+
+    if cpu == "riscv64":
+        cpu = "riscv"
+
     return [
         "include",
         "sysdeps/unix/sysv/linux/{}".format(cpu),
-    ] + x86_64_variant + [
-        "sysdeps/{}".format(cpu),
-    ] + x86_parent + [
+    ] + x86_64_variant + x86_parent + riscv64_variant + [
+        "sysdeps/{}/nptl".format(cpu),
         "sysdeps/unix/sysv/linux/generic",
         "sysdeps/unix/sysv/linux/include",
         "sysdeps/unix/sysv/linux",
-        "sysdeps/{}/nptl".format(cpu),
         "sysdeps/nptl",
         "sysdeps/pthread",
         "sysdeps/unix/sysv",
         "sysdeps/unix/{}".format(cpu),
         "sysdeps/unix",
         "sysdeps/{}".format(cpu),
+        "sysdeps/wordsize-64",
         "sysdeps/generic",
         ".",
     ]
