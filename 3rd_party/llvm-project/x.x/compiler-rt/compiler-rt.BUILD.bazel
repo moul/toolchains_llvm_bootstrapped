@@ -702,6 +702,7 @@ SANITIZER_COMMON_CFLAGS = select({
     "-nostdinc++",
 ]
 
+# buildifier: disable=unused-variable
 SANITIZER_COMMON_LINK_FLAGS = [
     "-nodefautlibs",
     "-nostdlib++",
@@ -768,6 +769,7 @@ filegroup(
 # Libc functions stubs. These sources should be linked instead of
 # SANITIZER_LIBCDEP_SOURCES when sanitizer_common library must not depend on
 # libc.
+# buildifier: disable=unused-variable
 SANITIZER_NOLIBC_SOURCES = [
     "sanitizer_common_nolibc.cpp",
 ]
@@ -1010,6 +1012,7 @@ SANITIZER_CFLAGS = SANITIZER_COMMON_CFLAGS + [
     "-Wglobal-constructors",
 ]
 
+# buildifier: disable=unused-variable
 SANITIZER_COMMON_DEFINITIONS = [
     "HAVE_RPC_XDR_H=0",
 ]
@@ -1235,6 +1238,7 @@ UBSAN_CFLAGS = SANITIZER_COMMON_CFLAGS + [
     "-Wno-format",
 ]
 
+# buildifier: disable=unused-variable
 UBSAN_STANDALONE_CFLAGS = SANITIZER_COMMON_CFLAGS + [
     "-fno-rtti",
 ]
@@ -2354,10 +2358,12 @@ ASAN_CFLAGS = SANITIZER_COMMON_CFLAGS + [
     "-Wno-format",
 ]
 
+# buildifier: disable=unused-variable
 ASAN_DYNAMIC_CFLAGS = [
     "-ftls-model=initial-exec",
 ]
 
+# buildifier: disable=unused-variable
 ASAN_DYNAMIC_COMMON_DEFINITIONS = [
     "ASAN_DYNAMIC=1",
 ]
