@@ -33,6 +33,7 @@ def configure_builder_for_runtimes(builder, runtime_stage, linkmode = "static", 
         builder.set(Label("//config:tsan"), False)
         builder.set(Label("//config:asan"), False)
         builder.set(Label("//config:lsan"), False)
+        builder.set(Label("//config:xray"), False)
         builder.set(Label("//config:fuzzer"), False)
         builder.set(Label("//config:host_ubsan"), False)
         builder.set(Label("//config:host_cfi"), False)
@@ -45,6 +46,7 @@ def configure_builder_for_runtimes(builder, runtime_stage, linkmode = "static", 
         builder.set(Label("//config:host_tsan"), False)
         builder.set(Label("//config:host_asan"), False)
         builder.set(Label("//config:host_lsan"), False)
+        builder.set(Label("//config:host_xray"), False)
         builder.set(Label("//config:host_fuzzer"), False)
 
     return builder

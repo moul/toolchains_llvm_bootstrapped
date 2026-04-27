@@ -18,6 +18,7 @@ SANITIZERS = [
     "tsan",
     "asan",
     "lsan",
+    "xray",
     "fuzzer",
 ]
 

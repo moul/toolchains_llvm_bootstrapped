@@ -15,6 +15,7 @@ def _reset_sanitizers_impl(_settings, _attr):
         "//config:tsan": False,
         "//config:asan": False,
         "//config:lsan": False,
+        "//config:xray": False,
         "//config:host_ubsan": False,
         "//config:host_cfi": False,
         "//config:host_msan": False,
@@ -26,6 +27,7 @@ def _reset_sanitizers_impl(_settings, _attr):
         "//config:host_tsan": False,
         "//config:host_asan": False,
         "//config:host_lsan": False,
+        "//config:host_xray": False,
 
         # we are compiling sanitizers, so we want all runtimes except sanitizers.
         # TODO(cerisier): Should this be exressed with a dedicated stage ?
@@ -47,6 +49,7 @@ _reset_sanitizers = transition(
         "//config:tsan",
         "//config:asan",
         "//config:lsan",
+        "//config:xray",
         "//config:host_ubsan",
         "//config:host_cfi",
         "//config:host_msan",
@@ -58,6 +61,7 @@ _reset_sanitizers = transition(
         "//config:host_tsan",
         "//config:host_asan",
         "//config:host_lsan",
+        "//config:host_xray",
         "//toolchain:runtime_stage",
     ],
 )
