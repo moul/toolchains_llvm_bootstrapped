@@ -23,22 +23,24 @@ string_setting(
     ],
 )
 
-# Selects the Windows CRT flavor to link against.
-constraint_setting(
+alias(
     name = "windows_crt",
-    default_constraint_value = ":windows_crt_ucrt",
+    actual = "//constraints/windows/crt:crt",
+    deprecation = "Use //constraints/windows/crt:crt instead.",
     visibility = ["//visibility:public"],
 )
 
-constraint_value(
+alias(
     name = "windows_crt_ucrt",
-    constraint_setting = ":windows_crt",
+    actual = "//constraints/windows/crt:ucrt",
+    deprecation = "Use //constraints/windows/crt:ucrt instead.",
     visibility = ["//visibility:public"],
 )
 
-constraint_value(
+alias(
     name = "windows_crt_msvcrt",
-    constraint_setting = ":windows_crt",
+    actual = "//constraints/windows/crt:msvcrt",
+    deprecation = "Use //constraints/windows/crt:msvcrt instead.",
     visibility = ["//visibility:public"],
 )
 
