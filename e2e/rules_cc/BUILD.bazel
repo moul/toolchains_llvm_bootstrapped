@@ -1,4 +1,4 @@
-load("@bazel_lib//lib:transitions.bzl", "platform_transition_binary")
+load("@bazel_lib//lib:transitions.bzl", "platform_transition_binary", "platform_transition_filegroup")
 load("@llvm//:defs.bzl", "exec_test")
 load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
@@ -88,6 +88,127 @@ cc_binary(
         "@platforms//os:windows": ["@platforms//:incompatible"],
         "@llvm//constraints/libc:musl": ["@platforms//:incompatible"],
         "//conditions:default": [],
+    }),
+)
+
+cc_binary(
+    name = "libstdcxx_main_dynamic",
+    srcs = ["main.cc"],
+    linkstatic = False,
+    target_compatible_with = select({
+        "@llvm//constraints/cxxstdlib:libstdcxx": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }) + select({
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }) + select({
+        # We do not support musl libc.so.
+        "@llvm//constraints/libc:musl": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+)
+
+cc_binary(
+    name = "libstdcxx_main_dynamic_with_linkopts",
+    srcs = ["main.cc"],
+    linkopts = [
+        "-lstdc++",
+        "-lstdc++fs",
+        "-lsupc++",
+    ],
+    linkstatic = False,
+    target_compatible_with = select({
+        "@llvm//constraints/cxxstdlib:libstdcxx": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }) + select({
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }) + select({
+        # We do not support musl libc.so.
+        "@llvm//constraints/libc:musl": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+)
+
+LIBSTDCXX_PLATFORMS = [
+    ("linux_x86_64_libstdcxx", "@platforms//cpu:x86_64", "@llvm//constraints/libc:gnu.2.28"),
+    ("linux_aarch64_libstdcxx", "@platforms//cpu:aarch64", "@llvm//constraints/libc:gnu.2.28"),
+    ("linux_armv7_libstdcxx", "@platforms//cpu:armv7", "@llvm//constraints/libc:gnu.2.28"),
+    ("linux_riscv64_libstdcxx", "@platforms//cpu:riscv64", "@llvm//constraints/libc:gnu.2.33"),
+    ("linux_s390x_libstdcxx", "@platforms//cpu:s390x", "@llvm//constraints/libc:gnu.2.28"),
+]
+
+_LIBSTDCXX_E2E_TARGET_COMPATIBLE_WITH = select({
+    # The transition wrappers below build Linux libstdc++ artifacts. Keep them
+    # out of non-Linux //... expansion until libstdc++ supports those targets.
+    "@platforms//os:linux": [],
+    "//conditions:default": ["@platforms//:incompatible"],
+})
+
+[
+    platform(
+        name = name,
+        constraint_values = [
+            cpu,
+            "@platforms//os:linux",
+            libc,
+            "@llvm//constraints/cxxstdlib:libstdcxx",
+        ],
+    )
+    for name, cpu, libc in LIBSTDCXX_PLATFORMS
+]
+
+platform_transition_filegroup(
+    name = "libstdcxx_main_dynamic_linux_x86_64",
+    srcs = [":libstdcxx_main_dynamic"],
+    target_compatible_with = _LIBSTDCXX_E2E_TARGET_COMPATIBLE_WITH,
+    target_platform = ":linux_x86_64_libstdcxx",
+)
+
+platform_transition_filegroup(
+    name = "libstdcxx_main_dynamic_with_linkopts_linux_x86_64",
+    srcs = [":libstdcxx_main_dynamic_with_linkopts"],
+    target_compatible_with = _LIBSTDCXX_E2E_TARGET_COMPATIBLE_WITH,
+    target_platform = ":linux_x86_64_libstdcxx",
+)
+
+[
+    platform_transition_binary(
+        name = "libstdcxx_main_dynamic_" + platform_name,
+        binary = ":libstdcxx_main_dynamic",
+        target_compatible_with = _LIBSTDCXX_E2E_TARGET_COMPATIBLE_WITH,
+        target_platform = ":" + platform_name,
+    )
+    for platform_name, _, _ in LIBSTDCXX_PLATFORMS
+]
+
+exec_test(
+    name = "libstdcxx_main_dynamic_output_test",
+    srcs = ["libstdcxx_main_dynamic_output_test.sh"],
+    data = [":libstdcxx_main_dynamic_linux_x86_64"],
+    env = {"BINARY": "$(rootpath :libstdcxx_main_dynamic_linux_x86_64)"},
+    rule = sh_test,
+    target_compatible_with = select({
+        "@platforms//cpu:x86_64": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }) + select({
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+)
+
+exec_test(
+    name = "libstdcxx_main_dynamic_with_linkopts_output_test",
+    srcs = ["libstdcxx_main_dynamic_output_test.sh"],
+    data = [":libstdcxx_main_dynamic_with_linkopts_linux_x86_64"],
+    env = {"BINARY": "$(rootpath :libstdcxx_main_dynamic_with_linkopts_linux_x86_64)"},
+    rule = sh_test,
+    target_compatible_with = select({
+        "@platforms//cpu:x86_64": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }) + select({
+        "@platforms//os:linux": [],
+        "//conditions:default": ["@platforms//:incompatible"],
     }),
 )
 

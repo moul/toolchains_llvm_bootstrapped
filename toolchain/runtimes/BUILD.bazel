@@ -24,6 +24,56 @@ cc_args_list(
 )
 
 cc_args_list(
+    name = "linux_hosted_c_toolchain_args",
+    args = select({
+        "//platforms/config:musl": [
+            "//toolchain/args/linux:kernel_headers_include_search_paths",
+            "//toolchain/args/linux:musl_libc_headers_include_search_paths",
+        ],
+        "//platforms/config:gnu": [
+            "//toolchain/args/linux:kernel_headers_include_search_paths",
+            "//toolchain/args/linux:glibc_headers_include_search_paths",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "//platforms/config:musl": [
+            # TODO: Handle musl dynamic linking.
+            # musl implies static linking for now.
+            "//toolchain/args:static_link_executable",
+        ],
+        "//conditions:default": [],
+    }) + [
+        "//toolchain/args/linux:sanitizer_headers_include_search_paths",
+    ],
+    visibility = ["//toolchain:__subpackages__"],
+)
+
+cc_args_list(
+    name = "windows_hosted_c_toolchain_args",
+    args = [
+        "//toolchain/args/windows:mingw_headers_include_search_paths",
+    ],
+    visibility = ["//toolchain:__subpackages__"],
+)
+
+cc_args_list(
+    name = "stage1_hosted_platform_specific_args",
+    args = select({
+        "@platforms//os:macos": [
+            "//toolchain:macos_toolchain_args",
+        ],
+        "@platforms//os:linux": [
+            ":linux_hosted_c_toolchain_args",
+        ],
+        "@platforms//os:windows": [
+            ":windows_hosted_c_toolchain_args",
+        ],
+        "@platforms//os:none": [],
+    }),
+    visibility = ["//toolchain:__subpackages__"],
+)
+
+cc_args_list(
     name = "platform_specific_args",
     args = select({
         "@platforms//os:macos": [
@@ -36,47 +86,17 @@ cc_args_list(
     visibility = ["//toolchain:__subpackages__"],
 )
 
-#TODO(cerisier): Maybe with a _gt_x select we could reuse this everywhere.
-
 cc_args_list(
-    name = "resource_dir",
+    name = "staged_platform_specific_args",
     args = select({
-        "//toolchain:runtimes_all": [],
-        "//toolchain:runtimes_stage1": ["//toolchain:resource_dir"],
-        "//toolchain:runtimes_none": [],
-    }),
-)
-
-cc_args_list(
-    name = "default_startfiles",
-    args = select({
-        "//toolchain:runtimes_all": [],
-        "//toolchain:runtimes_stage1": ["//toolchain:default_startfiles"],
-        "//toolchain:runtimes_none": [],
-    }),
-)
-
-cc_args_list(
-    name = "rtlib",
-    args = select({
-        "//toolchain:runtimes_all": [],
-        "//toolchain:runtimes_stage1": [
-            "//toolchain:rtlib",
+        "//toolchain:runtimes_stage1_hosted": [
+            ":stage1_hosted_platform_specific_args",
         ],
-        "//toolchain:runtimes_none": [],
-    }),
-)
-
-#TODO(cerisier): Need a level of indirection to handle OS differences between stages.
-cc_args_list(
-    name = "default_libs",
-    args = select({
-        "//toolchain:runtimes_all": [],
-        "//toolchain:runtimes_stage1": [
-            "//toolchain:default_libs",
+        "//conditions:default": [
+            ":platform_specific_args",
         ],
-        "//toolchain:runtimes_none": [],
     }),
+    visibility = ["//toolchain:__subpackages__"],
 )
 
 cc_args_list(
@@ -86,11 +106,14 @@ cc_args_list(
         "//toolchain/args:target_flags",
         "//toolchain/args:no_absolute_paths_for_builtins",
         "//toolchain/args:deterministic_compile_flags",
+        "//toolchain/args:module_map",
         "//toolchain/runtimes/args:optimization_flags",
         "//toolchain:sysroot_flags",
         "//toolchain:hermetic_compile_flags",
         ":hermetic_link_flags",
-        ":platform_specific_args",
+
+        # TODO(cerisier): Explode this into specific args instead
+        ":staged_platform_specific_args",
 
         # Optional sanitizers
         "//toolchain/runtimes/args:ubsan_flags",
@@ -117,6 +140,57 @@ cc_args_list(
         ":default_libs",
     ],
     visibility = ["//visibility:public"],
+)
+
+#TODO(cerisier): Maybe with a _gt_x select we could reuse this everywhere.
+
+cc_args_list(
+    name = "resource_dir",
+    args = select({
+        "//toolchain:runtimes_all": [],
+        "//toolchain:runtimes_stage1": ["//toolchain:resource_dir"],
+        "//toolchain:runtimes_stage1_hosted": ["//toolchain:resource_dir"],
+        "//toolchain:runtimes_none": [],
+    }),
+)
+
+cc_args_list(
+    name = "default_startfiles",
+    args = select({
+        "//toolchain:runtimes_all": [],
+        "//toolchain:runtimes_stage1": ["//toolchain:default_startfiles"],
+        "//toolchain:runtimes_stage1_hosted": ["//toolchain:default_startfiles"],
+        "//toolchain:runtimes_none": [],
+    }),
+)
+
+cc_args_list(
+    name = "rtlib",
+    args = select({
+        "//toolchain:runtimes_all": [],
+        "//toolchain:runtimes_stage1": [
+            "//toolchain:rtlib",
+        ],
+        "//toolchain:runtimes_stage1_hosted": [
+            "//toolchain:rtlib",
+        ],
+        "//toolchain:runtimes_none": [],
+    }),
+)
+
+#TODO(cerisier): Need a level of indirection to handle OS differences between stages.
+cc_args_list(
+    name = "default_libs",
+    args = select({
+        "//toolchain:runtimes_all": [],
+        "//toolchain:runtimes_stage1": [
+            "//toolchain:default_libs",
+        ],
+        "//toolchain:runtimes_stage1_hosted": [
+            "//toolchain:default_libs",
+        ],
+        "//toolchain:runtimes_none": [],
+    }),
 )
 
 bzl_library(

@@ -115,6 +115,9 @@ use_repo(musl, "musl_libc")
 mingw = use_extension("//runtimes/mingw/extension:mingw.bzl", "mingw")
 use_repo(mingw, "mingw")
 
+gcc = use_extension("//3rd_party/gcc/extension:gcc.bzl", "gcc")
+use_repo(gcc, "gcc")
+
 osx = use_extension("//extensions:osx.bzl", "osx")
 osx.from_archive(
     sha256 = "edc7ce9b8f09e0c7a39aaa714f941b4c2597f333ec1ffe59a14d67eb36cdb7e7",
