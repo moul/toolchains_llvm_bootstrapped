@@ -23,8 +23,6 @@ permissions:
 jobs:
   test:
     uses: ./.github/workflows/ci.yaml
-    secrets:
-      BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
   release:
     needs: test
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.2

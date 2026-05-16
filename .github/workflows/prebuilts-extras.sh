@@ -6,8 +6,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
-: "${BUILDBUDDY_API_KEY:?BUILDBUDDY_API_KEY is required}"
-
 BRANCH_NAME="${GITHUB_REF_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
 if [[ ! "${BRANCH_NAME}" =~ ^prebuilts-extras- ]]; then
   echo "Branch name must start with 'prebuilts-extras-' (got ${BRANCH_NAME})" >&2
@@ -19,7 +17,7 @@ BRANCH_PAYLOAD="${BRANCH_NAME#prebuilts-extras-}"
 bazel \
   --bazelrc=".github/workflows/ci.bazelrc" \
   build \
-  --remote_header="x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" \
+  --remote_header=x-buildbuddy-api-key=4jtaxdhxtyu4ylxdEwI7 \
   --@libarchive//:use_mbedtls=true \
   --config=bootstrap \
   --config=prebuilt \

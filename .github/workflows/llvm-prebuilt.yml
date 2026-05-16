@@ -33,8 +33,6 @@ jobs:
 
       - name: Build and package prebuilts
         id: build_and_package
-        env:
-          BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
         run: bash .github/workflows/llvm-prebuilt.sh
 
       - name: Upload workflow artifacts

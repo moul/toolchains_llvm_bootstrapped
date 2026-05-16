@@ -6,8 +6,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
-: "${BUILDBUDDY_API_KEY:?BUILDBUDDY_API_KEY is required}"
-
 LLVM_VERSION=$(python3 - <<'PY'
 import re
 from pathlib import Path
@@ -36,7 +34,7 @@ fi
 bazel \
   --bazelrc=".github/workflows/ci.bazelrc" \
   build \
-  --remote_header="x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}" \
+  --remote_header=x-buildbuddy-api-key=4jtaxdhxtyu4ylxdEwI7 \
   --config=bootstrap \
   --config=prebuilt \
   --config=remote \
