@@ -3,6 +3,7 @@ load("@bazel_lib//lib:transitions.bzl", "platform_transition_binary", "platform_
 load("@llvm//:defs.bzl", "exec_test")
 load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_import.bzl", "cc_import")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_cc//cc:cc_static_library.bzl", "cc_static_library")
 load("@rules_cc//cc:cc_test.bzl", "cc_test")
@@ -30,6 +31,7 @@ load(
 )
 load(":bazel_version.bzl", "validate_static_library_compatible")
 load(":musl_header_generation_tests.bzl", "musl_header_generation_tests")
+load(":windows_runtime_dynamic_libraries_test.bzl", "windows_runtime_dynamic_libraries_assertion")
 
 _VALIDATE_STATIC_LIBRARY_COMPATIBLE = validate_static_library_compatible()
 
@@ -238,6 +240,33 @@ cc_binary(
     name = "main_static",
     srcs = ["main.cc"],
     linkstatic = True,
+)
+
+cc_binary(
+    name = "windows_add.dll",
+    srcs = ["windows_add.cc"],
+    linkshared = True,
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
+cc_import(
+    name = "windows_add_import",
+    shared_library = ":windows_add.dll",
+    target_compatible_with = ["@platforms//os:windows"],
+)
+
+cc_binary(
+    name = "windows_runtime_dynamic_libraries_binary",
+    srcs = ["windows_dll_main.cc"],
+    target_compatible_with = ["@platforms//os:windows"],
+    deps = [":windows_add_import"],
+)
+
+windows_runtime_dynamic_libraries_assertion(
+    name = "windows_runtime_dynamic_libraries_test",
+    runtime_library_basename = "windows_add.dll",
+    target = ":windows_runtime_dynamic_libraries_binary",
+    target_compatible_with = ["@platforms//os:windows"],
 )
 
 # dynamic linker + static runtime libs (even tho -static)
