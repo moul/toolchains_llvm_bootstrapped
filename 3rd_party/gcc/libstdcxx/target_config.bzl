@@ -3,7 +3,8 @@
 # fields, compare against configure.host plus configure.ac's *_SRCDIR
 # substitutions for the generated include/source paths.
 
-load("//runtimes/libstdcxx/autoconf:checks.bzl", "policy_define", "policy_undef")
+load("//3rd_party/gcc:version.bzl", "gcc_version_at_least_for")
+load("//3rd_party/gcc/libstdcxx/autoconf:checks.bzl", "policy_define", "policy_undef")
 
 _SUPPORTED_TARGETS = {
     "//platforms/config:linux_x86_64_gnu": {
@@ -299,7 +300,7 @@ def libstdcxx_use_dual_abi():
 def libstdcxx_symver_style():
     return _select_field("symver_style")
 
-def libstdcxx_config_h_policy_defines():
+def libstdcxx_config_h_policy_defines(gcc_version):
     return select({
         Label(config): (
             ([
@@ -309,7 +310,7 @@ def libstdcxx_config_h_policy_defines():
                 policy_define("HAVE_SYMVER_SYMBOL_RENAMING_RUNTIME_SUPPORT"),
                 policy_define("HAVE_EXCEPTION_PTR_SINCE_GCC46"),
             ] if _field_value(values, "symver_style") == "gnu" else []) +
-            ([policy_define("HAVE_ATOMIC_LOCK_POLICY")] if values["atomic_lock_policy"] else []) +
+            ([policy_define("HAVE_ATOMIC_LOCK_POLICY")] if gcc_version_at_least_for(gcc_version, "9.0.0") and values["atomic_lock_policy"] else []) +
             [policy_define("_GLIBCXX_MANGLE_SIZE_T", _field_value(values, "size_t_mangling"))] +
             ([
                 policy_define("_GLIBCXX_PTRDIFF_T_IS_INT"),
@@ -330,26 +331,26 @@ def libstdcxx_config_h_policy_defines():
 # libstdc++-v3/src/*/Makefile.am.
 def _gcc_config_header_label(field, basename):
     return select({
-        Label(config): "@gcc//:libstdc++-v3/config/{}/{}".format(_field_value(values, field), basename)
+        Label(config): "libstdc++-v3/config/{}/{}".format(_field_value(values, field), basename)
         for config, values in _SUPPORTED_TARGETS.items()
     }, no_match_error = _NO_MATCH_ERROR)
 
 def _gcc_config_source_label(field, basename):
     return select({
-        Label(config): "@gcc//:libstdc++-v3/config/{}/{}".format(_field_value(values, field), basename)
+        Label(config): "libstdc++-v3/config/{}/{}".format(_field_value(values, field), basename)
         for config, values in _SUPPORTED_TARGETS.items()
     }, no_match_error = _NO_MATCH_ERROR)
 
 def _gcc_config_path_label(field):
     return select({
-        Label(config): "@gcc//:libstdc++-v3/config/{}".format(_field_value(values, field))
+        Label(config): "libstdc++-v3/config/{}".format(_field_value(values, field))
         for config, values in _SUPPORTED_TARGETS.items()
     }, no_match_error = _NO_MATCH_ERROR)
 
 def _gcc_config_path_labels(field):
     return select({
         Label(config): [
-            "@gcc//:libstdc++-v3/config/{}".format(path)
+            "libstdc++-v3/config/{}".format(path)
             for path in _field_value(values, field)
         ]
         for config, values in _SUPPORTED_TARGETS.items()
@@ -357,7 +358,7 @@ def _gcc_config_path_labels(field):
 
 def _gcc_libgcc_header_label(field):
     return select({
-        Label(config): "@gcc//:libgcc/{}".format(values[field])
+        Label(config): "libgcc/{}".format(values[field])
         for config, values in _SUPPORTED_TARGETS.items()
     }, no_match_error = _NO_MATCH_ERROR)
 
