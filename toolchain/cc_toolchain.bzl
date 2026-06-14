@@ -9,8 +9,6 @@ def cc_toolchain(name, tool_map, module_map = None, extra_args = []):
             "@rules_cc//cc/toolchains/args/layering_check:use_module_maps",
             "@llvm//toolchain/features:static_link_cpp_runtimes",
             "@llvm//toolchain/features/runtime_library_search_directories:feature",
-            "@llvm//toolchain/features:archive_param_file",
-            "@llvm//toolchain/features:prefer_pic_for_opt_binaries",
             "@llvm//toolchain/features:parse_headers",
             "@llvm//toolchain/features:external_include_paths",
             # TODO: Restore this after a rules_cc release includes the macOS
@@ -34,19 +32,6 @@ def cc_toolchain(name, tool_map, module_map = None, extra_args = []):
     )
 
     cc_feature_set(
-        name = name + "_runtimes_only_known_features",
-        all_of = [
-            # TODO(zbarsky): Do we want layering check for runtime libs?
-            #"@rules_cc//cc/toolchains/args/layering_check:layering_check",
-            #"@rules_cc//cc/toolchains/args/layering_check:use_module_maps",
-            "@llvm//toolchain/features:archive_param_file",
-            "@llvm//toolchain/features:prefer_pic_for_opt_binaries",
-            # Always last (contains user_compile_flags and user_link_flags who should apply last).
-            "@llvm//toolchain/features/legacy:experimental_replace_legacy_action_config_features",
-        ],
-    )
-
-    cc_feature_set(
         name = name + "_enabled_features",
         all_of = select({
             "@platforms//os:linux": [
@@ -64,6 +49,7 @@ def cc_toolchain(name, tool_map, module_map = None, extra_args = []):
         }) + [
             "@llvm//toolchain/features:prefer_pic_for_opt_binaries",
             "@rules_cc//cc/toolchains/args/layering_check:module_maps",
+            "@llvm//toolchain/features:module_map_home_cwd",
             # These are "enabled" but they only _actually_ get enabled when the underlying compilation mode is set.
             # This lets us properly order them before user_compile_flags and user_link_flags below.
             "@llvm//toolchain/features:opt",
@@ -80,6 +66,8 @@ def cc_toolchain(name, tool_map, module_map = None, extra_args = []):
         name = name + "_runtimes_only_enabled_features",
         all_of = [
             "@llvm//toolchain/features:prefer_pic_for_opt_binaries",
+            "@rules_cc//cc/toolchains/args/layering_check:module_maps",
+            "@llvm//toolchain/features:module_map_home_cwd",
             "@llvm//toolchain/features:archive_param_file",
             # Always last (contains user_compile_flags and user_link_flags who should apply last).
             "@llvm//toolchain/features/legacy:experimental_replace_legacy_action_config_features",
@@ -109,9 +97,9 @@ def cc_toolchain(name, tool_map, module_map = None, extra_args = []):
             "//conditions:default": [],
         }),
         known_features = select({
-            "@llvm//toolchain:runtimes_none": [name + "_runtimes_only_known_features"],
-            "@llvm//toolchain:runtimes_stage1": [name + "_runtimes_only_known_features"],
-            "@llvm//toolchain:runtimes_stage1_hosted": [name + "_runtimes_only_known_features"],
+            "@llvm//toolchain:runtimes_none": [],
+            "@llvm//toolchain:runtimes_stage1": [],
+            "@llvm//toolchain:runtimes_stage1_hosted": [],
             "//conditions:default": [name + "_known_features"],
         }),
         enabled_features = select({

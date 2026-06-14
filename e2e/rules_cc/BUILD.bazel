@@ -365,10 +365,7 @@ cc_binary(
 cc_test(
     name = "windows_explicit_def_test",
     srcs = ["windows_explicit_def_test.cc"],
-    exec_compatible_with = [
-        "@platforms//os:windows",
-    ],
-    tags = ["no-remote"],
+    exec_properties = {"test.no-remote": "1"},
     target_compatible_with = ["@platforms//os:windows"],
     deps = [":windows_explicit_def_import"],
 )
@@ -401,10 +398,7 @@ cc_import(
 cc_test(
     name = "windows_generated_def_test",
     srcs = ["windows_generated_def_test.cc"],
-    exec_compatible_with = [
-        "@platforms//os:windows",
-    ],
-    tags = ["no-remote"],
+    exec_properties = {"test.no-remote": "1"},
     target_compatible_with = ["@platforms//os:windows"],
     deps = [":windows_generated_def_import"],
 )
@@ -757,14 +751,10 @@ platform_transition_binary(
 cc_test(
     name = "windows_test",
     srcs = ["windows_test.cc"],
-    exec_compatible_with = [
-        "@platforms//os:windows",
-    ],
+    exec_properties = {"test.no-remote": "1"},
     linkopts = [
         "-luuid",
     ],
-    # TODO(zbarsky): Tests can't execute remotely from Windows hosts
-    tags = ["no-remote"],
     target_compatible_with = [
         "@platforms//os:windows",
     ],
@@ -773,12 +763,8 @@ cc_test(
 cc_test(
     name = "windows_unicode_test",
     srcs = ["windows_unicode_test.cc"],
-    exec_compatible_with = [
-        "@platforms//os:windows",
-    ],
+    exec_properties = {"test.no-remote": "1"},
     linkopts = ["-municode"],
-    # TODO(zbarsky): Tests can't execute remotely from Windows hosts
-    tags = ["no-remote"],
     target_compatible_with = [
         "@platforms//os:windows",
     ],
@@ -788,11 +774,8 @@ cc_test(
     name = "pthread_test",
     srcs = ["pthread.cc"],
     copts = ["-pthread"],
-    exec_compatible_with = HOST_CONSTRAINTS,
+    exec_properties = {"test.no-remote": "1"},
     linkopts = ["-pthread"],
-    # remote-exec tests can't run without forcing the target platform to match
-    # the remote exec platform.
-    tags = ["no-remote"],
 )
 
 cc_test(
@@ -903,8 +886,7 @@ cc_test(
         "duplicate_symbol_b.cc",
     ],
     env_inherit = ["PATH"],
-    exec_compatible_with = HOST_CONSTRAINTS,
-    tags = ["local"],
+    exec_properties = {"test.local": "1"},
     target_compatible_with = _VALIDATE_STATIC_LIBRARY_COMPATIBLE,
     deps = ["@bazel_tools//tools/cpp/runfiles"],
 )
