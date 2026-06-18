@@ -4,6 +4,7 @@ load("@rules_cc//cc/toolchains:actions.bzl", "cc_action_type_set")
 load("@rules_cc//cc/toolchains:artifacts.bzl", "cc_artifact_name_pattern")
 load("@rules_cc//cc/toolchains/impl:documented_api.bzl", "cc_args_list")
 load("//toolchain/bootstrap:declare_toolchains.bzl", declare_bootstrap_toolchains = "declare_toolchains")
+load(":bootstrap_stages.bzl", "BOOTSTRAP_STAGES")
 load(":declare_toolchains.bzl", "declare_toolchains")
 
 package(default_visibility = ["//toolchain:__subpackages__"])
@@ -47,14 +48,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-# Controls whether targets are built with bootstrapped toolchain or prebuilt toolchain.
+# Controls which LLVM bootstrap stage builds targets.
 string_flag(
-    name = "source",
-    build_setting_default = "prebuilt",
-    values = [
-        "bootstrapped",
-        "prebuilt",
-    ],
+    name = "bootstrap_stage",
+    build_setting_default = "stage0_prebuilt_seed",
+    scope = "universal",
+    values = BOOTSTRAP_STAGES,
     visibility = ["//visibility:public"],
 )
 
@@ -113,21 +112,16 @@ config_setting(
     visibility = ["//visibility:public"],
 )
 
-config_setting(
-    name = "prebuilt_toolchain",
-    flag_values = {
-        ":source": "prebuilt",
-    },
-    visibility = ["//visibility:public"],
-)
-
-config_setting(
-    name = "bootstrapped_toolchain",
-    flag_values = {
-        ":source": "bootstrapped",
-    },
-    visibility = ["//visibility:public"],
-)
+[
+    config_setting(
+        name = "bootstrap_" + bootstrap_stage,
+        flag_values = {
+            ":bootstrap_stage": bootstrap_stage,
+        },
+        visibility = ["//visibility:public"],
+    )
+    for bootstrap_stage in BOOTSTRAP_STAGES
+]
 
 cc_args_list(
     name = "default_link_flags",
@@ -430,4 +424,12 @@ bzl_library(
 bzl_library(
     name = "selects",
     srcs = ["selects.bzl"],
+    deps = ["//platforms:common"],
+)
+
+# keep
+bzl_library(
+    name = "bootstrap_stages",
+    srcs = ["bootstrap_stages.bzl"],
+    visibility = ["//visibility:public"],
 )
