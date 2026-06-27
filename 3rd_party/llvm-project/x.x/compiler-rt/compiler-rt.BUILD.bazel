@@ -850,8 +850,11 @@ SANITIZER_COMMON_CFLAGS = select({
     "-Wno-gnu",
     "-Wno-variadic-macros",
     "-Wno-c99-extensions",
-    "-nostdinc++",
-]
+] + select({
+    # macOS uses the SDK libc++ on the default include path; don't strip it.
+    "@platforms//os:macos": [],
+    "//conditions:default": ["-nostdinc++"],
+})
 
 # buildifier: disable=unused-variable
 SANITIZER_COMMON_LINK_FLAGS = [
