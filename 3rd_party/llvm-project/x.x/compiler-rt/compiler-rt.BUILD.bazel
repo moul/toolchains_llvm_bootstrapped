@@ -4,6 +4,16 @@ load("@llvm//:directory.bzl", "headers_directory")
 load("@llvm//:sh_script.bzl", "sh_script")
 load("@llvm//3rd_party/llvm-project/x.x/compiler-rt:filter_builtin_sources.bzl", "filter_builtin_sources")
 load("@llvm//3rd_party/llvm-project/x.x/compiler-rt:targets.bzl", "atomic_helper_cc_library")
+load(
+    "@llvm//3rd_party/llvm-project/x.x/compiler-rt:weak_symbols.bzl",
+    "ASAN_WEAK_SYMBOLS",
+    "LSAN_WEAK_SYMBOLS",
+    "SANITIZER_COMMON_WEAK_SYMBOLS",
+    "UBSAN_WEAK_SYMBOLS",
+    "XRAY_WEAK_SYMBOLS",
+    "weak_symbol_link_flags",
+    "weak_symbols_in_sync_tests",
+)
 load("@llvm//toolchain/args:llvm_target_triple.bzl", "LLVM_TARGET_TRIPLE")
 load("@llvm//toolchain/runtimes:cc_runtime_shared_library.bzl", "cc_runtime_stage0_shared_library")
 load("@llvm//toolchain/runtimes:cc_runtime_static_library.bzl", "cc_runtime_stage0_static_library")
@@ -11,6 +21,10 @@ load("@llvm//toolchain/runtimes:cc_stage0_object.bzl", "cc_stage0_object")
 load("@llvm//toolchain/runtimes:cc_unsanitized_library.bzl", "cc_unsanitized_library")
 load("@llvm-project//:vars.bzl", "LLVM_VERSION_MAJOR")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+# diff_tests asserting the weak-symbol lists in weak_symbols.bzl stay in sync
+# with upstream's compiler-rt/lib/<name>/weak_symbols.txt (run on any platform).
+weak_symbols_in_sync_tests()
 
 filegroup(
     name = "asan_ignorelist",
@@ -3115,7 +3129,11 @@ cc_runtime_stage0_shared_library(
         ],
         "//conditions:default": [],
     }),
-    shared_lib_name = "libasan.shared.so",
+    shared_lib_name = select({
+        # Darwin ships asan as a dylib named libclang_rt.asan_osx_dynamic.dylib.
+        "@platforms//os:macos": "libclang_rt.asan_osx_dynamic.dylib",
+        "//conditions:default": "libasan.shared.so",
+    }),
     user_link_flags = select({
         "@llvm//platforms/config:gnu": [
             "-L$(location @llvm//runtimes/glibc:glibc_library_search_directory)",
@@ -3125,6 +3143,24 @@ cc_runtime_stage0_shared_library(
             "-L$(location @llvm//runtimes/musl:musl_library_search_directory)",
             "-lc",
         ],
+        "//conditions:default": [],
+    }) + select({
+        # Darwin: the asan runtime is a dylib loaded via @rpath (the Clang
+        # driver adds -rpath at link time), built against the SDK libc++.
+        # See lib/asan/CMakeLists.txt (APPLE branch) and DARWIN_COMMON_LINK_FLAGS
+        # in cmake/base-config-ix.cmake.
+        "@platforms//os:macos": [
+            "-Wl,-install_name,@rpath/libclang_rt.asan_osx_dynamic.dylib",
+            "-stdlib=libc++",
+            "-lc++",
+            "-lc++abi",
+        ] + weak_symbol_link_flags([
+            ASAN_WEAK_SYMBOLS,
+            LSAN_WEAK_SYMBOLS,
+            UBSAN_WEAK_SYMBOLS,
+            SANITIZER_COMMON_WEAK_SYMBOLS,
+            XRAY_WEAK_SYMBOLS,
+        ]),
         "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
