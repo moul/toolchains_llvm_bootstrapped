@@ -76,6 +76,14 @@ jobs:
             ${{ matrix.extra_flags }} \
             //...
 
+      - name: bazel coverage e2e (lcov)
+        if: matrix.folder == 'e2e/rules_cc' && matrix.bazel_version == 'last_rc'
+        env:
+          USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
+        working-directory: ${{ matrix.folder }}
+        shell: bash
+        run: ./coverage_lcov_test.sh --remote_header=x-buildbuddy-api-key=4jtaxdhxtyu4ylxdEwI7
+
   test_windows:
     strategy:
       fail-fast: false
@@ -175,6 +183,13 @@ jobs:
             --remote_header=x-buildbuddy-api-key=4jtaxdhxtyu4ylxdEwI7 \
             //:tsan_fail \
             //:lsan_fail
+
+      - name: bazel coverage macOS e2e (lcov)
+        env:
+          USE_BAZEL_VERSION: ${{ matrix.bazel_version }}
+        working-directory: ${{ matrix.folder }}
+        shell: bash
+        run: ./coverage_lcov_test.sh --remote_header=x-buildbuddy-api-key=4jtaxdhxtyu4ylxdEwI7
 
   llvm_version_analysis:
     strategy:

@@ -1103,3 +1103,26 @@ sh_test(
         "//conditions:default": ["@platforms//:incompatible"],
     }),
 )
+
+# Library + test exercised by the `bazel coverage` integration test
+# (coverage_lcov_test.sh). Plain `bazel test //...` builds and runs the test as
+# an ordinary test; coverage_lcov_test.sh re-runs it under `bazel coverage` and
+# asserts the lcov report has real per-line data.
+cc_library(
+    name = "coverage_lib",
+    srcs = ["coverage_lib.cc"],
+    hdrs = ["coverage_lib.h"],
+)
+
+cc_test(
+    name = "coverage_lib_test",
+    srcs = ["coverage_lib_test.cc"],
+    # Coverage is only validated on Linux/macOS (coverage_lcov_test.sh). Exclude
+    # Windows so `bazel test //...` there does not run this unsupported test.
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [":coverage_lib"],
+)
