@@ -17,6 +17,12 @@ def declare_llvm_targets(*, suffix = ""):
         visibility = ["//visibility:public"],
     )
 
+    headers_directory(
+        name = "builtin_resource_include_dir",
+        path = native.glob(["lib/clang/*/include"], exclude_directories = 0)[0],
+        visibility = ["//visibility:public"],
+    )
+
     # Convenient exports
     native.exports_files(native.glob(["bin/*"]))
 
@@ -59,10 +65,19 @@ def declare_llvm_targets(*, suffix = ""):
     cc_args(
         name = "compile_resource_dir",
         actions = [
-            "@rules_cc//cc/toolchains/actions:compile_actions",
+            "@rules_cc//cc/toolchains/actions:clif_match",
+            "@rules_cc//cc/toolchains/actions:cpp_compile",
+            "@rules_cc//cc/toolchains/actions:cpp_header_parsing",
+            "@rules_cc//cc/toolchains/actions:cpp_module_codegen",
+            "@rules_cc//cc/toolchains/actions:cpp_module_compile",
+            "@rules_cc//cc/toolchains/actions:linkstamp_compile",
+            "@rules_cc//cc/toolchains/actions:objcpp_compile",
+            "@rules_cc//cc/toolchains/actions:c_compile",
+            "@rules_cc//cc/toolchains/actions:preprocess_assemble",
+            "@rules_cc//cc/toolchains/actions:objc_compile",
         ],
         allowlist_include_directories = [
-            ":builtin_resource_dir",
+            ":builtin_resource_include_dir",
         ],
         args = [
             # Use -isystem instead of -resource-dir to avoid conflicts with the
@@ -82,6 +97,39 @@ def declare_llvm_targets(*, suffix = ""):
         visibility = ["//visibility:public"],
     )
 
+    cc_args(
+        name = "clang_cl_compile_resource_dir",
+        actions = [
+            "@rules_cc//cc/toolchains/actions:clif_match",
+            "@rules_cc//cc/toolchains/actions:cpp_compile",
+            "@rules_cc//cc/toolchains/actions:cpp_header_parsing",
+            "@rules_cc//cc/toolchains/actions:cpp_module_codegen",
+            "@rules_cc//cc/toolchains/actions:cpp_module_compile",
+            "@rules_cc//cc/toolchains/actions:linkstamp_compile",
+            "@rules_cc//cc/toolchains/actions:objcpp_compile",
+            "@rules_cc//cc/toolchains/actions:c_compile",
+            "@rules_cc//cc/toolchains/actions:preprocess_assemble",
+            "@rules_cc//cc/toolchains/actions:objc_compile",
+        ],
+        allowlist_include_directories = [
+            ":builtin_resource_include_dir",
+        ],
+        args = [
+            # clang-cl otherwise inserts builtin headers before every /imsvc
+            # path. Suppress that implicit path, then re-add the declared
+            # resource directory between libc++ and VC/UCRT headers.
+            "/clang:-nobuiltininc",
+            "/imsvc{resource_dir}",
+        ],
+        data = [
+            ":builtin_resource_include_dir",
+        ],
+        format = {
+            "resource_dir": ":builtin_resource_include_dir",
+        },
+        visibility = ["//visibility:public"],
+    )
+
     cc_tool(
         name = "static_library_validator",
         src = "@llvm//tools/internal:static-library-validator",
@@ -97,6 +145,14 @@ def declare_llvm_targets(*, suffix = ""):
             "cxxfilt": "bin/c++filt" + suffix,
             "llvm_nm": "bin/llvm-nm" + suffix,
         },
+    )
+
+    cc_tool(
+        name = "def_file_generator",
+        src = "@llvm//tools/def_file_generator",
+        data = ["bin/llvm-nm" + suffix],
+        env = {"LLVM_NM": "{llvm_nm}"},
+        format = {"llvm_nm": "bin/llvm-nm" + suffix},
     )
 
     TOOLS_WITHOUT_LINKER = {
@@ -124,6 +180,52 @@ def declare_llvm_targets(*, suffix = ""):
         tools = BASE_TOOLS | COMPLETE_ONLY_TOOLS | {
             "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-ar",
         },
+        visibility = ["//visibility:public"],
+    )
+
+    # MSVC ABI actions use the CL/LINK dialect directly. Keep this map separate
+    # from MinGW so target ABI, never execution OS, selects the personality.
+    MSVC_CONSTRUCTION_TOOLS = {
+        "@rules_cc//cc/toolchains/actions:assemble": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:c_compile": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:cpp_compile": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:linkstamp_compile": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:lto_backend": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:preprocess_assemble": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:cpp_header_parsing": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:ar_actions": ":llvm-ar",
+        "@rules_cc//cc/toolchains/actions:cpp_link_executable": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:cpp_link_dynamic_library": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:cpp_link_nodeps_dynamic_library": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:objc_executable": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:lto_index_for_executable": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:lto_index_for_dynamic_library": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:lto_index_for_nodeps_dynamic_library": ":clang-cl",
+        "@rules_cc//cc/toolchains/actions:strip": ":llvm-strip",
+    }
+
+    MSVC_COMPLETE_TOOLS = MSVC_CONSTRUCTION_TOOLS | {
+        "@rules_cc//cc/toolchains/actions:generate_def_file": ":def_file_generator",
+    } | _VALIDATE_STATIC_LIBRARY_TOOL
+
+    cc_tool_map(
+        name = "complete_tools_for_msvc",
+        tools = MSVC_COMPLETE_TOOLS,
+        visibility = ["//visibility:public"],
+    )
+
+    cc_tool_map(
+        name = "construction_tools_for_msvc",
+        tools = MSVC_CONSTRUCTION_TOOLS,
+        visibility = ["//visibility:public"],
+    )
+
+    native.alias(
+        name = "tools_for_msvc_for_runtime",
+        actual = select({
+            "@llvm//toolchain:runtimes_all": ":complete_tools_for_msvc",
+            "//conditions:default": ":construction_tools_for_msvc",
+        }),
         visibility = ["//visibility:public"],
     )
 
@@ -215,6 +317,26 @@ def declare_llvm_targets(*, suffix = ""):
         ],
         capabilities = ["@rules_cc//cc/toolchains/capabilities:supports_pic"],
         allowlist_include_directories = [":builtin_resource_dir"],
+    )
+
+    cc_tool(
+        name = "clang-cl",
+        src = "bin/clang-cl" + suffix,
+        data = [
+            ":builtin_resource_include_dir",
+            "bin/lld-link" + suffix,
+        ],
+        capabilities = [
+            "@rules_cc//cc/toolchains/capabilities:has_configured_linker_path",
+            "@rules_cc//cc/toolchains/capabilities:supports_dynamic_linker",
+            "@rules_cc//cc/toolchains/capabilities:supports_interface_shared_libraries",
+        ],
+        env = {
+            # Presence suppresses clang-cl's Visual Studio library probing;
+            # /lldignoreenv prevents the child linker from consuming it.
+            "LIB": "__hermetic_llvm_empty_lib__",
+        },
+        allowlist_include_directories = [":builtin_resource_include_dir"],
     )
 
     cc_tool(
@@ -358,7 +480,7 @@ def declare_llvm_targets(*, suffix = ""):
         }),
     )
 
-    # this must match //toolchain:windows_toolchain_args
+    # This must match //toolchain:windows_toolchain_args.
     include_path(
         name = "windows_target_headers",
         srcs = [

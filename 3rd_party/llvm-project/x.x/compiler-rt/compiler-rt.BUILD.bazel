@@ -26,6 +26,23 @@ load("@llvm//toolchain/runtimes:cc_unsanitized_library.bzl", "cc_unsanitized_lib
 load("@llvm-project//:vars.bzl", "LLVM_VERSION_MAJOR")
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
+config_setting(
+    name = "windows_msvc",
+    constraint_values = [
+        "@llvm//constraints/windows/abi:msvc",
+        "@platforms//os:windows",
+    ],
+)
+
+config_setting(
+    name = "windows_msvc_optimized",
+    constraint_values = [
+        "@llvm//constraints/windows/abi:msvc",
+        "@platforms//os:windows",
+    ],
+    flag_values = {"@llvm//config:runtimes_optimization_mode": "optimized"},
+)
+
 # diff_tests asserting the weak-symbol lists in weak_symbols.bzl stay in sync
 # with upstream's compiler-rt/lib/<name>/weak_symbols.txt (run on any platform).
 weak_symbols_in_sync_tests()
@@ -253,8 +270,10 @@ filegroup(
     name = "builtins_x86_arch_sources",
     srcs = [
         "lib/builtins/cpu_model/x86.c",
-        "lib/builtins/i386/fp_mode.c",  #if (NOT MSVC)
-    ],
+    ] + select({
+        ":windows_msvc": [],
+        "//conditions:default": ["lib/builtins/i386/fp_mode.c"],
+    }),
 )
 
 filegroup(
@@ -280,14 +299,19 @@ filegroup(
 filter_builtin_sources(
     name = "builtins_x86_64_sources",
     srcs = [
+        "builtins_generic_srcs",
+        "builtins_x86_arch_sources",
         "lib/builtins/x86_64/floatdidf.c",
         "lib/builtins/x86_64/floatdisf.c",
-        "lib/builtins/x86_64/floatdixf.c",  # if not ANDROID
-        ":builtins_generic_srcs",
-        ":builtins_generic_tf_sources",
-        ":builtins_x86_80_bit_sources",
-        ":builtins_x86_arch_sources",
     ] + select({
+        ":windows_msvc": [],
+        "//conditions:default": [
+            "builtins_generic_tf_sources",
+            "builtins_x86_80_bit_sources",
+            "lib/builtins/x86_64/floatdixf.c",  # if not ANDROID
+        ],
+    }) + select({
+        ":windows_msvc": [],
         "@platforms//os:windows": [
             "lib/builtins/x86_64/chkstk.S",
         ],
@@ -314,6 +338,7 @@ filter_builtin_sources(
         ":builtins_generic_srcs",
         ":builtins_generic_tf_sources",
     ] + select({
+        ":windows_msvc": [],
         "@platforms//os:windows": [
             "lib/builtins/aarch64/chkstk.S",  # if MINGW
         ],
@@ -584,14 +609,30 @@ cc_library(
         ],
         "//conditions:default": [],
     }),
-    copts = [
-        "-fno-builtin",
-        "-std=c11",
-        "-fvisibility=hidden",
-        # "-Wbuiltin-declaration-mismatch",
-    ] + select({
+    copts = select({
+        ":windows_msvc": [
+            "/clang:-fno-builtin",
+            "/clang:-std=c11",
+            "/clang:-fvisibility=hidden",
+        ],
+        "//conditions:default": [
+            "-fno-builtin",
+            "-std=c11",
+            "-fvisibility=hidden",
+            # "-Wbuiltin-declaration-mismatch",
+        ],
+    }) + select({
+        ":windows_msvc_optimized": [
+            "/clang:-fomit-frame-pointer",
+        ],
         "@llvm//config:runtimes_optimization_mode_optimized": [
             "-fomit-frame-pointer",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        ":windows_msvc": [
+            "/clang:-Wno-missing-declarations",
+            "/clang:-Wno-pragma-pack",
         ],
         "//conditions:default": [],
     }) + select({
@@ -606,6 +647,12 @@ cc_library(
         ],
         "//conditions:default": [],
     }) + CF_PROTECTION_COPTS,
+    features = select({
+        # clang-cl discovers builtins in its resource directory, outside
+        # Bazel's LTO compilation context. Keep the implicit archive native.
+        ":windows_msvc": ["-thin_lto"],
+        "//conditions:default": [],
+    }),
     implementation_deps = select({
         "@platforms//os:macos": [],
         "@platforms//os:linux": [
@@ -625,6 +672,7 @@ cc_library(
         "@platforms//os:macos": [
             # on macOS we implicitly use SDK provided headers
         ],
+        ":windows_msvc": [],
         "@platforms//os:windows": [
             "@mingw//:mingw_headers",
         ],
