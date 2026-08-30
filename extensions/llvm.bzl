@@ -12,6 +12,7 @@ _DEFAULT_SOURCE_PATCHES = [
     "//3rd_party/llvm-project/x.x/patches:compiler-rt-symbolizer_skip_cxa_atexit.patch",
     "//3rd_party/llvm-project/x.x/patches:lit_test_stub.patch",
     "//3rd_party/llvm-project/x.x/patches:lld-macho-thinlto-obj-path.patch",
+    "//3rd_party/llvm-project/x.x/patches:llvm-bazel-msvc-trapping-math.patch",
 ]
 
 _BEFORE_23_SOURCE_PATCHES = [
@@ -30,6 +31,7 @@ _BEFORE_23_SOURCE_PATCHES = [
 
 _LLVM_21_SOURCE_PATCHES = [
     "//3rd_party/llvm-project/21.x/patches:lld-coff-thinlto-lazy-index.patch",
+    "//3rd_party/llvm-project/21.x/patches:lld-coff-lto-weak-alias-prevailing.patch",
     "//3rd_party/llvm-project/21.x/patches:llvm-link-multicall.patch",
     "//3rd_party/llvm-project/21.x/patches:llvm-bazel9.patch",
     "//3rd_party/llvm-project/21.x/patches:windows_link_and_genrule.patch",
@@ -37,14 +39,17 @@ _LLVM_21_SOURCE_PATCHES = [
     "//3rd_party/llvm-project/21.x/patches:no_zlib_genrule.patch",
     "//3rd_party/llvm-project/21.x/patches:no_rules_python.patch",
     "//3rd_party/llvm-project/21.x/patches:llvm-windows-stack-size.patch",
+    "//3rd_party/llvm-project/21.x/patches:clang-bazel-static-windows.patch",
     "//3rd_party/llvm-project/21.x/patches:libcxx-lgamma_r.patch",
     "//3rd_party/llvm-project/x.x/patches:libcxx-vcruntime-nothrow.patch",
     "//3rd_party/llvm-project/21.x/patches:llvm-bazel-blake3-windows-gnu.patch",
+    "//3rd_party/llvm-project/21.x/patches:llvm-bazel-windows-arm64-config.patch",
     "//3rd_party/llvm-project/21.x/patches:llvm-compression-defines.patch",
 ] + _BEFORE_23_SOURCE_PATCHES + _DEFAULT_SOURCE_PATCHES
 
 _LLVM_22_SOURCE_PATCHES = [
     "//3rd_party/llvm-project/22.x/patches:lld-coff-thinlto-lazy-index.patch",
+    "//3rd_party/llvm-project/22.x/patches:lld-coff-lto-weak-alias-prevailing.patch",
     "//3rd_party/llvm-project/22.x/patches:llvm-link-multicall.patch",
     "//3rd_party/llvm-project/22.x/patches:llvm-profdata-multicall.patch",
     "//3rd_party/llvm-project/22.x/patches:clang-format-multicall.patch",
@@ -54,15 +59,21 @@ _LLVM_22_SOURCE_PATCHES = [
     "//3rd_party/llvm-project/22.x/patches:bundle_resources_no_python.patch",
     "//3rd_party/llvm-project/22.x/patches:no_rules_python.patch",
     "//3rd_party/llvm-project/22.x/patches:llvm-windows-stack-size.patch",
+    "//3rd_party/llvm-project/22.x/patches:clang-bazel-static-windows.patch",
     "//3rd_party/llvm-project/22.x/patches:libcxx-lgamma_r.patch",
     "//3rd_party/llvm-project/x.x/patches:libcxx-vcruntime-nothrow.patch",
     "//3rd_party/llvm-project/22.x/patches:llvm-bazel-blake3-windows-gnu.patch",
+    "//3rd_party/llvm-project/22.x/patches:llvm-bazel-windows-arm64-config.patch",
 ] + _BEFORE_23_SOURCE_PATCHES + _DEFAULT_SOURCE_PATCHES
 
 _LLVM_23_SOURCE_PATCHES = [
+    "//3rd_party/llvm-project/x.x/patches:clang-bazel-static-windows.patch",
     "//3rd_party/llvm-project/x.x/patches:libcxx-vcruntime-nothrow.patch",
     "//3rd_party/llvm-project/22.x/patches:lld-coff-thinlto-lazy-index.patch",
+    "//3rd_party/llvm-project/23.x/patches:lld-coff-lto-weak-alias-prevailing.patch",
     "//3rd_party/llvm-project/x.x/patches:llvm-http-windows-gnu.patch",
+    "//3rd_party/llvm-project/x.x/patches:llvm-bazel-blake3-windows-clang-cl.patch",
+    "//3rd_party/llvm-project/x.x/patches:llvm-bazel-windows-arm64-config.patch",
     "//3rd_party/llvm-project/x.x/patches:llvm-link-multicall.patch",
     "//3rd_party/llvm-project/x.x/patches:llvm-profdata-multicall.patch",
     "//3rd_party/llvm-project/x.x/patches:clang-format-multicall.patch",
