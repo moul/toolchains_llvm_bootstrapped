@@ -138,7 +138,6 @@ cc_args_list(
         "//toolchain/args:fuse_ld",
         "//toolchain/args:lto_plugin_target_flags",
         ":rtlib",
-        ":resource_dir",
         ":default_link_flags",
         # Needs to stay out of resource_dir since clang does not always search for crtstuff for all targets.
         ":default_startfiles",
@@ -200,7 +199,6 @@ cc_args_list(
         "//toolchain/args:fuse_ld",
         "//toolchain/args:lto_plugin_target_flags",
         ":rtlib",
-        ":resource_dir",
         ":default_link_flags",
         # Needs to stay out of resource_dir since clang does not always search for crtstuff for all targets.
         ":default_startfiles",
@@ -223,32 +221,6 @@ cc_args_list(
 #TODO(cerisier): Maybe with a _gt_x select we could reuse this everywhere.
 
 cc_args_list(
-    name = "generic_resource_dir",
-    args = select({
-        "//toolchain:runtimes_all": [],
-        "//toolchain:runtimes_stage1": ["//toolchain:resource_dir"],
-        "//toolchain:runtimes_stage1_hosted": ["//toolchain:resource_dir"],
-        "//toolchain:runtimes_none": [],
-    }),
-)
-
-cc_args_list(
-    name = "msvc_resource_dir",
-    args = select({
-        "//toolchain:runtimes_all": ["//toolchain:resource_dir"],
-        "//conditions:default": [],
-    }),
-)
-
-cc_args_list(
-    name = "resource_dir",
-    args = select({
-        "//constraints/windows/abi:msvc": [":msvc_resource_dir"],
-        "//conditions:default": [":generic_resource_dir"],
-    }),
-)
-
-cc_args_list(
     name = "generic_default_startfiles",
     args = select({
         "//toolchain:runtimes_all": [],
@@ -263,8 +235,12 @@ cc_args_list(
     args = ["generic_default_startfiles"],
 )
 
+# Use compiler-rt for intermediate links on every ABI: Microsoft's CRT does
+# not provide every compiler-generated helper (e.g. __udivti3). Stage0 builds
+# these libraries; complete toolchains add //toolchain:rtlib directly through
+# //toolchain:toolchain_args instead.
 cc_args_list(
-    name = "generic_rtlib",
+    name = "rtlib",
     args = select({
         "//toolchain:runtimes_all": [],
         "//toolchain:runtimes_stage1": [
@@ -274,22 +250,6 @@ cc_args_list(
             "//toolchain:rtlib",
         ],
         "//toolchain:runtimes_none": [],
-    }),
-)
-
-cc_args_list(
-    name = "msvc_rtlib",
-    args = select({
-        "//toolchain:runtimes_all": ["//toolchain:rtlib"],
-        "//conditions:default": [],
-    }),
-)
-
-cc_args_list(
-    name = "rtlib",
-    args = select({
-        "//constraints/windows/abi:msvc": [":msvc_rtlib"],
-        "//conditions:default": [":generic_rtlib"],
     }),
 )
 

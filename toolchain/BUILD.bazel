@@ -162,14 +162,6 @@ cc_args_list(
 )
 
 cc_args_list(
-    name = "resource_dir",
-    args = select({
-        "@platforms//os:windows": ["//toolchain/args/windows:resource_dir"],
-        "//conditions:default": ["//toolchain/args:resource_dir"],
-    }),
-)
-
-cc_args_list(
     name = "cxxstdlib_headers_include_search_paths",
     args = select({
         "@platforms//os:linux": ["//toolchain/args:cxxstdlib_headers_include_search_paths"],
@@ -383,7 +375,6 @@ cc_args_list(
         ":rtlib",
         ":stdlib",
         ":unwindlib",
-        ":resource_dir",
         "//toolchain/args:validate_static_library_args",
         ":default_link_flags",
         # Needs to stay out of resource_dir since clang does not always search for crtstuff for all targets.
@@ -443,7 +434,6 @@ cc_args_list(
         ":rtlib",
         ":stdlib",
         ":unwindlib",
-        ":resource_dir",
         "//toolchain/args:validate_static_library_args",
         ":default_link_flags",
         # Needs to stay out of resource_dir since clang does not always search for crtstuff for all targets.
@@ -556,12 +546,20 @@ bzl_library(
 )
 
 bzl_library(
+    name = "merged_resource_directory",
+    srcs = ["merged_resource_directory.bzl"],
+    deps = ["@bazel_lib//lib:copy_to_directory"],
+)
+
+bzl_library(
     name = "declare_toolchains",
     srcs = ["declare_toolchains.bzl"],
     deps = [
         ":cc_toolchain",
+        ":merged_resource_directory",
         ":selects",
         "//platforms:common",
+        "//toolchain/args:resource_directory_args",
     ],
 )
 

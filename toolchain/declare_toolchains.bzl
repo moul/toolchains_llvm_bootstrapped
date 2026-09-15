@@ -1,5 +1,7 @@
 load("//platforms:common.bzl", "MSVC_TARGET_STAGE0_SUPPORTED_EXECS", "SUPPORTED_EXECS", "SUPPORTED_TARGETS")
-load("//toolchain:selects.bzl", "clang_cl_resource_dir_arg", "platform_cc_tool_map", "platform_module_map", "resource_dir_arg")
+load("//toolchain:merged_resource_directory.bzl", "merged_resource_directory")
+load("//toolchain:selects.bzl", "platform_cc_tool_map", "platform_module_map", "platform_resource_dir")
+load("//toolchain/args:resource_directory_args.bzl", "resource_directory_args")
 load(":cc_toolchain.bzl", "cc_toolchain")
 
 def declare_toolchains(*, execs = SUPPORTED_EXECS, targets = SUPPORTED_TARGETS):
@@ -12,6 +14,18 @@ def declare_toolchains(*, execs = SUPPORTED_EXECS, targets = SUPPORTED_TARGETS):
     for (exec_os, exec_cpu) in execs:
         cc_toolchain_name = exec_os + "_" + exec_cpu + "_cc_toolchain"
 
+        # Bind the directory beside the tool map, before another rule's exec
+        # transition can select a different compiler installation.
+        merged_resource_directory(
+            name = cc_toolchain_name + "_resource_directory",
+            parent = platform_resource_dir(exec_os, exec_cpu),
+            srcs = ["@llvm//runtimes:resource_directory"],
+        )
+        resource_directory_args(
+            name = cc_toolchain_name + "_resource_directory_args",
+            directory = cc_toolchain_name + "_resource_directory",
+        )
+
         # Even though `tool_map` has an exec transition, Bazel doesn't properly handle
         # binding a single `cc_toolchain` to multiple toolchains with different `exec_compatible_with`.
         # See https://github.com/bazelbuild/rules_cc/issues/299#issuecomment-2660340534
@@ -21,18 +35,16 @@ def declare_toolchains(*, execs = SUPPORTED_EXECS, targets = SUPPORTED_TARGETS):
             module_map = platform_module_map(exec_os, exec_cpu),
             # Paths below describe the concrete execution filesystem. Keep
             # target semantics in //toolchain's ordered argument composition.
-            extra_args = select({
+            extra_args = [cc_toolchain_name + "_resource_directory_args"] + select({
                 "@llvm//platforms/config:windows_x86_64_msvc": [
                     "@llvm//toolchain/args/windows/msvc:normalized_default_libs_for_runtime",
-                    clang_cl_resource_dir_arg(exec_os, exec_cpu),
                     "@llvm//toolchain/args/windows/msvc:normalized_sdk_compile_args",
                 ],
                 "@llvm//platforms/config:windows_aarch64_msvc": [
                     "@llvm//toolchain/args/windows/msvc:normalized_default_libs_for_runtime",
-                    clang_cl_resource_dir_arg(exec_os, exec_cpu),
                     "@llvm//toolchain/args/windows/msvc:normalized_sdk_compile_args",
                 ],
-                "//conditions:default": [resource_dir_arg(exec_os, exec_cpu)],
+                "//conditions:default": [],
             }),
         )
 

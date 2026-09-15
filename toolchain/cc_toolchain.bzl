@@ -265,9 +265,6 @@ def cc_toolchain(
 
     _cc_toolchain(
         name = name,
-        # libc++ headers are part of semantic platform args. Keep Clang's
-        # declared resource headers between them and VC/UCRT so libc++
-        # include_next wrappers resolve Clang definitions first.
         args = select({
             "@llvm//toolchain:runtimes_none": ["@llvm//toolchain/runtimes:toolchain_args"],
             "@llvm//toolchain:runtimes_stage1": ["@llvm//toolchain/runtimes:toolchain_args"],
