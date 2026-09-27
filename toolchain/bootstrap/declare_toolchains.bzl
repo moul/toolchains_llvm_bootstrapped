@@ -29,7 +29,7 @@ def _declare_exec_platform(exec_os, exec_cpu):
         constraint_values = [
             "@platforms//cpu:" + exec_cpu,
             "@platforms//os:" + exec_os,
-        ],
+        ] + (["@llvm//constraints/libc:musl"] if exec_os == "linux" else []),
     )
 
 def _bootstrap_cc_tool(prefix, tool, bootstrap_binary_kwargs, *, capabilities = [], data = [], env = {}, symlink = True, allowlist_include_directories = []):

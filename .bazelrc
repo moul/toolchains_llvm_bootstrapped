@@ -46,7 +46,11 @@ common:release  --features=-dynamic_link_msvcrt
 common:release  --features=static_link_msvcrt
 common:release  --dynamic_mode=off
 common:release  --extra_toolchains=//toolchain:all
-common:release  --extra_execution_platforms=@llvm//:rbe_linux_x86_64,@llvm//:rbe_linux_aarch64
+
+# Use musl execution platforms for release so Stage 2 and Stage 3 binaries
+# target the same libc and Stage 2 FDO profiles match the Stage 3 build.
+common:remote --extra_execution_platforms=@llvm//:rbe_platform
+common:release --extra_execution_platforms=@rbe_platform//:rbe_linux_x86_64_musl,@rbe_platform//:rbe_linux_aarch64_musl
 
 common:rust    --@rules_cc//cc/toolchains/args/archiver_flags:use_libtool_on_macos=False
 common:rust    --@rules_rust//rust/settings:experimental_use_sh_toolchain_for_bootstrap_process_wrapper
@@ -67,7 +71,6 @@ common --experimental_remote_execution_keepalive
 common --grpc_keepalive_time=30s
 common:remote --remote_executor=grpcs://remote.buildbuddy.io
 common:remote --jobs=800
-common:remote --extra_execution_platforms=@llvm//:rbe_platform
 common:remote --rewind_lost_inputs
 
 common --per_file_copt=external/.*llvm-project.*@-Xclang=-Wno-thread-safety-analysis
